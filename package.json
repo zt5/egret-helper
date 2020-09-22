@@ -1,0 +1,91 @@
+{
+	"name": "egret-helper",
+	"displayName": "egret-helper",
+	"description": "egret tool",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.45.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"workspaceContains:**/egretProperties.json"
+	],
+	"main": "./out/extension.js",
+	"publisher": "zt5",
+	"repository": "https://github.com/zt5/egret-helper",
+	"contributes": {
+		"commands": [
+			{
+				"command": "egret-helper.goToExml",
+				"title": "从当前文件中搜索exml并跳转到对应文件"
+			},
+			{
+				"command": "egret-helper.egretRestart",
+				"title": "重新运行egret服务器"
+			},
+			{
+				"command": "egret-helper.egretRestartAndDebug",
+				"title": "重新运行egret服务器并调试"
+			},
+			{
+				"command": "egret-helper.egretBuild",
+				"title": "重新编译项目"
+			},
+			{
+				"command": "egret-helper.egretBuildAndDebug",
+				"title": "重新编译项目并调试"
+			},
+			{
+				"command": "egret-helper.barClick",
+				"title": "点击egret StatusBar"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "egret-helper enabled",
+			"properties": {
+				"egret-helper.enable": {
+					"type": "boolean",
+					"default": true,
+					"description": "插件是否可用"
+				},
+				"egret-helper.devlog": {
+					"type": "boolean",
+					"default": true,
+					"description": "打印详细日志"
+				}
+			}
+		},
+		"keybindings": [
+			{
+				"command": "egret-helper.goToExml",
+				"key": "Alt+F1",
+				"mac": "Alt+F1",
+				"when": "editorTextFocus"
+			}
+		]
+	},
+	"scripts": {
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"package": "vsce package"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.1",
+		"@types/node": "^12.12.0",
+		"@types/vscode": "^1.45.0",
+		"@typescript-eslint/eslint-plugin": "^3.0.2",
+		"@typescript-eslint/parser": "^3.0.2",
+		"eslint": "^7.1.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.0.1",
+		"typescript": "^4.0.2",
+		"vsce": "^1.79.5"
+	},
+	"dependencies": {
+		"tree-kill": "^1.2.2"
+	}
+}
