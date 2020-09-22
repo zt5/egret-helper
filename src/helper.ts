@@ -23,11 +23,21 @@ export function convertFullPath(cur: string) {
 	}
 	return null;
 }
+export type ConfigObjWatch = {
+	[key: string]: {
+		tail: string,
+		type: string
+	}
+}
 export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	/**插件是否可用*/
 	enable: boolean;
 	/**打印详细日志*/
 	devlog: boolean;
+	/**default.res.json要监测的资源*/
+	resWatch: ConfigObjWatch,
+	/**default.res.json监测忽略的资源*/
+	resWatchIgnore: string[],
 }
 export function getConfigObj() {
 	return <ConfigObj>vscode.workspace.getConfiguration(CONFG_NAME);
@@ -49,6 +59,13 @@ export function getCurRootPath() {
 	}
 	return null;
 }
+export function getDefaultResJsonPath() {
+	const workspaceFolder = getCurRootPath();
+	if (workspaceFolder) {
+		return path.join(workspaceFolder.uri.fsPath, "resource", "default.res.json");
+	}
+	return null;
+}
 export function getLaunchJsonPath() {
 	const workspaceFolder = getCurRootPath();
 	if (workspaceFolder) {
@@ -56,6 +73,19 @@ export function getLaunchJsonPath() {
 	}
 	return null;
 }
+
+export function loopFile(file: string, fileFun: (file: string) => void) {
+	let state = fs.statSync(file);
+	if (state.isDirectory()) {
+		let dirs = fs.readdirSync(file);
+		for (let i = 0; i < dirs.length; i++) {
+			loopFile(path.join(file, dirs[i]), fileFun);
+		}
+	} else {
+		fileFun(file);
+	}
+};
+
 
 let _channel: vscode.OutputChannel;
 let prevChannelStr: string;
@@ -73,21 +103,9 @@ export function log(...msg: any[]) {
 	prevChannelStr = str;
 }
 
-let _devchannel: vscode.OutputChannel;
-let _prevDevChannelStr: string;
 export function devlog(...msg: any[]) {
-	if (!getConfigObj().devlog) return;
-	if (!_devchannel) _devchannel = vscode.window.createOutputChannel('Egret Dev');/**详细日志窗口名*/
-	let str = "";
-	for (let i = 0; i < msg.length; i++) {
-		str += _log(_devchannel, msg[i]);
-	}
-	if (_prevDevChannelStr && !_prevDevChannelStr.endsWith("\n")) {
-		_devchannel.appendLine(str);
-	} else {
-		_devchannel.append(str);
-	}
-	_prevDevChannelStr = str;
+	// if (!getConfigObj().devlog) return;
+	log(...msg);
 }
 function _log(_channel: vscode.OutputChannel, msg: any) {
 	if (typeof msg == "string") return msg;

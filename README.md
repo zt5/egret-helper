@@ -33,6 +33,9 @@
 
 ## 扩展设置
 * `egret-helper.enable`: true/false 是否启用插件
+* `egret-helper.devLog`: true/false 是否打印详细日志
+* `egret-helper.resWatch`: array default.res.json监测的资源
+* `egret-helper.resWatchIgnore`: object default.res.json监测忽略的资源
 
 ## 扩展命令
 * `egret-helper.goToExml`: 快速跳转到exml文件 快捷键默认Alt+F1
