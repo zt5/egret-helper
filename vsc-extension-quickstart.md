@@ -1,6 +1,6 @@
 ## 如何使用
-* 安装 [Chrome](https://www.google.cn/chrome/)
-* 安装 [Debugger for Chrome](https://github.com/Microsoft/vscode-chrome-debug) 插件
+* 安装 [Chrome](https://www.google.cn/chrome/)  浏览器
+* 安装 [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) 插件
 * 打开egret项目默认启动 创建一个调试Chrome的launch.json(.vscode目录中)(这一步可以省略不存在会自动创建)
 ```
 {
