@@ -44,6 +44,7 @@
 * `egret-helper.egretBuild`: 重新编译项目
 * `egret-helper.egretBuildAndDebug`: 重新编译项目并调试
 * `egret-helper.barClick`: 点击egret服务bar
+* `egret-helper.egretResSync`: 同步default.res.json
 
 ## 已知的问题
 暂无

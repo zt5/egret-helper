@@ -73,6 +73,13 @@ export function getLaunchJsonPath() {
 	}
 	return null;
 }
+export function getEgretResPath() {
+	const workspaceFolder = getCurRootPath();
+	if (workspaceFolder) {
+		return path.join(workspaceFolder.uri.fsPath, "resource");
+	}
+	return null;
+}
 
 export function loopFile(file: string, fileFun: (file: string) => void) {
 	let state = fs.statSync(file);
@@ -85,22 +92,28 @@ export function loopFile(file: string, fileFun: (file: string) => void) {
 		fileFun(file);
 	}
 };
+export function writeFile(file: string, data: string): Promise<void> {
+	return new Promise((resolve, reject) => {
+		fs.writeFile(file, data, (err) => {
+			if (err) reject(err);
+			else resolve();
+		})
+	})
+}
 
 
 let _channel: vscode.OutputChannel;
-let prevChannelStr: string;
 export function log(...msg: any[]) {
 	if (!_channel) _channel = vscode.window.createOutputChannel('Egret');/**日志窗口名*/
 	let str = "";
 	for (let i = 0; i < msg.length; i++) {
 		str += _log(_channel, msg[i]);
 	}
-	if (prevChannelStr && !prevChannelStr.endsWith("\n")) {
+	if (str && !str.endsWith("\n")) {
 		_channel.appendLine(str);
 	} else {
 		_channel.append(str);
 	}
-	prevChannelStr = str;
 }
 
 export function devlog(...msg: any[]) {

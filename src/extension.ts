@@ -1,12 +1,10 @@
 import * as vscode from 'vscode';
-import EgretRes from './egret-res/EgretRes';
 import EgretServer from "./egret-server/EgretServer";
 import Exml from "./exml/Exml";
 import * as helper from './helper';
 import { devlog } from './helper';
 let _exml: Exml | undefined;
 let _egretServer: EgretServer | undefined;
-let _egretRes: EgretRes | undefined;
 let isInit = false;
 export function activate({ subscriptions }: vscode.ExtensionContext) {
 	devlog("extension activate");
@@ -32,7 +30,6 @@ function init(subscriptions: { dispose(): any }[]) {
 			isInit = true;
 			_exml = new Exml(subscriptions);
 			_egretServer = new EgretServer(subscriptions);
-			_egretRes = new EgretRes(subscriptions);
 		}
 	}
 }
@@ -51,9 +48,5 @@ async function destroy() {
 	if (_egretServer) {
 		await _egretServer.destroy();
 		_egretServer = undefined;
-	}
-	if (_egretRes) {
-		_egretRes.destroy();
-		_egretRes = undefined;
 	}
 }

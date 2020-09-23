@@ -1,9 +1,8 @@
-import Listener from "../common/Listener";
 import * as fs from "fs";
-import * as helper from "../helper";
-import * as vscode from "vscode";
 import * as path from "path";
+import * as helper from "../helper";
 import { ConfigObjWatch, devlog, log } from "../helper";
+import EgretServer, { EgretServiceExtStatus, EgretServiceStatus } from "./EgretServer";
 
 type Res = {
     url: string;
@@ -11,44 +10,36 @@ type Res = {
     name: string;
 }
 type ResMap = { [key: string]: Res }
-export default class EgretRes extends Listener {
-    public constructor(protected subscriptions: vscode.Disposable[]) {
-        super();
-        devlog("EgretRes constructor");
-        this.addListener(vscode.workspace.onDidCreateFiles(e => {
-            devlog("EgretRes start onDidCreateFiles", e);
-            // this.syncRes();
-        }))
-        this.addListener(vscode.workspace.onDidDeleteFiles(e => {
-            devlog("EgretRes start onDidDeleteFiles", e);
-            // this.syncRes();
-        }))
-        this.addListener(vscode.workspace.onDidRenameFiles(e => {
-            devlog("EgretRes start onDidRenameFiles", e);
-            // this.syncRes();
-        }))
-        // this.syncRes();
+export default class EgretResSync {
+    constructor(private father: EgretServer) {
+        devlog("EgretResSync constructor");
     }
-    private async syncRes() {
+    public async start() {
+        this.father.bar.extStatus = EgretServiceExtStatus.Syncing;
+        return this._start().catch(err => {
+            log(err);
+            devlog(`EgretResSync start err=`, err);
+        }).finally(() => {
+            this.father.bar.extStatus = EgretServiceExtStatus.Free;
+        })
+    }
+    private async _start() {
         const jsonPath = helper.getDefaultResJsonPath();
         if (!jsonPath || !fs.existsSync(jsonPath)) {
             devlog("EgretRes " + jsonPath + "不存在")
-            log("EgretRes " + jsonPath + "不存在")
             return;
         }
         let jsonStr = fs.readFileSync(jsonPath, { encoding: "utf-8" });
         let json = JSON.parse(jsonStr);
         const resources: Res[] = json["resources"];
         if (!resources) {
-            devlog("EgretRes json中没有resources节点");
-            log("EgretRes json中没有resources节点")
+            devlog("EgretRes json中没有resources节点")
             return;
         }
         let resMap: ResMap = {};
         for (let val of resources) {
             if (resMap[val.name] != undefined) {
                 devlog(`EgretRes 资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
-                log(`EgretRes 资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
                 return;
             }
             resMap[val.name] = val;
@@ -63,7 +54,7 @@ export default class EgretRes extends Listener {
             arr.push(resMap[key]);
         }
         json["resources"] = arr;
-        fs.writeFileSync(jsonPath, JSON.stringify(json, undefined, "\t"), { encoding: "utf-8" });
+        await helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
     }
     private blockFile(ignores: string[], resWatch: ConfigObjWatch, file: string): boolean {
         const extName = path.extname(file).toLocaleLowerCase();
@@ -72,21 +63,24 @@ export default class EgretRes extends Listener {
             //以.开头的是类型判断
             if (ignores[i].startsWith(".")) {
 
-                if (extName.toLocaleLowerCase() == ignores[i].toLocaleLowerCase()) {
+                if (extName == ignores[i].toLocaleLowerCase()) {
+                    devlog("过滤掉指定扩展名" + " " + extName + " " + file);
                     return true;
                 }
             } else if (ignores[i] == fileName) {
                 //忽略指定名字
+                devlog("过滤掉指定名字" + " " + fileName + " " + file);
                 return true;
             }
         }
         //没有定义的转换类型
         if (!resWatch[extName]) {
+            devlog("过滤掉没有定义的类型" + " " + extName + " " + file);
             return true;
         }
         //过滤掉中文
         if (/.*[\u4e00-\u9fa5]+.*$/.test(file)) {
-            console.log("过滤掉中文" + file);
+            devlog("过滤掉中文" + file);
             return true;
         }
 
@@ -130,7 +124,6 @@ export default class EgretRes extends Listener {
                 url: resUrl
             };
             log(`添加新的${resName}`)
-            devlog(`添加新的${resName}`)
         }
     };
     private checkResExists(resMap: { [key: string]: Res }, rootPath: string) {
@@ -149,7 +142,6 @@ export default class EgretRes extends Listener {
                         //文件存在
                     } else {
                         //文件不存在;
-                        devlog(`EgretRes 文件不存在 移除key:${key}`);
                         log(`EgretRes 文件不存在 移除key:${key}`);
                         delete resMap[key];
                     }
@@ -162,6 +154,6 @@ export default class EgretRes extends Listener {
         })
     };
     public destroy() {
-        super.destroy();
+
     }
 }

@@ -1,9 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from 'vscode';
-import * as helper from "../helper";
-import * as cp from "child_process";
 import Progress, { ProgressMsgType } from '../common/Progress';
+import * as helper from "../helper";
 import { devlog, log } from "../helper";
 import EgretServer, { EgretServiceStatus } from './EgretServer';
 export default class EgretService {
@@ -14,7 +13,14 @@ export default class EgretService {
         devlog(`EgretService constructor`)
         this.progress = new Progress();
     }
-    public start(debug = false) {
+    public async start(debug = false) {
+        return this._start(debug).catch(err => {
+            log(err);
+            devlog(`EgretService exec err=`, err)
+            if (this.progress) this.progress.clear();
+        });
+    }
+    private async _start(debug: boolean) {
         devlog(`EgretService start debug=`, debug)
         const workspaceFolder = helper.getCurRootPath();
         if (!workspaceFolder) return;
@@ -34,54 +40,47 @@ export default class EgretService {
         let ts_config_json = JSON.parse(ts_config_str);
         if (!ts_config_json.compilerOptions.sourceMap) {
             ts_config_json.compilerOptions.sourceMap = true;
-            fs.writeFileSync(ts_config_Path, JSON.stringify(ts_config_json, null, "\t"))
+            await helper.writeFile(ts_config_Path, JSON.stringify(ts_config_json, null, "\t"));
         }
 
         const folderString = workspaceFolder.uri.fsPath;
 
-        this.progress.clear().then(() => {
-            this.exec(folderString, debug);
-        })
+        await this.progress.clear()
+        this.exec(folderString, debug);
     }
     private exec(folderString: string, debug: boolean) {
         if (this.isDestroy) return;
         devlog(`EgretService exec folderString=${folderString} debug=${debug}`)
         this.father.bar.status = EgretServiceStatus.Starting;
-        try {
-            this.progress.exec('egret run --serverOnly', folderString, (type: ProgressMsgType, data: string) => {
-                switch (type) {
-                    case ProgressMsgType.Error:
-                        log(data);
-                        devlog(`EgretService exec error=`, data)
-                        break;
-                    case ProgressMsgType.Message:
-                        log(data);
-                        devlog(`EgretService exec message=`, data)
-                        let urlMsg = `${data}`.match(/(?<=Url:)\S+(?=\s*)/g);
-                        if (urlMsg) {
-                            //替换路径
-                            this._urlStr = urlMsg[0];
-                            let launchPath = helper.getLaunchJsonPath();
-                            if (!launchPath) return;//判断是否返回了路径
-                            let launchstr = fs.readFileSync(launchPath, { encoding: "UTF-8" });
-                            launchstr = launchstr.replace(/(?<="url":\s*")\S+(?="\s*,\/\/\#replace)/g, urlMsg[0]);//替换成新的cmd打印的路径
-                            fs.writeFileSync(launchPath, launchstr, { encoding: "UTF-8" });
-                            if (debug) vscode.commands.executeCommand("workbench.action.debug.start");
-                            this.father.bar.status = EgretServiceStatus.Running;
-                        }
-                        break;
-                    case ProgressMsgType.Exit:
-                        this.father.bar.status = EgretServiceStatus.Free;
-                        log(`EgretService exit code=${data}`);
-                        devlog(`EgretService exec exit=`, data)
-                        break;
-                }
-            });
-        } catch (err) {
-            log(err);
-            devlog(`EgretService exec err=`, err)
-            this.progress.clear();
-        }
+        this.progress.exec('egret run --serverOnly', folderString, (type: ProgressMsgType, data: string) => {
+            switch (type) {
+                case ProgressMsgType.Error:
+                    log(data);
+                    devlog(`EgretService exec error=`, data)
+                    break;
+                case ProgressMsgType.Message:
+                    log(data);
+                    devlog(`EgretService exec message=`, data)
+                    let urlMsg = `${data}`.match(/(?<=Url:)\S+(?=\s*)/g);
+                    if (urlMsg) {
+                        //替换路径
+                        this._urlStr = urlMsg[0];
+                        let launchPath = helper.getLaunchJsonPath();
+                        if (!launchPath) return;//判断是否返回了路径
+                        let launchstr = fs.readFileSync(launchPath, { encoding: "UTF-8" });
+                        launchstr = launchstr.replace(/(?<="url":\s*")\S+(?="\s*,\/\/\#replace)/g, urlMsg[0]);//替换成新的cmd打印的路径
+                        fs.writeFileSync(launchPath, launchstr, { encoding: "UTF-8" });
+                        if (debug) vscode.commands.executeCommand("workbench.action.debug.start");
+                        this.father.bar.status = EgretServiceStatus.Running;
+                    }
+                    break;
+                case ProgressMsgType.Exit:
+                    this.father.bar.status = EgretServiceStatus.Free;
+                    log(`EgretService exit code=${data}`);
+                    devlog(`EgretService exec exit=`, data)
+                    break;
+            }
+        });
     }
     private writeTemplateLaunchJson(launchPath: string) {
         let parentPath = path.dirname(launchPath);

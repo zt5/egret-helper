@@ -38,6 +38,10 @@
 				"title": "重新编译项目并调试"
 			},
 			{
+				"command": "egret-helper.egretResSync",
+				"title": "同步default.res.json"
+			},
+			{
 				"command": "egret-helper.barClick",
 				"title": "点击egret StatusBar"
 			}
