@@ -4,5 +4,10 @@
 - 支持Egret调试(依赖[Debugger for Chrome](https://github.com/Microsoft/vscode-chrome-debug)插件)
 - 支持ts代码中的xxx.skinName路径快速跳转和补全
 
-[0.0.1]: https://github.com/zt5/egret-helper/blob/v0.0.1/
+[0.0.1]: https://github.com/zt5/egret-helper/releases/tag/v0.0.1
+-----------------------------------------------------------------------------------------------------------
+## [0.0.2] - 2020-09-23
+### 新增
+- 支持resource中的文件同步到default.res.json中(点击菜单选择default.res.json同步)
+[0.0.2]: https://github.com/zt5/egret-helper/releases/tag/v0.0.2
 -----------------------------------------------------------------------------------------------------------

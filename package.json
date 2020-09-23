@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "egret-helper",
 	"description": "egret tool",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -38,23 +38,82 @@
 				"title": "重新编译项目并调试"
 			},
 			{
+				"command": "egret-helper.egretResSync",
+				"title": "同步default.res.json"
+			},
+			{
 				"command": "egret-helper.barClick",
 				"title": "点击egret StatusBar"
 			}
 		],
 		"configuration": {
 			"type": "object",
-			"title": "egret-helper enabled",
+			"title": "egret-helper config",
 			"properties": {
 				"egret-helper.enable": {
 					"type": "boolean",
 					"default": true,
 					"description": "插件是否可用"
 				},
-				"egret-helper.devlog": {
+				"egret-helper.devLog": {
 					"type": "boolean",
 					"default": true,
-					"description": "打印详细日志"
+					"description": "是否打印详细日志"
+				},
+				"egret-helper.resWatchIgnore": {
+					"type": "array",
+					"default": [
+						"default.res.json",
+						"default.thm.json",
+						".exml"
+					],
+					"description": "default.res.json监测忽略的资源"
+				},
+				"egret-helper.resWatch": {
+					"type": "object",
+					"default": {
+						".png": {
+							"tail": "_png",
+							"type": "image"
+						},
+						".mp3": {
+							"tail": "_mp3",
+							"type": "sound"
+						},
+						".jpg": {
+							"tail": "_jpg",
+							"type": "image"
+						},
+						".jpeg": {
+							"tail": "_jpg",
+							"type": "image"
+						},
+						".tmx": {
+							"tail": "_tmx",
+							"type": "text"
+						},
+						".json": {
+							"tail": "_json",
+							"type": "json"
+						},
+						".fnt": {
+							"tail": "_fnt",
+							"type": "font"
+						},
+						".dbbin": {
+							"tail": "_dbbin",
+							"type": "bin"
+						},
+						".ttf": {
+							"tail": "_bin",
+							"type": "bin"
+						},
+						".zip": {
+							"tail": "_bin",
+							"type": "bin"
+						}
+					},
+					"description": "default.res.json监测的资源"
 				}
 			}
 		},

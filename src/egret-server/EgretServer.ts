@@ -2,21 +2,22 @@ import * as vscode from 'vscode';
 import Listener from "../common/Listener";
 import { devlog } from '../helper';
 import EgretBuild from './EgretBuild';
+import EgretResSync from './EgretResSync';
 import EgretServerBar from './EgretServerBar';
 import EgretService from './EgretService';
-export enum EgretServiceStatus {
-    Starting, Running, Destroying, Free, Building
-}
+
 export default class EgretServer extends Listener {
     private _service: EgretService;
     private _bar: EgretServerBar;
     private _build: EgretBuild;
+    private _resSync: EgretResSync;
     public constructor(protected subscriptions: vscode.Disposable[]) {
         super();
         devlog("EgretServer constructor");
         this._bar = new EgretServerBar(subscriptions, this);
         this._service = new EgretService(this);
         this._build = new EgretBuild(this);
+        this._resSync = new EgretResSync(this);
 
         this.addListener(vscode.workspace.onDidChangeWorkspaceFolders((e: vscode.WorkspaceFoldersChangeEvent) => {
             devlog("EgretServer constructor onDidChangeWorkspaceFolders", e);
@@ -42,7 +43,13 @@ export default class EgretServer extends Listener {
             this._build.start(true);
         }));
 
+        this.addListener(vscode.commands.registerCommand("egret-helper.egretResSync", () => {
+            devlog("EgretServer constructor egret-helper.egretResSync");
+            this._resSync.start()
+        }));
+
         this._service.start();
+        this._resSync.start();//刚初始化时同步一次
     }
     public get service() {
         return this._service;
@@ -61,6 +68,9 @@ export default class EgretServer extends Listener {
         }
         if (this._service) {
             await this._service.destroy();
+        }
+        if (this._resSync) {
+            this._resSync.destroy();
         }
     }
 }

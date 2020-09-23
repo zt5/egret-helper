@@ -1,14 +1,8 @@
 import * as cp from 'child_process';
 import * as treekill from "tree-kill";
 import { devlog } from '../helper';
+import { ChildProcessExt, OutPutFun, ProgressMsgType } from "../define";
 
-export enum ProgressMsgType {
-    Error, Message, Exit
-}
-interface ChildProcessExt extends cp.ChildProcess {
-    isDestroy?: boolean;
-}
-type OutPutFun = ((ProgressMsgType: number, msg: string) => void) | undefined
 export default class Progress {
     private _progress: ChildProcessExt | undefined;
     private outputFun: OutPutFun;
