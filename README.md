@@ -5,10 +5,34 @@
 ## 特性
 - 直接在编辑器中即可开启egret服务器
 - 支持在编辑器中重新编译
-- 支持Egret调试(依赖[Debugger for Chrome](https://github.com/Microsoft/vscode-chrome-debug)插件)
+- 支持Egret调试(依赖 [Debugger for Chrome](https://github.com/Microsoft/vscode-chrome-debug) 插件)
 - 支持ts代码中的this.skinName路径快速跳转和补全
-- 如果安装了[Egret UI Editor](https://docs.egret.com/uieditor)按下快捷键(默认Alt+F1)会自动打开对应ts绑定的exml
+- 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认Alt+F1)会自动打开对应ts绑定的exml
 > Tip: 由于路径补全是动态搜索，文件多可能会卡 输入this.skinName后等待一会即可
+
+## 如何使用
+* 安装 [Chrome](https://www.google.cn/chrome/)
+* 安装 [Debugger for Chrome](https://github.com/Microsoft/vscode-chrome-debug) 插件
+* 打开egret项目默认启动 创建一个调试Chrome的launch.json(.vscode目录中)(这一步可以省略不存在会自动创建)
+```
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Egret Debug",
+            "url": "http://localhost:8080",//#replace
+            "webRoot": "\${workspaceFolder}"
+        }
+    ]
+}
+```
+* egret项目根目录的`tsconfig.json`中`compilerOptions`配置`sourceMap = true`(这一步可以省略不存在会自动创建)
+* 如果有修改 点击左下角的菜单栏选择对应操作即可即可
 
 ## 目录结构
 
@@ -30,13 +54,9 @@
   * `src/helper.ts` 帮助类
   * `src/extension.ts` 扩展入口
 
-## 需要的环境
-* vscode插件 [Debugger for Chrome](https://github.com/Microsoft/vscode-chrome-debug)
-* 谷歌浏览器 [Chrome](https://www.google.cn/chrome/)
-
 ## 扩展设置
 * `egret-helper.enable`: true/false 是否启用插件
-* `egret-helper.devLog`: true/false 是否打印详细日志
+* `egret-helper.devlog`: true/false 是否打印详细日志
 * `egret-helper.resWatch`: array default.res.json监测的资源
 * `egret-helper.resWatchIgnore`: object default.res.json监测忽略的资源
 

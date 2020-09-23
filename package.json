@@ -48,16 +48,16 @@
 		],
 		"configuration": {
 			"type": "object",
-			"title": "egret-helper config",
+			"title": "egret-helper",
 			"properties": {
 				"egret-helper.enable": {
 					"type": "boolean",
 					"default": true,
 					"description": "插件是否可用"
 				},
-				"egret-helper.devLog": {
+				"egret-helper.devlog": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "是否打印详细日志"
 				},
 				"egret-helper.resWatchIgnore": {
