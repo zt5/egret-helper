@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
-import Progress, { ProgressMsgType } from '../common/Progress';
-import EgretServer, { EgretServiceExtStatus, EgretServiceStatus } from './EgretServer';
+import Progress from '../common/Progress';
+import { ProgressMsgType } from "../define";
 import * as helper from "../helper";
 import { devlog, log } from "../helper";
+import EgretServer from './EgretServer';
+import { EgretServiceExtStatus } from "../define";
 export default class EgretBuild {
     private progress: Progress;
     private _urlStr: string | undefined;

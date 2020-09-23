@@ -1,15 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as helper from "../helper";
-import { ConfigObjWatch, devlog, log } from "../helper";
-import EgretServer, { EgretServiceExtStatus, EgretServiceStatus } from "./EgretServer";
+import { devlog, log } from "../helper";
+import EgretServer from "./EgretServer";
+import { EgretRes, EgretResMap, ConfigObjWatch, EgretServiceExtStatus } from "../define";
 
-type Res = {
-    url: string;
-    type: string;
-    name: string;
-}
-type ResMap = { [key: string]: Res }
 export default class EgretResSync {
     constructor(private father: EgretServer) {
         devlog("EgretResSync constructor");
@@ -31,15 +26,16 @@ export default class EgretResSync {
         }
         let jsonStr = fs.readFileSync(jsonPath, { encoding: "utf-8" });
         let json = JSON.parse(jsonStr);
-        const resources: Res[] = json["resources"];
+        const resources: EgretRes[] = json["resources"];
         if (!resources) {
             devlog("EgretRes json中没有resources节点")
             return;
         }
-        let resMap: ResMap = {};
+        let resMap: EgretResMap = {};
         for (let val of resources) {
             if (resMap[val.name] != undefined) {
                 devlog(`EgretRes 资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
+                log(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
                 return;
             }
             resMap[val.name] = val;
@@ -49,12 +45,13 @@ export default class EgretResSync {
 
         helper.loopFile(rootPath, file => this.addFile(file, resMap, rootPath));
 
-        let arr: Res[] = [];
+        let arr: EgretRes[] = [];
         for (let key in resMap) {
             arr.push(resMap[key]);
         }
         json["resources"] = arr;
         await helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
+        log("default.res.json同步完成")
     }
     private blockFile(ignores: string[], resWatch: ConfigObjWatch, file: string): boolean {
         const extName = path.extname(file).toLocaleLowerCase();
@@ -91,30 +88,13 @@ export default class EgretResSync {
         const extName = path.extname(file);
         return fileName.replace(extName, resWatch[extName.toLocaleLowerCase()].tail);
     };
-    private addFile(file: string, resMap: ResMap, rootPath: string) {
+    private addFile(file: string, resMap: EgretResMap, rootPath: string) {
         const ignores = helper.getConfigObj().resWatchIgnore;
         const resWatch = helper.getConfigObj().resWatch;
         if (this.blockFile(ignores, resWatch, file)) return;
-        const FntTail = resWatch[".fnt"].tail;
-        const PngTail = resWatch[".png"].tail;
         const resName = this.converEgretName(file, resWatch);
         if (!resMap[resName]) {
             const extName = path.extname(file).toLocaleLowerCase();
-
-            if (extName == ".fnt") {
-                const fileName = path.basename(file, path.extname(file));
-                if (resMap[fileName + PngTail]) {
-                    //fnt字体不需要图片
-                    delete resMap[fileName + PngTail];
-                    return;
-                }
-            } else if (extName == ".png") {
-                const fileName = path.basename(file, path.extname(file));
-                if (resMap[fileName + FntTail]) {
-                    //fnt字体不需要图片
-                    return;
-                }
-            }
 
             const resType = resWatch[extName].type;
             const resUrl = path.normalize(file).replace(path.normalize(rootPath), "").replace(/\\/g, "/").slice(1);
@@ -126,7 +106,7 @@ export default class EgretResSync {
             log(`添加新的${resName}`)
         }
     };
-    private checkResExists(resMap: { [key: string]: Res }, rootPath: string) {
+    private checkResExists(resMap: { [key: string]: EgretRes }, rootPath: string) {
         return new Promise((resolve, reject) => {
             let totalCount = Object.keys(resMap).length;
             let curCount = 0;
@@ -134,7 +114,7 @@ export default class EgretResSync {
                 reject("超时");
             }, 20000);
             for (let key in resMap) {
-                const val: Res = resMap[key];
+                const val: EgretRes = resMap[key];
                 const tmpPath = path.join(rootPath, val.url);
                 fs.exists(tmpPath, exists => {
                     curCount++;
@@ -142,7 +122,7 @@ export default class EgretResSync {
                         //文件存在
                     } else {
                         //文件不存在;
-                        log(`EgretRes 文件不存在 移除key:${key}`);
+                        log(`文件不存在 移除key:${key}`);
                         delete resMap[key];
                     }
                     if (curCount == totalCount) {

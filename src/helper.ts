@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
+import { ConfigObj } from "./define";
 
 export const SKIN_EXP = /\s*resource\s*.*\.exml\s*/;
 export const AUTO_COMPLETE_EXP = /this\.skinName\s*=\s*(.*)/;
@@ -23,22 +24,7 @@ export function convertFullPath(cur: string) {
 	}
 	return null;
 }
-export type ConfigObjWatch = {
-	[key: string]: {
-		tail: string,
-		type: string
-	}
-}
-export interface ConfigObj extends vscode.WorkspaceConfiguration {
-	/**插件是否可用*/
-	enable: boolean;
-	/**打印详细日志*/
-	devlog: boolean;
-	/**default.res.json要监测的资源*/
-	resWatch: ConfigObjWatch,
-	/**default.res.json监测忽略的资源*/
-	resWatchIgnore: string[],
-}
+
 export function getConfigObj() {
 	return <ConfigObj>vscode.workspace.getConfiguration(CONFG_NAME);
 }
@@ -117,7 +103,8 @@ export function log(...msg: any[]) {
 }
 
 export function devlog(...msg: any[]) {
-	// if (!getConfigObj().devlog) return;
+	let configObj = getConfigObj();
+	if (!configObj.devlog) return;
 	log(...msg);
 }
 function _log(_channel: vscode.OutputChannel, msg: any) {

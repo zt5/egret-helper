@@ -1,16 +1,11 @@
 import * as vscode from 'vscode';
 import Listener from "../common/Listener";
-import { devlog, log } from '../helper';
+import { devlog } from '../helper';
 import EgretBuild from './EgretBuild';
 import EgretResSync from './EgretResSync';
 import EgretServerBar from './EgretServerBar';
 import EgretService from './EgretService';
-export enum EgretServiceStatus {
-    Starting, Running, Destroying, Free
-}
-export enum EgretServiceExtStatus {
-    Building, Syncing, Free
-}
+
 export default class EgretServer extends Listener {
     private _service: EgretService;
     private _bar: EgretServerBar;
@@ -54,6 +49,7 @@ export default class EgretServer extends Listener {
         }));
 
         this._service.start();
+        this._resSync.start();//刚初始化时同步一次
     }
     public get service() {
         return this._service;

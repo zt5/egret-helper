@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import Listener from '../common/Listener';
 import { devlog } from '../helper';
-import EgretServer, { EgretServiceExtStatus, EgretServiceStatus } from './EgretServer';
+import EgretServer from './EgretServer';
+import { EgretServiceExtStatus, EgretServiceStatus } from "../define";
 export default class EgretServerBar extends Listener {
     private statusBar: vscode.StatusBarItem;
     private _status = EgretServiceStatus.Free;

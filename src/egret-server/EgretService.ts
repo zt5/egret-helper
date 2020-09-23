@@ -1,10 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from 'vscode';
-import Progress, { ProgressMsgType } from '../common/Progress';
+import Progress from '../common/Progress';
 import * as helper from "../helper";
 import { devlog, log } from "../helper";
-import EgretServer, { EgretServiceStatus } from './EgretServer';
+import EgretServer from './EgretServer';
+import { ProgressMsgType, EgretServiceStatus } from "../define";
 export default class EgretService {
     private progress: Progress;
     private _urlStr: string | undefined;
