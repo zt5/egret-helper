@@ -1,13 +1,16 @@
 {
 	"name": "egret-helper",
-	"displayName": "egret-helper",
-	"description": "egret tool",
+	"displayName": "Egret Helper",
+	"description": "egret工具合集,支持调试，编译，添加删除egret资源",
 	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
 	"categories": [
-		"Other"
+		"Debuggers","Extension Packs","Other"
+	],
+	"keywords": [
+		"egret"
 	],
 	"activationEvents": [
 		"workspaceContains:**/egretProperties.json"
