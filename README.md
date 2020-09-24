@@ -38,8 +38,8 @@
 ## 扩展设置
 * `egret-helper.enable`: true/false 是否启用插件
 * `egret-helper.devlog`: true/false 是否打印详细日志
-* `egret-helper.resMap`: 同步`default.res.json`的资源 对象的key值代表文件扩展名 tail属性：扩展名替换的尾巴(egret资源的名字) type：`default.res.json`中的type
-* `egret-helper.resMapIgnore`: array 同步`default.res.json`忽略的资源
+* `egret-helper.resMap`: object 同步`default.res.json`的资源  例如{".png":{tail:"_png",type:"image"}} ".png"代表文件扩展名 tail：扩展名尾巴(egret资源的名字 xxx_xx_png) type属性：`default.res.json`中资源的type定义
+* `egret-helper.resMapIgnore`: array 同步`default.res.json`忽略的资源 可以是文件名xx.png 或者路径的末尾 tmp/xx.png 或者某一类文件 .png
 
 ## 扩展命令
 * `egret-helper.goToExml`: 快速跳转到exml文件 快捷键默认Alt+F1
