@@ -1,7 +1,7 @@
 ## 如何使用
 * 安装 [Chrome](https://www.google.cn/chrome/)  浏览器
 * 安装 [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) 插件
-* 打开egret项目默认启动 创建一个调试Chrome的launch.json(.vscode目录中)(这一步可以省略不存在会自动创建)
+* 打开egret项目默认启动 创建一个调试Chrome的`launch.json`(`.vscode`目录中)(这一步可以省略不存在会自动创建)
 ```
 {
     // 使用 IntelliSense 了解相关属性。 

@@ -10,7 +10,7 @@ export default class EgretServerBar extends Listener {
     public constructor(protected subscriptions: vscode.Disposable[], private server: EgretServer) {
         super();
         devlog("EgretServerBar constructor")
-        const myCommandId = 'egret-helper.barClick';
+        const myCommandId = 'egret-helper.showEgretMenu';
         this.addListener(vscode.commands.registerCommand(myCommandId, () => {
             devlog(`EgretServerBar constructor receive cmd ${myCommandId}`)
             let pickItems = ["编译", "编译调试", "重启调试", "重启", "同步default.res.json"];

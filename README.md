@@ -7,6 +7,7 @@
 - 支持在编辑器中重新编译
 - 支持Egret调试(依赖 [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) 插件)
 - 支持ts代码中的`this.skinName`路径快速跳转和补全
+- 支持将resource目录的资源文件同步到`default.res.json`中
 - 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认Alt+F1)会自动打开对应ts绑定的exml
 > Tip: 由于路径补全是动态搜索，文件多可能会卡 输入`this.skinName`后等待一会即可
 
@@ -37,16 +38,16 @@
 ## 扩展设置
 * `egret-helper.enable`: true/false 是否启用插件
 * `egret-helper.devlog`: true/false 是否打印详细日志
-* `egret-helper.resWatch`: array `default.res.json`监测的资源
-* `egret-helper.resWatchIgnore`: object 字段名：`default.res.json`监测的资源 `tail`：扩展名替换的尾巴(egret资源的名字) `type`：`default.res.json`中的`type`
+* `egret-helper.resMap`: 同步`default.res.json`的资源 对象的key值代表文件扩展名 tail属性：扩展名替换的尾巴(egret资源的名字) type：`default.res.json`中的type
+* `egret-helper.resMapIgnore`: array 同步`default.res.json`忽略的资源
 
 ## 扩展命令
 * `egret-helper.goToExml`: 快速跳转到exml文件 快捷键默认Alt+F1
 * `egret-helper.egretRestart`: 重新运行egret服务器
 * `egret-helper.egretRestartAndDebug`: 重新运行egret服务器并调试
 * `egret-helper.egretBuild`: 重新编译项目
-* `egret-helper.egretBuildAndDebug`: 重新编译项目并调试
-* `egret-helper.barClick`: 点击egret服务bar
+* `egret-helper.egretBuildAndDebug`: 重新编译项目并调试 快捷键默认Ctrl+F5
+* `egret-helper.showEgretMenu`: 调出egret服务菜单
 * `egret-helper.egretResSync`: 同步`default.res.json`
 
 ## 已知的问题

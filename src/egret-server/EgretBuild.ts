@@ -25,6 +25,7 @@ export default class EgretBuild {
         devlog(`EgretBuild start workspaceFolder=`, workspaceFolder);
         if (!workspaceFolder) return;
         const folderString = workspaceFolder.uri.fsPath;
+        if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
         await this.progress.exec('egret build', folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:

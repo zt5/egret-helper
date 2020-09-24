@@ -3,7 +3,7 @@ import * as path from "path";
 import * as helper from "../helper";
 import { devlog, log } from "../helper";
 import EgretServer from "./EgretServer";
-import { EgretRes, EgretResMap, ConfigObjWatch, EgretServiceExtStatus } from "../define";
+import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus } from "../define";
 
 export default class EgretResSync {
     constructor(private father: EgretServer) {
@@ -53,7 +53,8 @@ export default class EgretResSync {
         await helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
         log("default.res.json同步完成")
     }
-    private blockFile(ignores: string[], resWatch: ConfigObjWatch, file: string): boolean {
+    private blockFile(resSyncMap: ConfigSyncMap, file: string): boolean {
+        const ignores = helper.getConfigObj().resMapIgnore;
         const extName = path.extname(file).toLocaleLowerCase();
         const fileName = path.basename(file);
         for (let i = 0; i < ignores.length; i++) {
@@ -71,7 +72,7 @@ export default class EgretResSync {
             }
         }
         //没有定义的转换类型
-        if (!resWatch[extName]) {
+        if (!resSyncMap[extName]) {
             devlog("过滤掉没有定义的类型" + " " + extName + " " + file);
             return true;
         }
@@ -83,20 +84,19 @@ export default class EgretResSync {
 
         return false;
     };
-    private converEgretName(file: string, resWatch: ConfigObjWatch) {
+    private converEgretName(file: string, resSyncMap: ConfigSyncMap) {
         const fileName = path.basename(file);
         const extName = path.extname(file);
-        return fileName.replace(extName, resWatch[extName.toLocaleLowerCase()].tail);
+        return fileName.replace(extName, resSyncMap[extName.toLocaleLowerCase()].tail);
     };
     private addFile(file: string, resMap: EgretResMap, rootPath: string) {
-        const ignores = helper.getConfigObj().resWatchIgnore;
-        const resWatch = helper.getConfigObj().resWatch;
-        if (this.blockFile(ignores, resWatch, file)) return;
-        const resName = this.converEgretName(file, resWatch);
+        const resSyncMap = helper.getConfigObj().resMap;
+        if (this.blockFile(resSyncMap, file)) return;
+        const resName = this.converEgretName(file, resSyncMap);
         if (!resMap[resName]) {
             const extName = path.extname(file).toLocaleLowerCase();
 
-            const resType = resWatch[extName].type;
+            const resType = resSyncMap[extName].type;
             const resUrl = path.normalize(file).replace(path.normalize(rootPath), "").replace(/\\/g, "/").slice(1);
             resMap[resName] = {
                 name: resName,

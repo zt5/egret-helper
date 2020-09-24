@@ -8,17 +8,24 @@ let _egretServer: EgretServer | undefined;
 let isInit = false;
 export function activate({ subscriptions }: vscode.ExtensionContext) {
 	devlog("extension activate");
-	subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders((e: vscode.WorkspaceFoldersChangeEvent) => {
+	subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(e => {
 		devlog("extension WorkspaceFolderChange", e);
 		init(subscriptions);
 	}));
+	subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
+		devlog("extension ConfigChange", e);
+		init(subscriptions);
+	}))
 	init(subscriptions);
 }
 function init(subscriptions: { dispose(): any }[]) {
 	devlog("extension init");
 	let enabled = helper.getConfigObj().enable;
 	devlog(`extension init enabled=`, enabled);
-	if (!enabled) return;
+	if (!enabled) {
+		destroy();
+		return;
+	}
 	let curRootPath = helper.getCurRootPath();
 	devlog(`extension init curRootPath`, curRootPath);
 	if (curRootPath == null) {

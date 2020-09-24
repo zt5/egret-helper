@@ -19,7 +19,7 @@ export enum EgretServiceStatus {
 export enum EgretServiceExtStatus {
     Building, Syncing, Free
 }
-export type ConfigObjWatch = {
+export type ConfigSyncMap = {
 	[key: string]: {
 		tail: string,
 		type: string
@@ -30,8 +30,8 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	enable: boolean;
 	/**打印详细日志*/
 	devlog: boolean;
-	/**default.res.json要监测的资源*/
-	resWatch: ConfigObjWatch,
-	/**default.res.json监测忽略的资源*/
-	resWatchIgnore: string[],
+	/**同步default.res.json的资源*/
+	resMap: ConfigSyncMap,
+	/**同步default.res.json忽略的资源*/
+	resMapIgnore: string[],
 }

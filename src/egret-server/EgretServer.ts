@@ -49,7 +49,7 @@ export default class EgretServer extends Listener {
         }));
 
         this._service.start();
-        this._resSync.start();//刚初始化时同步一次
+        // this._resSync.start();//刚初始化时同步一次
     }
     public get service() {
         return this._service;

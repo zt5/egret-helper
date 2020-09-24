@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具合集,支持调试，编译，添加删除egret资源",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -45,13 +45,13 @@
 				"title": "同步default.res.json"
 			},
 			{
-				"command": "egret-helper.barClick",
-				"title": "点击egret StatusBar"
+				"command": "egret-helper.showEgretMenu",
+				"title": "调出egret服务菜单"
 			}
 		],
 		"configuration": {
 			"type": "object",
-			"title": "egret-helper",
+			"title": "Egret Helper",
 			"properties": {
 				"egret-helper.enable": {
 					"type": "boolean",
@@ -63,16 +63,16 @@
 					"default": false,
 					"description": "是否打印详细日志"
 				},
-				"egret-helper.resWatchIgnore": {
+				"egret-helper.resMapIgnore": {
 					"type": "array",
 					"default": [
 						"default.res.json",
 						"default.thm.json",
 						".exml"
 					],
-					"description": "default.res.json监测忽略的资源"
+					"description": "同步default.res.json忽略的资源"
 				},
-				"egret-helper.resWatch": {
+				"egret-helper.resMap": {
 					"type": "object",
 					"default": {
 						".png": {
@@ -116,7 +116,7 @@
 							"type": "bin"
 						}
 					},
-					"description": "字段名：default.res.json监测的资源 tail：扩展名替换的尾巴(egret资源的名字) type：default.res.json中的type"
+					"description": "同步default.res.json的资源 对象的key值代表文件扩展名 tail属性：扩展名替换的尾巴(egret资源的名字) type：default.res.json中的type"
 				}
 			}
 		},
@@ -125,6 +125,11 @@
 				"command": "egret-helper.goToExml",
 				"key": "Alt+F1",
 				"mac": "Alt+F1",
+				"when": "editorTextFocus"
+			},{
+				"command": "egret-helper.egretBuildAndDebug",
+				"key": "Ctrl+F5",
+				"mac": "Ctrl+F5",
 				"when": "editorTextFocus"
 			}
 		]
