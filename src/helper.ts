@@ -1,13 +1,10 @@
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import { ConfigObj } from "./define";
 
 export const SKIN_EXP = /\s*resource\s*.*\.exml\s*/;
 export const AUTO_COMPLETE_EXP = /this\.skinName\s*=\s*(.*)/;
-export const CONFG_NAME = "egret-helper";
-
 
 export function convertPath(cur: string, total: string, pos: vscode.Position, result: RegExpMatchArray) {
 	let curStr = total.slice(result.index, pos.character);
@@ -26,29 +23,36 @@ export function convertFullPath(cur: string) {
 }
 
 export function getConfigObj() {
-	return <ConfigObj>vscode.workspace.getConfiguration(CONFG_NAME);
+	return <ConfigObj>vscode.workspace.getConfiguration("egret-helper");
 }
 export function getCurRootPath() {
-	const workspaceFolders = vscode.workspace.workspaceFolders;
-	if (workspaceFolders && workspaceFolders.length > 0) {
-		for (const workspaceFolder of workspaceFolders) {
-			const folderString = workspaceFolder.uri.fsPath;
-			if (!folderString) {
-				continue;
+	let configs = getConfigObj();
+	if (configs.egretPropertiesPath) {
+		const workspaceFolders = vscode.workspace.workspaceFolders;
+		if (workspaceFolders && workspaceFolders.length > 0) {
+			for (const workspaceFolder of workspaceFolders) {
+				const folderString = workspaceFolder.uri.fsPath;
+				if (!folderString) {
+					continue;
+				}
+				const egretConfig = path.join(folderString, configs.egretPropertiesPath);
+				if (!fs.existsSync(egretConfig)) {
+					continue;
+				}
+				return workspaceFolder;
 			}
-			const egretConfig = path.join(folderString, 'egretProperties.json');
-			if (!fs.existsSync(egretConfig)) {
-				continue;
-			}
-			return workspaceFolder;
 		}
 	}
+
 	return null;
 }
 export function getDefaultResJsonPath() {
-	const workspaceFolder = getCurRootPath();
-	if (workspaceFolder) {
-		return path.join(workspaceFolder.uri.fsPath, "resource", "default.res.json");
+	let configs = getConfigObj();
+	if (configs.egretResourceJsonPath) {
+		const workspaceFolder = getCurRootPath();
+		if (workspaceFolder) {
+			return path.normalize(path.join(workspaceFolder.uri.fsPath, configs.egretResourceJsonPath));
+		}
 	}
 	return null;
 }
@@ -60,9 +64,12 @@ export function getLaunchJsonPath() {
 	return null;
 }
 export function getEgretResPath() {
-	const workspaceFolder = getCurRootPath();
-	if (workspaceFolder) {
-		return path.join(workspaceFolder.uri.fsPath, "resource");
+	let configs = getConfigObj();
+	if (configs.egretResourcePath) {
+		const workspaceFolder = getCurRootPath();
+		if (workspaceFolder) {
+			return path.normalize(path.join(workspaceFolder.uri.fsPath, configs.egretResourcePath));
+		}
 	}
 	return null;
 }
@@ -100,6 +107,7 @@ export function log(...msg: any[]) {
 	} else {
 		_channel.append(str);
 	}
+	_channel.show(true);
 }
 
 export function devlog(...msg: any[]) {

@@ -2,12 +2,14 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具合集,支持调试，编译，添加删除egret资源",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
 	"categories": [
-		"Debuggers","Extension Packs","Other"
+		"Debuggers",
+		"Extension Packs",
+		"Other"
 	],
 	"keywords": [
 		"egret"
@@ -63,8 +65,37 @@
 					"default": false,
 					"description": "是否打印详细日志"
 				},
+				"egret-helper.egretPropertiesPath": {
+					"type": "string",
+					"default": "egretProperties.json",
+					"description": "egret项目文件egretProperties.json文件路径(相对于项目根目录)"
+				},
+				"egret-helper.egretResourceJsonPath": {
+					"type": "string",
+					"default": "resource/default.res.json",
+					"description": "egret资源配置default.res.json的路径(相对于项目根目录)"
+				},
+				"egret-helper.egretResourcePath": {
+					"type": "string",
+					"default": "resource",
+					"description": "egret同步资源文件夹路径(要添加或删除到default.res.json的文件夹,相对于项目根目录)"
+				},
+				"egret-helper.exmlSearchGlob": {
+					"type": "string",
+					"default": "**/resource/**/*.exml",
+					"description": "exml搜索路径(glob字符串格式)"
+				},
+				"egret-helper.exmlOpenExternal": {
+					"type": "boolean",
+					"default": true,
+					"description": "是否使用外部编辑器打开exml(目前仅支持在ts文件快捷键Alt+F1打开)"
+				},
 				"egret-helper.resMapIgnore": {
 					"type": "array",
+					"uniqueItems": true,
+					"items": {
+						"type": "string"
+					},
 					"default": [
 						"default.res.json",
 						"default.thm.json",
@@ -126,7 +157,8 @@
 				"key": "Alt+F1",
 				"mac": "Alt+F1",
 				"when": "editorTextFocus"
-			},{
+			},
+			{
 				"command": "egret-helper.egretBuildAndDebug",
 				"key": "Ctrl+F5",
 				"mac": "Ctrl+F5",

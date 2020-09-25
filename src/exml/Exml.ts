@@ -6,6 +6,7 @@ import ExmlPathAutoCompleteProvider from './ExmlPathAutoCompleteProvider';
 import ExmlHoverProvider from './ExmlHoverProvider';
 import ExmlLinkProvider from './ExmlLinkProvider';
 import Listener from "../common/Listener";
+import { devlog } from "../helper";
 
 export default class Exml extends Listener {
 	public constructor(protected subscriptions: vscode.Disposable[]) {
@@ -15,6 +16,7 @@ export default class Exml extends Listener {
 		this.addListener(vscode.languages.registerCompletionItemProvider(['typescript'], new ExmlPathAutoCompleteProvider(), "="));
 
 		this.addListener(vscode.commands.registerCommand("egret-helper.goToExml", () => {
+			devlog("Exml constructor egret-helper.goToExml");
 			new Runner().exec();
 		}));
 	}
@@ -23,7 +25,10 @@ export default class Exml extends Listener {
 class Runner {
 	public exec() {
 		let activieWin = vscode.window.activeTextEditor;
-		if (!activieWin) return;
+		if (!activieWin) {
+			devlog("未找到激活的窗口")
+			return;
+		}
 		let doc = activieWin.document;
 		let count = doc.lineCount;
 		let results: string[] = [];
@@ -57,14 +62,22 @@ class Runner {
 		return results;
 	}
 	private openExml(urlstr: string) {
-		//调用外部编辑器
-		vscode.env.openExternal(vscode.Uri.file(`${urlstr}`)).then(value => {
-			if(!value){
-				//如果没开启成功 那么直接使用vscode打开
-				vscode.workspace.openTextDocument(vscode.Uri.file(urlstr)).then(
-					document => vscode.window.showTextDocument(document)
-				)
-			}
-		})
+		let configs = helper.getConfigObj();
+		if (configs.exmlOpenExternal) {
+			//调用外部编辑器
+			vscode.env.openExternal(vscode.Uri.file(`${urlstr}`)).then(value => {
+				if (!value) {
+					//如果没开启成功 那么直接使用vscode打开
+					this.openByVsCode(urlstr);
+				}
+			})
+		} else {
+			this.openByVsCode(urlstr);
+		}
+	}
+	private openByVsCode(urlstr: string) {
+		vscode.workspace.openTextDocument(vscode.Uri.file(urlstr)).then(
+			document => vscode.window.showTextDocument(document)
+		)
 	}
 }

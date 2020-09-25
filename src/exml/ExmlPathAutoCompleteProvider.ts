@@ -1,4 +1,3 @@
-'use strict';
 import * as path from "path";
 import * as vscode from "vscode";
 import { CancellationToken, CompletionItem, CompletionList } from "vscode";
@@ -25,7 +24,9 @@ export default class ExmlPathAutoCompleteProvider implements vscode.CompletionIt
 		}
 		workPath = this.normalPath(workPath);
 		if (!workPath) return;
-		return vscode.workspace.findFiles("**/resource/**/*.exml", "**/src/**", undefined, token).then(result => {
+		let configs = helper.getConfigObj();
+		if (!configs.exmlSearchGlob) return;
+		return vscode.workspace.findFiles(configs.exmlSearchGlob, undefined, undefined, token).then(result => {
 			return result.map(item => {
 				let paths = this.normalPath(item.fsPath).slice(workPath.length);
 				return new CompletionItem(`"${paths}"`)
