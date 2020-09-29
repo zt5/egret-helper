@@ -9,13 +9,13 @@ export default class EgretServerBar extends Listener {
     private _extStatus = EgretServiceExtStatus.Free;
     public constructor(protected subscriptions: vscode.Disposable[], private server: EgretServer) {
         super();
-        devlog("EgretServerBar constructor")
+        devlog(this,"constructor")
         const myCommandId = 'egret-helper.showEgretMenu';
         this.addListener(vscode.commands.registerCommand(myCommandId, () => {
-            devlog(`EgretServerBar constructor receive cmd ${myCommandId}`)
+            devlog(this,`constructor receive cmd ${myCommandId}`)
             let pickItems = ["编译", "编译调试", "重启调试", "重启", "同步default.res.json"];
             vscode.window.showQuickPick(pickItems).then(result => {
-                devlog(`EgretServerBar constructor pick ${result}`)
+                devlog(this,`constructor pick ${result}`)
                 switch (result) {
                     case pickItems[0]:
                         vscode.commands.executeCommand("egret-helper.egretBuild");
@@ -38,7 +38,7 @@ export default class EgretServerBar extends Listener {
 
         this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         this.statusBar.command = myCommandId;
-        devlog(`EgretServerBar constructor register cmd ${myCommandId}`)
+        devlog(this,`constructor register cmd=${myCommandId}`)
         this.statusBar.show();
         subscriptions.push(this.statusBar);
     }
@@ -46,7 +46,7 @@ export default class EgretServerBar extends Listener {
         return this._status;
     }
     public set status(status: EgretServiceStatus) {
-        devlog(`EgretServerBar status=${status}`)
+        devlog(this,`status=${status}`)
         this._status = status;
         this.updateBarTxt();
     }
@@ -54,7 +54,7 @@ export default class EgretServerBar extends Listener {
         return this._extStatus;
     }
     public set extStatus(exStatus: EgretServiceExtStatus) {
-        devlog(`EgretServerBar extStatus=${exStatus}`)
+        devlog(this,`extStatus=${exStatus}`)
         this._extStatus = exStatus;
         this.updateBarTxt();
     }
@@ -96,7 +96,7 @@ export default class EgretServerBar extends Listener {
     }
     public destroy() {
         super.destroy();
-        devlog(`EgretServerBar destroy`)
+        devlog(this,`destroy`)
         if (this.statusBar) {
             this.statusBar.dispose();
         }

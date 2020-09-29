@@ -7,32 +7,32 @@ let _exml: Exml | undefined;
 let _egretServer: EgretServer | undefined;
 let isInit = false;
 export function activate({ subscriptions }: vscode.ExtensionContext) {
-	devlog("extension activate");
+	devlog("extension", "activate");
 	subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(e => {
-		devlog("extension WorkspaceFolderChange", e);
+		devlog("extension", "WorkspaceFolderChange", e);
 		init(subscriptions);
 	}));
 	subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
-		devlog("extension ConfigChange", e);
+		devlog("extension", "ConfigChange", e);
 		init(subscriptions);
 	}))
 	init(subscriptions);
 }
 function init(subscriptions: { dispose(): any }[]) {
-	devlog("extension init");
+	devlog("extension", "init");
 	let enabled = helper.getConfigObj().enable;
-	devlog(`extension init enabled=`, enabled);
+	devlog("extension", `init enabled=`, enabled);
 	if (!enabled) {
 		destroy();
 		return;
 	}
 	let curRootPath = helper.getCurRootPath();
-	devlog(`extension init curRootPath`, curRootPath);
+	devlog("extension", `init curRootPath=`, curRootPath);
 	if (curRootPath == null) {
 		destroy();
 		return;
 	} else {
-		devlog("extension init isInit", isInit);
+		devlog("extension", "init isInit=", isInit);
 		if (!isInit) {
 			isInit = true;
 			_exml = new Exml(subscriptions);
@@ -42,11 +42,11 @@ function init(subscriptions: { dispose(): any }[]) {
 }
 
 export async function deactivate() {
-	devlog("extension init deactivate");
+	devlog("extension", "deactivate");
 	await destroy();
 }
 async function destroy() {
-	devlog("extension init destroy");
+	devlog("extension", "destroy");
 	isInit = false;
 	if (_exml) {
 		_exml.destroy();

@@ -65,6 +65,11 @@
 					"default": false,
 					"description": "是否打印详细日志"
 				},
+				"egret-helper.alertErrorWin": {
+					"type": "boolean",
+					"default": false,
+					"description": "是否弹出错误弹窗"
+				},
 				"egret-helper.egretPropertiesPath": {
 					"type": "string",
 					"default": "egretProperties.json",

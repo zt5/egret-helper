@@ -94,31 +94,74 @@ export function writeFile(file: string, data: string): Promise<void> {
 	})
 }
 
-
+export function toasterr(err: any) {
+	let configObj = getConfigObj();
+	if (!configObj.alertErrorWin) return;
+	vscode.window.showErrorMessage(typeof err == "object" ? JSON.stringify(err) : err);
+}
 let _channel: vscode.OutputChannel;
-export function log(...msg: any[]) {
+export function log(target: any, ...msg: any[]) {
+	_log(target, false, ...msg);
+}
+export function showLog() {
 	if (!_channel) _channel = vscode.window.createOutputChannel('Egret');/**日志窗口名*/
-	let str = "";
-	for (let i = 0; i < msg.length; i++) {
-		str += _log(_channel, msg[i]);
-	}
-	if (str && !str.endsWith("\n")) {
-		_channel.appendLine(str);
-	} else {
-		_channel.append(str);
-	}
 	_channel.show(true);
 }
 
-export function devlog(...msg: any[]) {
+export function devlog(target: any, ...msg: any[]) {
 	let configObj = getConfigObj();
 	if (!configObj.devlog) return;
-	log(...msg);
+	_log(target, true, ...msg);
 }
-function _log(_channel: vscode.OutputChannel, msg: any) {
+function _log(target: any, isDebug: boolean, ...msg: any[]) {
+	if (!_channel) showLog();
+	let str: string = "";
+	if (isDebug) {
+		let time = new Date();
+		str += `[${fillNum(time.getHours())}:${fillNum(time.getMinutes())}:${fillNum(time.getSeconds())}.${time.getMilliseconds()}]`
+		if (target) {
+			let className: string;
+			if (typeof target == "string") className = target;
+			else className = getClassName(target);
+			if (className) str += `[${className}]`
+		}
+		str += `[DEBUG]: `
+	}
+
+	for (let i = 0; i < msg.length; i++) {
+		str += _logstr(_channel, msg[i]);
+	}
+	if (str && !str.endsWith("\n")) _channel.appendLine(str);
+	else _channel.append(str);
+}
+
+function _logstr(_channel: vscode.OutputChannel, msg: any) {
 	if (typeof msg == "string") return msg;
 	else if (typeof msg == "number") return `${msg}`;
 	else if (typeof msg == "boolean") return `${msg}`;
 	else if (msg === null || msg === undefined) return `${msg}`;
 	else return JSON.stringify(msg);
+}
+function getClassName(target: any) {
+	if (target && target.constructor && target.constructor.toString) {
+		if (target.constructor.name) {
+			return target.constructor.name;
+		}
+		var str = target.constructor.toString();
+		if (str.charAt(0) == '[') {
+			var arr = str.match(/\[\w+\s*(\w+)\]/);
+		} else {
+			var arr = str.match(/function\s*(\w+)/);
+		}
+		if (arr && arr.length == 2) {
+			return arr[1];
+		}
+	}
+	return undefined;
+}
+function fillNum(num: string | number) {
+	let _num = +num;
+	if (isNaN(_num)) return `${num}`;
+	else if (_num < 10) return `0${_num}`;
+	else return `${_num}`;
 }

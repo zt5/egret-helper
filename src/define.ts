@@ -30,6 +30,8 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	enable: boolean;
 	/**打印详细日志*/
 	devlog: boolean;
+	/**是否弹出错误弹窗*/
+	alertErrorWin: boolean;
 	/**egret项目文件egretProperties.json文件路径(相对于项目根目录)*/
 	egretPropertiesPath:string;
 	/**egret资源配置default.res.json的路径(相对于项目根目录)*/

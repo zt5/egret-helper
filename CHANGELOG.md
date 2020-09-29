@@ -5,6 +5,7 @@
 - 添加配置`egretResourcePath` string egret同步资源文件夹路径(要添加或删除到`default.res.json`的文件夹,相对于项目根目录) 默认`"resource"`
 - 添加配置`exmlSearchGlob` exml搜索路径(glob字符串格式) 默认`"**/resource/**/*.exml"`
 - 添加配置`exmlOpenExternal` 是否使用外部编辑器打开exml(目前仅支持在ts文件快捷键Alt+F1打开) 默认`true`
+- 添加配置`alertErrorWin` 是否在碰到错误时弹出错误提示框 默认`false`
 
 [0.0.5]: https://github.com/zt5/egret-helper/releases/tag/v0.0.5
 -----------------------------------------------------------------------------------------------------------
@@ -17,6 +18,7 @@
 - 关闭打开项目时自动同步资源功能
 - 打开Egret菜单命令由`egret-helper.barClick`修改为`egret-helper.showEgretMenu`
 - 配置描述优化
+- 优化log显示
 
 [0.0.4]: https://github.com/zt5/egret-helper/releases/tag/v0.0.4
 -----------------------------------------------------------------------------------------------------------

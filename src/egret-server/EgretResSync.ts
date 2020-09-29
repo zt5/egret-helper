@@ -1,19 +1,21 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as helper from "../helper";
-import { devlog, log } from "../helper";
+import { devlog, log, toasterr } from "../helper";
 import EgretServer from "./EgretServer";
 import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus } from "../define";
 
 export default class EgretResSync {
     constructor(private father: EgretServer) {
-        devlog("EgretResSync constructor");
+        devlog(this, "constructor");
     }
     public async start() {
         this.father.bar.extStatus = EgretServiceExtStatus.Syncing;
+        helper.showLog();
         return this._start().catch(err => {
-            log(err);
-            devlog(`EgretResSync start err=`, err);
+            toasterr(err);
+            log(this, err);
+            devlog(this, `[start] err=`, err);
         }).finally(() => {
             this.father.bar.extStatus = EgretServiceExtStatus.Free;
         })
@@ -21,21 +23,24 @@ export default class EgretResSync {
     private async _start() {
         const jsonPath = helper.getDefaultResJsonPath();
         if (!jsonPath || !fs.existsSync(jsonPath)) {
-            devlog("EgretRes " + jsonPath + "不存在")
+            log(this, "EgretRes " + jsonPath + "不存在")
+            toasterr("EgretRes " + jsonPath + "不存在");
             return;
         }
         let jsonStr = fs.readFileSync(jsonPath, { encoding: "utf-8" });
         let json = JSON.parse(jsonStr);
         const resources: EgretRes[] = json["resources"];
         if (!resources) {
-            devlog("EgretRes json中没有resources节点")
+            log(this, "EgretRes json中没有resources节点")
+            toasterr("EgretRes json中没有resources节点");
             return;
         }
         let resMap: EgretResMap = {};
         for (let val of resources) {
             if (resMap[val.name] != undefined) {
-                devlog(`EgretRes 资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
-                log(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
+                devlog(this, `EgretRes 资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
+                log(this, `资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
+                toasterr(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
                 return;
             }
             resMap[val.name] = val;
@@ -51,7 +56,7 @@ export default class EgretResSync {
         }
         json["resources"] = arr;
         await helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
-        log("default.res.json同步完成")
+        log(this, "default.res.json同步完成")
     }
     private blockFile(resSyncMap: ConfigSyncMap, file: string): boolean {
         const ignores = helper.getConfigObj().resMapIgnore;
@@ -62,23 +67,23 @@ export default class EgretResSync {
             if (ignores[i].startsWith(".")) {
 
                 if (extName == ignores[i].toLocaleLowerCase()) {
-                    devlog("过滤掉指定扩展名" + " " + extName + " " + file);
+                    devlog(this, "过滤掉指定扩展名" + " " + extName + " " + file);
                     return true;
                 }
             } else if (ignores[i] == fileName) {
                 //忽略指定名字
-                devlog("过滤掉指定名字" + " " + fileName + " " + file);
+                devlog(this, "过滤掉指定名字" + " " + fileName + " " + file);
                 return true;
             }
         }
         //没有定义的转换类型
         if (!resSyncMap[extName]) {
-            devlog("过滤掉没有定义的类型" + " " + extName + " " + file);
+            devlog(this, "过滤掉没有定义的类型" + " " + extName + " " + file);
             return true;
         }
         //过滤掉中文
         if (/.*[\u4e00-\u9fa5]+.*$/.test(file)) {
-            devlog("过滤掉中文" + file);
+            devlog(this, "过滤掉中文" + file);
             return true;
         }
 
@@ -103,7 +108,7 @@ export default class EgretResSync {
                 type: resType,
                 url: resUrl
             };
-            log(`添加新的${resName}`)
+            log(this, `添加新的${resName}`)
         }
     };
     private checkResExists(resMap: { [key: string]: EgretRes }, rootPath: string) {
@@ -122,7 +127,7 @@ export default class EgretResSync {
                         //文件存在
                     } else {
                         //文件不存在;
-                        log(`文件不存在 移除key:${key}`);
+                        log(this, `文件不存在 移除key:${key}`);
                         delete resMap[key];
                     }
                     if (curCount == totalCount) {
@@ -134,6 +139,6 @@ export default class EgretResSync {
         })
     };
     public destroy() {
-
+        devlog(this, "destroy");
     }
 }

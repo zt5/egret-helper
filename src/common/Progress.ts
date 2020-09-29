@@ -11,25 +11,32 @@ export default class Progress {
         await this.clear();
 
         this.cmd = cmd;
-        devlog(`Progress exec cmd=`, cmd, ` cwd=`, cwdstr)
         this.outputFun = outputFun;
-        const progress: ChildProcessExt = cp.exec(cmd, { encoding: "utf-8", cwd: cwdstr ? cwdstr : undefined }, (error, stdout, stderr) => {
+        let execOption: { encoding: BufferEncoding } & cp.ExecOptions = { encoding: "utf-8" };
+        if (cwdstr) {
+            devlog(this, `exec cmd=`, cmd, ` cwd=`, cwdstr)
+            execOption.cwd = cwdstr;
+        } else {
+            devlog(this, `exec cmd=`, cmd)
+        }
+        const progress: ChildProcessExt = cp.exec(cmd, execOption, (error, stdout, stderr) => {
+            //这里只有进程彻底结束后才会回调
             if (progress.isDestroy) return;
             if (error && this.outputFun) {
-                devlog(`Progress exec cmd=`, cmd, ` cwd=`, cwdstr, ` error=`, error)
-                this.outputFun(ProgressMsgType.Error, JSON.stringify(error));
+                devlog(this, `exec cmd=`, cmd, ` cwd=`, cwdstr, ` error=`, error)
             }
-            // if (stdout && this.outputFun) {
-            //     devlog(`Progress exec cmd=`, cmd, ` cwd=`, cwdstr, ` stdout=`, stdout)
-            //     this.outputFun(ProgressMsgType.Message, stdout);
-            // }
+            if (stdout && this.outputFun) {
+                devlog(`[exec] cmd=`, cmd, ` cwd=`, cwdstr, ` stdout=`, stdout)
+            }
             if (stderr && this.outputFun) {
-                devlog(`Progress exec cmd=`, cmd, ` cwd=`, cwdstr, ` stdout=`, stderr)
-                this.outputFun(ProgressMsgType.Error, stderr);
+                devlog(this, `exec cmd=`, cmd, ` cwd=`, cwdstr, ` stderr=`, stderr)
             }
         });
         if (progress.stdout) {
             progress.stdout.on('data', this.getDataHandler);
+        }
+        if (progress.stderr) {
+            progress.stderr.on('data', this.getErrorHandler);
         }
         progress.on('exit', this.exitHandler);
         this._progress = progress;
@@ -38,10 +45,13 @@ export default class Progress {
         return this._progress;
     }
     public async clear() {
-        devlog(`Progress clear cmd=${this.cmd}`)
+        devlog(this, `clear cmd=${this.cmd}`)
         if (this._progress) {
             if (this._progress.stdout) {
                 this._progress.stdout.off('data', this.getDataHandler);
+            }
+            if (this._progress.stderr) {
+                this._progress.stderr.off('data', this.getErrorHandler);
             }
             this._progress.off('exit', this.exitHandler);
             const pid = this._progress.pid;//先保留pid
@@ -52,22 +62,28 @@ export default class Progress {
         this.outputFun = undefined;
     }
     private killProgress(pid: number) {
-        devlog(`killProgress pid:${pid}`)
+        devlog(this, `killProgress pid=${pid}`)
 
         return new Promise((resolve, reject) => {
             treekill(pid, (err) => {
-                if (err) devlog(`killProgress pid:${pid} `, err);
-                else devlog(`killProgress pid:${pid} success!`)
+                if (err) devlog(this, `killProgress pid=${pid} `, err);
+                else devlog(this, `killProgress pid=${pid} success!`)
                 resolve();
             });
         });
     }
+    private getErrorHandler = (err: any) => {
+        devlog(this, `getErrorHandler cmd=`, this.cmd, ` error=`, err)
+        if (this.outputFun) {
+            this.outputFun(ProgressMsgType.Error, typeof err == "object" ? `${JSON.stringify(err)}` : err);
+        }
+    }
     private exitHandler = (code: number) => {
-        devlog(`Progress exitHandler cmd=${this.cmd} code=${code}`)
+        devlog(this, `exitHandler cmd=${this.cmd} code=${code}`)
         if (this.outputFun) this.outputFun(ProgressMsgType.Exit, `${code}`);
     }
     private getDataHandler = (data: any) => {
-        devlog(`Progress getDataHandler data=`, data)
-        if (this.outputFun) this.outputFun(ProgressMsgType.Message, `${data}`);
+        devlog(this, `getDataHandler data=`, data)
+        if (this.outputFun) this.outputFun(ProgressMsgType.Message, typeof data == "object" ? `${JSON.stringify(data)}` : data);
     }
 }

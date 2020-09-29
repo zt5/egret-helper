@@ -13,38 +13,38 @@ export default class EgretServer extends Listener {
     private _resSync: EgretResSync;
     public constructor(protected subscriptions: vscode.Disposable[]) {
         super();
-        devlog("EgretServer constructor");
+        devlog(this,"constructor");
         this._bar = new EgretServerBar(subscriptions, this);
         this._service = new EgretService(this);
         this._build = new EgretBuild(this);
         this._resSync = new EgretResSync(this);
 
         this.addListener(vscode.workspace.onDidChangeWorkspaceFolders((e: vscode.WorkspaceFoldersChangeEvent) => {
-            devlog("EgretServer constructor onDidChangeWorkspaceFolders", e);
+            devlog(this,"constructor onDidChangeWorkspaceFolders", e);
             this._service.start();
         }))
 
         this.addListener(vscode.commands.registerCommand("egret-helper.egretRestart", () => {
-            devlog("EgretServer constructor egret-helper.egretRestart");
+            devlog(this,"constructor egret-helper.egretRestart");
             this._service.start();
         }));
 
         this.addListener(vscode.commands.registerCommand("egret-helper.egretRestartAndDebug", () => {
-            devlog("EgretServer constructor egret-helper.egretRestartAndDebug");
+            devlog(this,"sconstructor egret-helper.egretRestartAndDebug");
             this._service.start(true);
         }));
         this.addListener(vscode.commands.registerCommand("egret-helper.egretBuild", () => {
-            devlog("EgretServer constructor egret-helper.egretBuild");
+            devlog(this,"constructor egret-helper.egretBuild");
             this._build.start();
         }));
 
         this.addListener(vscode.commands.registerCommand("egret-helper.egretBuildAndDebug", () => {
-            devlog("EgretServer constructor egret-helper.egretBuildAndDebug");
+            devlog(this,"constructor egret-helper.egretBuildAndDebug");
             this._build.start(true);
         }));
 
         this.addListener(vscode.commands.registerCommand("egret-helper.egretResSync", () => {
-            devlog("EgretServer constructor egret-helper.egretResSync");
+            devlog(this,"constructor egret-helper.egretResSync");
             this._resSync.start()
         }));
 
@@ -59,7 +59,7 @@ export default class EgretServer extends Listener {
     }
     public async destroy() {
         super.destroy();
-        devlog("EgretServer destroy");
+        devlog(this,"destroy");
         if (this._bar) {
             this._bar.destroy();
         }

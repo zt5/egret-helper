@@ -46,6 +46,8 @@
 * `exmlOpenExternal`: true/false 是否使用外部编辑器打开exml  
   >默认 `true`  
   >目前仅支持在ts文件快捷键 `Alt+F1` 打开
+* `alertErrorWin`: true/false 是否在碰到错误时弹出错误提示框
+  >默认 `false`  
 
 ## 扩展命令
 * `goToExml`: 快速跳转到exml文件 快捷键默认 `Alt+F1`

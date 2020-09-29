@@ -3,7 +3,7 @@ import * as path from "path";
 import * as vscode from 'vscode';
 import Progress from '../common/Progress';
 import * as helper from "../helper";
-import { devlog, log } from "../helper";
+import { devlog, log, toasterr } from "../helper";
 import EgretServer from './EgretServer';
 import { ProgressMsgType, EgretServiceStatus } from "../define";
 export default class EgretService {
@@ -11,24 +11,24 @@ export default class EgretService {
     private _urlStr: string | undefined;
     private isDestroy = false;
     constructor(private father: EgretServer) {
-        devlog(`EgretService constructor`)
+        devlog(this, `constructor`)
         this.progress = new Progress();
     }
     public async start(debug = false) {
         return this._start(debug).catch(err => {
-            log(err);
-            devlog(`EgretService exec err=`, err)
+            log(this, err);
+            devlog(this, `exec err=`, err)
             if (this.progress) this.progress.clear();
         });
     }
     private async _start(debug: boolean) {
-        devlog(`EgretService start debug=`, debug)
+        devlog(this, `start debug=`, debug)
         const workspaceFolder = helper.getCurRootPath();
         if (!workspaceFolder) return;
-        devlog(`EgretService start workspaceFolder=`, workspaceFolder)
+        devlog(this, `start workspaceFolder=`, workspaceFolder)
         let launchPath = helper.getLaunchJsonPath();
         if (!launchPath) return;//判断是否返回了路径
-        devlog(`EgretService start launchPath=`, launchPath)
+        devlog(this, `start launchPath=`, launchPath)
         //检查launch.json是否存在
         if (!fs.existsSync(launchPath)) this.writeTemplateLaunchJson(launchPath);
         let launchstr = fs.readFileSync(launchPath, { encoding: "UTF-8" });
@@ -36,7 +36,7 @@ export default class EgretService {
         if (launchstr.indexOf("#replace") == -1) this.writeTemplateLaunchJson(launchPath);
         //检查tsconfig的sourceMap是否存在 不存在就设置
         let ts_config_Path = path.join(workspaceFolder.uri.fsPath, "tsconfig.json");
-        devlog(`EgretService start ts_config_Path=`, ts_config_Path)
+        devlog(this, `start ts_config_Path=`, ts_config_Path)
         let ts_config_str = fs.readFileSync(ts_config_Path, { encoding: "UTF-8" });
         let ts_config_json = JSON.parse(ts_config_str);
         if (!ts_config_json.compilerOptions.sourceMap) {
@@ -51,18 +51,19 @@ export default class EgretService {
     }
     private exec(folderString: string, debug: boolean) {
         if (this.isDestroy) return;
-        devlog(`EgretService exec folderString=${folderString} debug=${debug}`)
+        devlog(this, `exec folderString=${folderString} debug=${debug}`)
         this.father.bar.status = EgretServiceStatus.Starting;
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
         this.progress.exec('egret run --serverOnly', folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
-                    log(data);
-                    devlog(`EgretService exec error=`, data)
+                    toasterr(data);
+                    log(this, data);
+                    devlog(this, `exec error=`, data)
                     break;
                 case ProgressMsgType.Message:
-                    log(data);
-                    devlog(`EgretService exec message=`, data)
+                    log(this, data);
+                    devlog(this, `exec message=`, data)
                     let urlMsg = `${data}`.match(/(?<=Url:)\S+(?=\s*)/g);
                     if (urlMsg) {
                         //替换路径
@@ -78,8 +79,8 @@ export default class EgretService {
                     break;
                 case ProgressMsgType.Exit:
                     this.father.bar.status = EgretServiceStatus.Free;
-                    log(`EgretService exit code=${data}`);
-                    devlog(`EgretService exec exit=`, data)
+                    log(this, `exit code=${data}`);
+                    devlog(this, `exec exit=`, data)
                     break;
             }
         });
@@ -106,7 +107,7 @@ export default class EgretService {
     }
 
     public async destroy() {
-        devlog(`EgretService destroy`)
+        devlog(this, `destroy`)
         this.isDestroy = true;
         await this.progress.clear();
     }
