@@ -62,18 +62,26 @@ export default class EgretResSync {
         const ignores = helper.getConfigObj().resMapIgnore;
         const extName = path.extname(file).toLocaleLowerCase();
         const fileName = path.basename(file);
+        let normalFilePath = path.normalize(file);
+        while (normalFilePath.indexOf(path.sep) != -1)   normalFilePath = normalFilePath.replace(path.sep, "/");
         for (let i = 0; i < ignores.length; i++) {
-            //以.开头的是类型判断
-            if (ignores[i].startsWith(".")) {
-
-                if (extName == ignores[i].toLocaleLowerCase()) {
+            let igonreLowItem = ignores[i].toLocaleLowerCase();
+            if (igonreLowItem.startsWith(".")) {
+                //以.开头的类型
+                if (extName == igonreLowItem) {
                     devlog(this, "过滤掉指定扩展名" + " " + extName + " " + file);
                     return true;
                 }
-            } else if (ignores[i] == fileName) {
+            } else if (igonreLowItem == fileName.toLocaleLowerCase()) {
                 //忽略指定名字
                 devlog(this, "过滤掉指定名字" + " " + fileName + " " + file);
                 return true;
+            } else if (igonreLowItem.indexOf("/") != -1) {
+                //路径格式 判断末尾是否相等
+                if (normalFilePath.toLocaleLowerCase().endsWith(igonreLowItem)) {
+                    devlog(this, "过滤掉路径末尾" + " " + ignores[i] + " " + file);
+                    return true;
+                }
             }
         }
         //没有定义的转换类型

@@ -23,18 +23,18 @@
   >默认 `false`
 * `resMap`: object 同步 `default.res.json` 的资源  
   >例如{".png":{tail:"_png",type:"image"}}  
-  ".png"：代表文件扩展名  
+  ".png"：代表文件扩展名(必须小写)
   "tail属性"：扩展名尾巴(Egret资源的名字 `xxx_xx_png` )  
   "type属性"：`default.res.json` 中资源的type属性定义
 * `resMapIgnore`: array 同步 `default.res.json` 忽略的资源 
-  >可以是文件名 xx.png  
-  路径的末尾 tmp/xx.png  
-  某一类文件 .png
+  >可以是文件名 xx.png(不区分大小写)
+  路径的末尾 tmp/xx.png(不区分大小写)
+  某一类文件 .png(不区分大小写)
 * `egretPropertiesPath`: string Egret项目文件 `egretProperties.json` 文件路径  
   >默认 `egretProperties.json`  
   >相对于项目根目录
 * `egretResourceJsonPath`: string Egret资源配置 `default.res.json` 的路径  
-  >默认 `default.res.json`  
+  >默认 `resource/default.res.json`  
   >相对于项目根目录
 * `egretResourcePath`: string Egret同步资源文件夹路径  
   >默认 `resource`  
