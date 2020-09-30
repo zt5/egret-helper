@@ -11,13 +11,13 @@ import { devlog } from "../helper";
 export default class Exml extends Listener {
 	public constructor(protected subscriptions: vscode.Disposable[]) {
 		super();
-		devlog(this,"constructor");
+		devlog(this, "constructor");
 		this.addListener(vscode.languages.registerHoverProvider(['typescript'], new ExmlHoverProvider()));
 		this.addListener(vscode.languages.registerDefinitionProvider(['typescript'], new ExmlLinkProvider()));
 		this.addListener(vscode.languages.registerCompletionItemProvider(['typescript'], new ExmlPathAutoCompleteProvider(), "="));
 
 		this.addListener(vscode.commands.registerCommand("egret-helper.goToExml", () => {
-			devlog(this,"egret-helper.goToExml");
+			devlog(this, "egret-helper.goToExml");
 			new Runner().exec();
 		}));
 	}
@@ -27,7 +27,7 @@ class Runner {
 	public exec() {
 		let activieWin = vscode.window.activeTextEditor;
 		if (!activieWin) {
-			devlog(this,"未找到激活的窗口")
+			devlog(this, "未找到激活的窗口")
 			return;
 		}
 		let doc = activieWin.document;
@@ -66,12 +66,12 @@ class Runner {
 		let configs = helper.getConfigObj();
 		if (configs.exmlOpenExternal) {
 			//调用外部编辑器
-			vscode.env.openExternal(vscode.Uri.file(`${urlstr}`)).then(value => {
-				if (!value) {
-					//如果没开启成功 那么直接使用vscode打开
-					this.openByVsCode(urlstr);
-				}
-			})
+			helper.openExmlEditor(urlstr).then(progress => {
+				devlog(this, "open success!");
+			}).catch(err => {
+				devlog(this, err);
+				this.openByVsCode(urlstr);
+			});
 		} else {
 			this.openByVsCode(urlstr);
 		}

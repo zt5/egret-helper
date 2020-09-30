@@ -1,10 +1,88 @@
+import * as cp from 'child_process';
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { ConfigObj } from "./define";
+import { ConfigObj, Platform } from "./define";
+import * as stringDecoder from "string_decoder";
 
 export const SKIN_EXP = /\s*resource\s*.*\.exml\s*/;
 export const AUTO_COMPLETE_EXP = /this\.skinName\s*=\s*(.*)/;
+
+export const EXML_EGRET_UI_EDITOR_Path = {
+	MAC: "/Applications/Egret UI Editor.app/Contents/MacOS/Egret UI Editor",
+	WIN: "C:\\Program Files\\Egret\\Egret UI Editor\\Egret UI Editor.exe",
+	WINx86: "C:\\Program Files (x86)\\Egret\\Egret UI Editor\\Egret UI Editor.exe",
+}
+export function openExmlEditor(exmlPath: string): Promise<cp.ChildProcess> {
+	return new Promise((resolve, reject) => {
+		if (!fs.existsSync(exmlPath)) reject(`${exmlPath}文件不存在`);
+		let editorPath: string;
+		switch (getPlatform()) {
+			case Platform.OSX:
+				editorPath = EXML_EGRET_UI_EDITOR_Path.MAC;
+				if (!fs.existsSync(editorPath)) {
+					reject(`${editorPath}编辑器不存在`);
+					return;
+				}
+				break;
+			case Platform.Windows:
+				editorPath = EXML_EGRET_UI_EDITOR_Path.WIN;
+				if (!fs.existsSync(editorPath)) {
+					editorPath = EXML_EGRET_UI_EDITOR_Path.WINx86;
+					if (!fs.existsSync(editorPath)) {
+						reject(`${editorPath}编辑器不存在`);
+						return;
+					}
+				}
+				break;
+			default:
+				reject(`不支持的平台${os.platform()}`);
+				return;
+		}
+		const editorProc = cp.spawn(editorPath, [exmlPath], {
+			detached: true,
+			cwd: path.dirname(editorPath),
+			env: process.env
+		});
+		editorProc.stdout.on('data', data => {
+			let outBuffer = new stringDecoder.StringDecoder("utf-8");
+			if (data instanceof Buffer) {
+				devlog("openExmlEditor", " stdout ", outBuffer.write(data));
+			} else {
+				devlog("openExmlEditor", " stdout ", data);
+			}
+		});
+		editorProc.stderr.on('data', data => {
+			let errBuffer = new stringDecoder.StringDecoder("utf-8");
+			if (data instanceof Buffer) {
+				devlog("openExmlEditor", " stderr ", errBuffer.write(data));
+			} else {
+				devlog("openExmlEditor", " stderr ", data);
+			}
+		});
+
+		editorProc.on('exit', (code, signal) => devlog(`openExmlEditor`, " exit ", code, signal));
+		editorProc.on('disconnect', () => devlog(`openExmlEditor`, " disconnect "));
+		editorProc.on('close', (code, signal) => devlog(`openExmlEditor`, " close ", code, signal));
+		editorProc.on('message', data => devlog(`openExmlEditor`, " message ", data));
+		editorProc.on('error', err => devlog('openExmlEditor', ' error ', err));
+
+		editorProc.unref();
+		resolve(editorProc);
+	});
+}
+export function getPlatform() {
+	const platform = os.platform();
+	switch (platform) {
+		case 'darwin':
+			return Platform.OSX;
+		case 'win32':
+			return Platform.Windows;
+		default:
+			return Platform.Unknown;
+	}
+}
 
 export function convertPath(cur: string, total: string, pos: vscode.Position, result: RegExpMatchArray) {
 	let curStr = total.slice(result.index, pos.character);
