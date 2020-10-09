@@ -8,7 +8,7 @@ export default class ExmlHoverProvider implements vscode.HoverProvider {
         let result = helper.getSkinExmlDefine(line.text)
         if (result != null) {
             for (let i in result) {
-                let destExmlPath = helper.convertPath(result[i], line.text, pos, result);
+                let destExmlPath = helper.convertFullPath(result[i]);
                 if (destExmlPath && fs.existsSync(destExmlPath)) {
                     return new vscode.Hover("点击跳转到[" + destExmlPath + "]");
                 } else {

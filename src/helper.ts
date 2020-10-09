@@ -52,14 +52,6 @@ export function getPlatform() {
 	}
 }
 
-export function convertPath(cur: string, total: string, pos: vscode.Position, result: RegExpMatchArray) {
-	let curStr = total.slice(result.index, pos.character);
-	let splitIndex = cur.indexOf("/", curStr.length);
-	let fileExt = ".exml";
-	if (splitIndex == -1) splitIndex = cur.indexOf(fileExt, curStr.length) + fileExt.length;
-	curStr = cur.slice(0, splitIndex);
-	return convertFullPath(curStr);
-}
 export function convertFullPath(cur: string) {
 	let rootPath = getCurRootPath()
 	if (rootPath) {

@@ -8,7 +8,7 @@ export default class ExmlLinkProvider implements vscode.DefinitionProvider {
         let result = helper.getSkinExmlDefine(line.text);
         if (result != null) {
             for (let i in result) {
-                let destExmlPath = helper.convertPath(result[i], line.text, pos, result);
+                let destExmlPath = helper.convertFullPath(result[i]);
                 if (destExmlPath && fs.existsSync(destExmlPath)) {
                     return new vscode.Location(vscode.Uri.file(destExmlPath), new vscode.Position(0, 0));
                 }
