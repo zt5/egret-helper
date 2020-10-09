@@ -9,7 +9,7 @@ export function valNeedAutoComplete(text: string) {
 	return !!text.match(/\S+\s*\.skinName\s*=\s*(.*?)/);
 }
 export function getSkinExmlDefine(text: string) {
-	return text.match(/(?<=")\s*(.*?)\.exml\s*(?=")/);
+	return text.match(/(?<=("|'|`))\s*(.*?)\.exml\s*(?=("|'|`))/);
 }
 
 export function openExmlEditor(exmlPath: string): Promise<Progress> {
