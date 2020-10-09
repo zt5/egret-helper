@@ -7,6 +7,7 @@ import ExmlHoverProvider from './ExmlHoverProvider';
 import ExmlLinkProvider from './ExmlLinkProvider';
 import Listener from "../common/Listener";
 import { devlog } from "../helper";
+import Progress from "../common/Progress";
 
 export default class Exml extends Listener {
 	public constructor(protected subscriptions: vscode.Disposable[]) {
@@ -18,12 +19,9 @@ export default class Exml extends Listener {
 
 		this.addListener(vscode.commands.registerCommand("egret-helper.goToExml", () => {
 			devlog(this, "egret-helper.goToExml");
-			new Runner().exec();
+			this.exec();
 		}));
 	}
-}
-
-class Runner {
 	public exec() {
 		let activieWin = vscode.window.activeTextEditor;
 		if (!activieWin) {

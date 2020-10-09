@@ -3,73 +3,38 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { ConfigObj, Platform } from "./define";
-import * as stringDecoder from "string_decoder";
+import Progress from './common/Progress';
+import { ConfigObj, Platform, ProgressMsgType } from "./define";
 
 export const SKIN_EXP = /\s*resource\s*.*\.exml\s*/;
 export const AUTO_COMPLETE_EXP = /this\.skinName\s*=\s*(.*)/;
 
-export const EXML_EGRET_UI_EDITOR_Path = {
-	MAC: "/Applications/Egret UI Editor.app/Contents/MacOS/Egret UI Editor",
-	WIN: "C:\\Program Files\\Egret\\Egret UI Editor\\Egret UI Editor.exe",
-	WINx86: "C:\\Program Files (x86)\\Egret\\Egret UI Editor\\Egret UI Editor.exe",
-}
-export function openExmlEditor(exmlPath: string): Promise<cp.ChildProcess> {
+export function openExmlEditor(exmlPath: string): Promise<Progress> {
 	return new Promise((resolve, reject) => {
-		if (!fs.existsSync(exmlPath)) reject(`${exmlPath}文件不存在`);
-		let editorPath: string;
-		switch (getPlatform()) {
-			case Platform.OSX:
-				editorPath = EXML_EGRET_UI_EDITOR_Path.MAC;
-				if (!fs.existsSync(editorPath)) {
-					reject(`${editorPath}编辑器不存在`);
-					return;
-				}
-				break;
-			case Platform.Windows:
-				editorPath = EXML_EGRET_UI_EDITOR_Path.WIN;
-				if (!fs.existsSync(editorPath)) {
-					editorPath = EXML_EGRET_UI_EDITOR_Path.WINx86;
-					if (!fs.existsSync(editorPath)) {
-						reject(`${editorPath}编辑器不存在`);
-						return;
+		const prgress = new Progress();
+		prgress.exec(`eui "${exmlPath}"`, undefined, (type, data) => {
+			switch (type) {
+				case ProgressMsgType.Error:
+					log("openExmlEditor error=", data);
+					devlog("openExmlEditor", `exec error=`, data)
+					reject(data);
+					break;
+				case ProgressMsgType.Message:
+					log("openExmlEditor", data);
+					devlog("openExmlEditor", `exec message=`, data)
+					break;
+				case ProgressMsgType.Exit:
+					log("openExmlEditor", `exit code=${data}`);
+					devlog("openExmlEditor", `exec exit=`, data)
+					if (prgress) prgress.clear();
+					if (data != "0") {
+						reject("exit code:" + data);
 					}
-				}
-				break;
-			default:
-				reject(`不支持的平台${os.platform()}`);
-				return;
-		}
-		const editorProc = cp.spawn(editorPath, [exmlPath], {
-			detached: true,
-			cwd: path.dirname(editorPath),
-			env: process.env
-		});
-		editorProc.stdout.on('data', data => {
-			let outBuffer = new stringDecoder.StringDecoder("utf-8");
-			if (data instanceof Buffer) {
-				devlog("openExmlEditor", " stdout ", outBuffer.write(data));
-			} else {
-				devlog("openExmlEditor", " stdout ", data);
+					break;
 			}
-		});
-		editorProc.stderr.on('data', data => {
-			let errBuffer = new stringDecoder.StringDecoder("utf-8");
-			if (data instanceof Buffer) {
-				devlog("openExmlEditor", " stderr ", errBuffer.write(data));
-			} else {
-				devlog("openExmlEditor", " stderr ", data);
-			}
-		});
+		})
 
-		editorProc.on('exit', (code, signal) => devlog(`openExmlEditor`, " exit ", code, signal));
-		editorProc.on('disconnect', () => devlog(`openExmlEditor`, " disconnect "));
-		editorProc.on('close', (code, signal) => devlog(`openExmlEditor`, " close ", code, signal));
-		editorProc.on('message', data => devlog(`openExmlEditor`, " message ", data));
-		editorProc.on('error', err => devlog('openExmlEditor', ' error ', err));
-
-		editorProc.unref();
-		resolve(editorProc);
+		resolve(prgress);
 	});
 }
 export function getPlatform() {
