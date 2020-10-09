@@ -13,7 +13,7 @@ export default class ExmlPathAutoCompleteProvider implements vscode.CompletionIt
 	*/
 	public provideCompletionItems(doc: vscode.TextDocument, pos: vscode.Position, token: CancellationToken): vscode.ProviderResult<CompletionItem[] | CompletionList> {
 		let line = doc.lineAt(pos);
-		let result = line.text.match(helper.AUTO_COMPLETE_EXP);
+		let result = helper.valNeedAutoComplete(line.text);
 		if (!result) return;
 		let workFolder = helper.getCurRootPath();
 		if (!workFolder) return;

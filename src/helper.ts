@@ -1,4 +1,3 @@
-import * as cp from 'child_process';
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -6,8 +5,12 @@ import * as vscode from "vscode";
 import Progress from './common/Progress';
 import { ConfigObj, Platform, ProgressMsgType } from "./define";
 
-export const SKIN_EXP = /\s*resource\s*.*\.exml\s*/;
-export const AUTO_COMPLETE_EXP = /this\.skinName\s*=\s*(.*)/;
+export function valNeedAutoComplete(text: string) {
+	return !!text.match(/\S+\s*\.skinName\s*=\s*(.*?)/);
+}
+export function getSkinExmlDefine(text: string) {
+	return text.match(/(?<=")\s*(.*?)\.exml\s*(?=")/);
+}
 
 export function openExmlEditor(exmlPath: string): Promise<Progress> {
 	return new Promise((resolve, reject) => {

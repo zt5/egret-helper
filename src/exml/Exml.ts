@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as vscode from 'vscode';
+import * as path from "path";
 
 import * as helper from "../helper";
 import ExmlPathAutoCompleteProvider from './ExmlPathAutoCompleteProvider';
@@ -48,7 +49,7 @@ export default class Exml extends Listener {
 	}
 	//收集一行行的exml
 	private collectOneLineExml(line: vscode.TextLine) {
-		let matchResult = line.text.match(helper.SKIN_EXP);
+		let matchResult = helper.getSkinExmlDefine(line.text);
 		let results: string[] = [];
 		if (matchResult != null) {
 			for (let i = 0; i < matchResult.length; i++) {
