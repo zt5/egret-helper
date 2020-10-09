@@ -27,7 +27,6 @@ export function openExmlEditor(exmlPath: string): Promise<Progress> {
 					devlog("openExmlEditor", `exec message=`, data)
 					break;
 				case ProgressMsgType.Exit:
-					log("openExmlEditor", `exit code=${data}`);
 					devlog("openExmlEditor", `exec exit=`, data)
 					if (prgress) prgress.clear();
 					if (data != "0") {
