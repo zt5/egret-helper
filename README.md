@@ -2,17 +2,14 @@
 
 [建议和bug反馈](https://github.com/zt5/egret-helper/issues/new)
 
-## 已知问题
-- ~~mac平台目前不支持快捷调用exml编辑器（官方编辑器eui命令在mac无效）~~ 需要手动安装shell命令，打开UI Editor 菜单栏：文件->安装 shell 命令
-
 ## 特性
 - 直接在编辑器中即可开启Egret服务器
 - 支持在编辑器中重新编译
 - 支持Egret调试(依赖 [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) 插件)
 - 支持ts代码中的 `非空字符.skinName` 路径快速跳转和补全
 - 支持将 `扩展设置 egret-helper.egretResourcePath` 目录的资源文件同步到 `default.res.json` 中
-- 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml
-> Tip: 由于路径补全是动态搜索，文件多可能会卡 输入 `非空字符.skinName=` 后等待一会即可
+- 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml(`Mac平台需要手动安装shell命令，打开Egret UI Editor 菜单栏：文件->安装 shell 命令`)
+> 由于路径补全需要搜索全部exml，文件多可能会卡，输入 `非空字符.skinName=` 后等待一会即可  
 
 ## 如何使用
 * 安装 [Chrome](https://www.google.cn/chrome/) 浏览器
