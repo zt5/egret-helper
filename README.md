@@ -3,7 +3,7 @@
 [建议和bug反馈](https://github.com/zt5/egret-helper/issues/new)
 
 ## 已知问题
-- mac平台目前不支持快捷调用exml编辑器（官方编辑器eui命令在mac无效）
+- ~~mac平台目前不支持快捷调用exml编辑器（官方编辑器eui命令在mac无效）~~ 需要手动安装shell命令，打开UI Editor 菜单栏：文件->安装 shell 命令
 
 ## 特性
 - 直接在编辑器中即可开启Egret服务器
