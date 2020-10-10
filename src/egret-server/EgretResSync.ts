@@ -1,21 +1,25 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as helper from "../helper";
-import { devlog, log, toasterr } from "../helper";
+import { toasterr } from "../helper";
 import EgretServer from "./EgretServer";
 import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus } from "../define";
+import { getLogger, Logger, showLog } from "../common/Log";
+import { localize } from "../common/Language";
 
 export default class EgretResSync {
+    private logger: Logger;
     constructor(private father: EgretServer) {
-        devlog(this, "constructor");
+        this.logger = getLogger(this);
+        this.logger.devlog("constructor");
     }
     public async start() {
         this.father.bar.extStatus = EgretServiceExtStatus.Syncing;
-        helper.showLog();
+        showLog();
         return this._start().catch(err => {
             toasterr(err);
-            log(this, err);
-            devlog(this, `[start] err=`, err);
+            this.logger.log(err);
+            this.logger.devlog(`[start] err=`, err);
         }).finally(() => {
             this.father.bar.extStatus = EgretServiceExtStatus.Free;
         })
@@ -23,24 +27,23 @@ export default class EgretResSync {
     private async _start() {
         const jsonPath = helper.getDefaultResJsonPath();
         if (!jsonPath || !fs.existsSync(jsonPath)) {
-            log(this, "EgretRes " + jsonPath + "不存在")
-            toasterr("EgretRes " + jsonPath + "不存在");
+            this.logger.log(localize("sync.json.notExist", `${jsonPath}`));
+            toasterr(localize("sync.json.notExist", `${jsonPath}`));
             return;
         }
         let jsonStr = fs.readFileSync(jsonPath, { encoding: "utf-8" });
         let json = JSON.parse(jsonStr);
         const resources: EgretRes[] = json["resources"];
         if (!resources) {
-            log(this, "EgretRes json中没有resources节点")
-            toasterr("EgretRes json中没有resources节点");
+            this.logger.log(localize("sync.json.resourcesNotExist"))
+            toasterr(localize("sync.json.resourcesNotExist"));
             return;
         }
         let resMap: EgretResMap = {};
         for (let val of resources) {
             if (resMap[val.name] != undefined) {
-                devlog(this, `EgretRes 资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
-                log(this, `资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
-                toasterr(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
+                this.logger.log(localize("sync.json.hasSameKey", val.name));
+                toasterr(localize("sync.json.hasSameKey", val.name));
                 return;
             }
             resMap[val.name] = val;
@@ -56,42 +59,42 @@ export default class EgretResSync {
         }
         json["resources"] = arr;
         await helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
-        log(this, "default.res.json同步完成")
+        this.logger.log(localize("sync.json.complete", jsonPath));
     }
     private blockFile(resSyncMap: ConfigSyncMap, file: string): boolean {
         const ignores = helper.getConfigObj().resMapIgnore;
         const extName = path.extname(file).toLocaleLowerCase();
         const fileName = path.basename(file);
         let normalFilePath = path.normalize(file);
-        while (normalFilePath.indexOf(path.sep) != -1)   normalFilePath = normalFilePath.replace(path.sep, "/");
+        while (normalFilePath.indexOf(path.sep) != -1) normalFilePath = normalFilePath.replace(path.sep, "/");
         for (let i = 0; i < ignores.length; i++) {
             let igonreLowItem = ignores[i].toLocaleLowerCase();
             if (igonreLowItem.startsWith(".")) {
                 //以.开头的类型
                 if (extName == igonreLowItem) {
-                    devlog(this, "过滤掉指定扩展名" + " " + extName + " " + file);
+                    this.logger.log(localize("sync.filter.dotStart", extName, file));
                     return true;
                 }
             } else if (igonreLowItem == fileName.toLocaleLowerCase()) {
                 //忽略指定名字
-                devlog(this, "过滤掉指定名字" + " " + fileName + " " + file);
+                this.logger.log(localize("sync.filter.name", fileName, file));
                 return true;
             } else if (igonreLowItem.indexOf("/") != -1) {
                 //路径格式 判断末尾是否相等
                 if (normalFilePath.toLocaleLowerCase().endsWith(igonreLowItem)) {
-                    devlog(this, "过滤掉路径末尾" + " " + ignores[i] + " " + file);
+                    this.logger.log(localize("sync.filter.pathend", ignores[i], file));
                     return true;
                 }
             }
         }
         //没有定义的转换类型
         if (!resSyncMap[extName]) {
-            devlog(this, "过滤掉没有定义的类型" + " " + extName + " " + file);
+            this.logger.log(localize("sync.filter.undefined", extName, file));
             return true;
         }
         //过滤掉中文
         if (/.*[\u4e00-\u9fa5]+.*$/.test(file)) {
-            devlog(this, "过滤掉中文" + file);
+            this.logger.log(localize("sync.filter.cn", file));
             return true;
         }
 
@@ -116,7 +119,7 @@ export default class EgretResSync {
                 type: resType,
                 url: resUrl
             };
-            log(this, `添加新的${resName}`)
+            this.logger.log(localize("sync.new", resName))
         }
     };
     private checkResExists(resMap: { [key: string]: EgretRes }, rootPath: string) {
@@ -124,7 +127,7 @@ export default class EgretResSync {
             let totalCount = Object.keys(resMap).length;
             let curCount = 0;
             const timerId = setTimeout(() => {
-                reject("超时");
+                reject(localize("sync.timeout"));
             }, 20000);
             for (let key in resMap) {
                 const val: EgretRes = resMap[key];
@@ -135,7 +138,7 @@ export default class EgretResSync {
                         //文件存在
                     } else {
                         //文件不存在;
-                        log(this, `文件不存在 移除key:${key}`);
+                        this.logger.log(localize("sync.removeKey", key));
                         delete resMap[key];
                     }
                     if (curCount == totalCount) {
@@ -147,6 +150,6 @@ export default class EgretResSync {
         })
     };
     public destroy() {
-        devlog(this, "destroy");
+        this.logger.devlog("destroy");
     }
 }

@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
+import { localize } from "../common/Language";
 import * as helper from "../helper";
 
 export default class ExmlHoverProvider implements vscode.HoverProvider {
@@ -10,9 +11,9 @@ export default class ExmlHoverProvider implements vscode.HoverProvider {
             for (let i in result) {
                 let destExmlPath = helper.convertFullPath(result[i]);
                 if (destExmlPath && fs.existsSync(destExmlPath)) {
-                    return new vscode.Hover("点击跳转到[" + destExmlPath + "]");
+                    return new vscode.Hover(localize("exml.hover.jump", destExmlPath));
                 } else {
-                    return new vscode.Hover("不存在[" + destExmlPath + "]");
+                    return new vscode.Hover(localize("exml.hover.notExist", `${destExmlPath}`));
                 }
             }
         }

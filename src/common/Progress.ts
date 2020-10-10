@@ -1,12 +1,16 @@
 import * as cp from 'child_process';
 import * as treekill from "tree-kill";
-import { devlog } from '../helper';
 import { ChildProcessExt, OutPutFun, ProgressMsgType } from "../define";
+import { getLogger, Logger } from './Log';
 
 export default class Progress {
     private _progress: ChildProcessExt | undefined;
     private outputFun: OutPutFun;
     private cmd: string | undefined;
+    private logger: Logger;
+    constructor() {
+        this.logger = getLogger(this);
+    }
     public async exec(cmd: string, cwdstr?: string, outputFun?: OutPutFun) {
         await this.clear();
 
@@ -14,22 +18,22 @@ export default class Progress {
         this.outputFun = outputFun;
         let execOption: { encoding: BufferEncoding } & cp.ExecOptions = { encoding: "utf-8" };
         if (cwdstr) {
-            devlog(this, `exec cmd=`, cmd, ` cwd=`, cwdstr)
+            this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr)
             execOption.cwd = cwdstr;
         } else {
-            devlog(this, `exec cmd=`, cmd)
+            this.logger.devlog(`exec cmd=`, cmd)
         }
         const progress: ChildProcessExt = cp.exec(cmd, execOption, (error, stdout, stderr) => {
             //这里只有进程彻底结束后才会回调
             if (progress.isDestroy) return;
             if (error && this.outputFun) {
-                devlog(this, `exec cmd=`, cmd, ` cwd=`, cwdstr, ` error=`, error)
+                this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr, ` error=`, error)
             }
             if (stdout && this.outputFun) {
-                devlog(`[exec] cmd=`, cmd, ` cwd=`, cwdstr, ` stdout=`, stdout)
+                this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr, ` stdout=`, stdout)
             }
             if (stderr && this.outputFun) {
-                devlog(this, `exec cmd=`, cmd, ` cwd=`, cwdstr, ` stderr=`, stderr)
+                this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr, ` stderr=`, stderr)
             }
         });
         if (progress.stdout) {
@@ -45,7 +49,7 @@ export default class Progress {
         return this._progress;
     }
     public async clear() {
-        devlog(this, `clear cmd=${this.cmd}`)
+        this.logger.devlog(`clear cmd=${this.cmd}`)
         if (this._progress) {
             if (this._progress.stdout) {
                 this._progress.stdout.off('data', this.getDataHandler);
@@ -62,28 +66,28 @@ export default class Progress {
         this.outputFun = undefined;
     }
     private killProgress(pid: number) {
-        devlog(this, `killProgress pid=${pid}`)
+        this.logger.devlog(`killProgress pid=${pid}`)
 
         return new Promise((resolve, reject) => {
             treekill(pid, (err) => {
-                if (err) devlog(this, `killProgress pid=${pid} `, err);
-                else devlog(this, `killProgress pid=${pid} success!`)
+                if (err) this.logger.devlog(`killProgress pid=${pid} `, err);
+                else this.logger.devlog(`killProgress pid=${pid} success!`)
                 resolve();
             });
         });
     }
     private getErrorHandler = (err: any) => {
-        devlog(this, `getErrorHandler cmd=`, this.cmd, ` error=`, err)
+        this.logger.devlog(`getErrorHandler cmd=`, this.cmd, ` error=`, err)
         if (this.outputFun) {
             this.outputFun(ProgressMsgType.Error, typeof err == "object" ? `${JSON.stringify(err)}` : err);
         }
     }
     private exitHandler = (code: number) => {
-        devlog(this, `exitHandler cmd=${this.cmd} code=${code}`)
+        this.logger.devlog(`exitHandler cmd=${this.cmd} code=${code}`)
         if (this.outputFun) this.outputFun(ProgressMsgType.Exit, `${code}`);
     }
     private getDataHandler = (data: any) => {
-        devlog(this, `getDataHandler data=`, data)
+        this.logger.devlog(`getDataHandler data=`, data)
         if (this.outputFun) this.outputFun(ProgressMsgType.Message, typeof data == "object" ? `${JSON.stringify(data)}` : data);
     }
 }

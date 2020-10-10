@@ -1,0 +1,36 @@
+{
+    "sync.json.notExist":"The file %s does not exist",
+    "sync.json.resourcesNotExist":"There is no resources node in resource JSON",
+    "sync.json.hasSameKey": "There is a duplicate key in the resource: %s exit directly without any processing",
+    "sync.json.complete":"%s synchronization completed",
+
+    "sync.filter.dotStart":"Skip the specified extension %s %s",
+    "sync.filter.name":"Skip the specified name %s %s",
+    "sync.filter.pathend":"Skip the end of path %s %s",
+    "sync.filter.undefined":"Skip undefined type %s %s",
+    "sync.filter.cn":"Skip Chinese %s",
+
+    "sync.new":"Add new %s",
+    "sync.timeout":"Timeout",
+    "sync.removeKey":"File does not exist. Remove key: %s",
+
+    "bar.menu.complete":"Compile", 
+    "bar.menu.completeDebug":"Compile and debug", 
+    "bar.menu.restartDebug":"Restart debugging", 
+    "bar.menu.restart":"Restart", 
+    "bar.menu.syncResource":"Synchronize resource file %s",
+
+    "bar.status.destroying":"Egret closing", 
+    "bar.status.running":"%s", 
+    "bar.status.running_default":"Egret running", 
+    "bar.status.free":"Egret idle", 
+    "bar.status.starting":"Egret is starting", 
+
+    "bar.exstatus.building":"Egret compiling",
+    "bar.exstatus.syncing":"Egret synchronization resource",
+
+    "exml.notfindwin":"The active window was not found",
+    
+    "exml.hover.jump":"Click to jump to [%s]",
+    "exml.hover.notExist":"Does not exist [%s]"
+}

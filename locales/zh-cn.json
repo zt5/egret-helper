@@ -1,0 +1,36 @@
+{
+    "sync.json.notExist":"文件 %s 不存在",
+    "sync.json.resourcesNotExist":"资源json中没有resources节点",
+    "sync.json.hasSameKey": "资源中存在重复的 key:%s 直接退出 不会做任何处理",
+    "sync.json.complete":"%s 同步完成",
+
+    "sync.filter.dotStart":"过滤掉指定扩展名 %s %s",
+    "sync.filter.name":"过滤掉指定名字 %s %s",
+    "sync.filter.pathend":"过滤掉路径末尾 %s %s",
+    "sync.filter.undefined":"过滤掉没有定义的类型 %s %s",
+    "sync.filter.cn":"过滤掉中文 %s",
+
+    "sync.new":"添加新的 %s",
+    "sync.timeout":"超时",
+    "sync.removeKey":"文件不存在 移除key: %s",
+
+    "bar.menu.complete":"编译", 
+    "bar.menu.completeDebug":"编译调试", 
+    "bar.menu.restartDebug":"重启调试", 
+    "bar.menu.restart":"重启", 
+    "bar.menu.syncResource":"同步资源文件 %s",
+
+    "bar.status.destroying":"Egret关闭中", 
+    "bar.status.running":"%s", 
+    "bar.status.running_default":"Egret运行中", 
+    "bar.status.free":"Egret空闲中", 
+    "bar.status.starting":"Egret启动中", 
+
+    "bar.exstatus.building":"Egret编译中",
+    "bar.exstatus.syncing":"Egret同步资源中",
+
+    "exml.notfindwin":"未找到激活的窗口",
+    
+    "exml.hover.jump":"点击跳转到[%s]",
+    "exml.hover.notExist":"不存在[%s]"
+}
