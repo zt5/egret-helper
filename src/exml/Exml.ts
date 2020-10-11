@@ -1,32 +1,32 @@
 import * as fs from "fs";
 import * as vscode from 'vscode';
-import * as path from "path";
-
+import Listener from "../common/Listener";
+import { getLogger, Logger } from "../common/Logger";
 import * as helper from "../helper";
-import ExmlPathAutoCompleteProvider from './ExmlPathAutoCompleteProvider';
 import ExmlHoverProvider from './ExmlHoverProvider';
 import ExmlLinkProvider from './ExmlLinkProvider';
-import Listener from "../common/Listener";
-import { devlog } from "../helper";
-import Progress from "../common/Progress";
+import ExmlPathAutoCompleteProvider from './ExmlPathAutoCompleteProvider';
+
 
 export default class Exml extends Listener {
+	private logger: Logger;
 	public constructor(protected subscriptions: vscode.Disposable[]) {
 		super();
-		devlog(this, "constructor");
+		this.logger = getLogger(this);
+		this.logger.devlog("constructor");
 		this.addListener(vscode.languages.registerHoverProvider(['typescript'], new ExmlHoverProvider()));
 		this.addListener(vscode.languages.registerDefinitionProvider(['typescript'], new ExmlLinkProvider()));
 		this.addListener(vscode.languages.registerCompletionItemProvider(['typescript'], new ExmlPathAutoCompleteProvider(), "="));
 
 		this.addListener(vscode.commands.registerCommand("egret-helper.goToExml", () => {
-			devlog(this, "egret-helper.goToExml");
+			this.logger.devlog("egret-helper.goToExml");
 			this.exec();
 		}));
 	}
 	public exec() {
 		let activieWin = vscode.window.activeTextEditor;
 		if (!activieWin) {
-			devlog(this, "未找到激活的窗口")
+			this.logger.devlog("未找到激活的窗口")
 			return;
 		}
 		let doc = activieWin.document;
@@ -66,9 +66,9 @@ export default class Exml extends Listener {
 		if (configs.exmlOpenExternal) {
 			//调用外部编辑器
 			helper.openExmlEditor(urlstr).then(progress => {
-				devlog(this, "open success!");
+				this.logger.devlog("open success!");
 			}).catch(err => {
-				devlog(this, err);
+				this.logger.devlog(err);
 				this.openByVsCode(urlstr);
 			});
 		} else {
