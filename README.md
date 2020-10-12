@@ -1,5 +1,5 @@
 # egret 工具 
-[![Build Status](https://travis-ci.com/zt5/egret-helper.svg?branch=master)](https://travis-ci.com/zt5/egret-helper) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) 
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) 
 
 [建议和bug反馈](https://github.com/zt5/egret-helper/issues/new)
 
