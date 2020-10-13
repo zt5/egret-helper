@@ -30,20 +30,24 @@ export default class Exml extends Listener {
 			return;
 		}
 		let doc = activieWin.document;
-		let count = doc.lineCount;
-		let results: string[] = [];
-		for (let i = 0; i < count; i++) {
-			let line = doc.lineAt(i);
-			results.push(...this.collectOneLineExml(line));
-		}
-		if (results.length) {
-			if (results.length == 1) {
-				this.openExml(results[0]);
-			} else {
-				vscode.window.showQuickPick(results).then(pickurl => {
-					if (!pickurl) return;
-					this.openExml(pickurl);
-				})
+		if (doc.uri.fsPath.endsWith(".exml")) {
+			this.openExml(doc.uri.fsPath);
+		} else {
+			let count = doc.lineCount;
+			let results: string[] = [];
+			for (let i = 0; i < count; i++) {
+				let line = doc.lineAt(i);
+				results.push(...this.collectOneLineExml(line));
+			}
+			if (results.length) {
+				if (results.length == 1) {
+					this.openExml(results[0]);
+				} else {
+					vscode.window.showQuickPick(results).then(pickurl => {
+						if (!pickurl) return;
+						this.openExml(pickurl);
+					})
+				}
 			}
 		}
 	}
