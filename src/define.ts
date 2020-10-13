@@ -12,6 +12,10 @@ export type EgretRes = {
 	type: string;
 	name: string;
 }
+export type EgretGroups = {
+	keys: string;
+	name: string;
+}
 export type EgretResMap = { [key: string]: EgretRes }
 export enum EgretServiceStatus {
 	Starting, Running, Destroying, Free

@@ -3,7 +3,7 @@ import * as path from "path";
 import * as helper from "../helper";
 import { toasterr } from "../helper";
 import EgretServer from "./EgretServer";
-import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus } from "../define";
+import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus, EgretGroups } from "../define";
 import { getLogger, Logger, showLog } from "../common/Logger";
 
 export default class EgretResSync {
@@ -47,8 +47,12 @@ export default class EgretResSync {
             }
             resMap[val.name] = val;
         }
+
+        const groups: EgretGroups[] = json["groups"];
+
+
         const rootPath = path.dirname(jsonPath);
-        await this.checkResExists(resMap, rootPath);
+        await this.checkResExists(groups, resMap, rootPath);
 
         helper.loopFile(rootPath, file => this.addFile(file, resMap, rootPath));
 
@@ -57,6 +61,7 @@ export default class EgretResSync {
             arr.push(resMap[key]);
         }
         json["resources"] = arr;
+        if (groups) json["groups"] = groups;
         await helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
         this.logger.log("default.res.json同步完成")
     }
@@ -107,9 +112,31 @@ export default class EgretResSync {
     private addFile(file: string, resMap: EgretResMap, rootPath: string) {
         const resSyncMap = helper.getConfigObj().resMap;
         if (this.blockFile(resSyncMap, file)) return;
+        const FntTail = resSyncMap[".fnt"].tail;
+        const PngTail = resSyncMap[".png"].tail;
+
         const resName = this.converEgretName(file, resSyncMap);
         if (!resMap[resName]) {
             const extName = path.extname(file).toLocaleLowerCase();
+
+
+            if (extName == ".fnt") {
+                const fileName = path.basename(file, path.extname(file));
+                const fntPng = fileName + PngTail;
+                if (resMap[fntPng]) {
+                    //fnt字体不需要图片
+                    delete resMap[fntPng];
+                    this.logger.log(`fnt字体不需要添加图片,已经存在png，移除key:${fntPng}`)
+                }
+            } else if (extName == ".png") {
+                const fileName = path.basename(file, path.extname(file));
+                if (resMap[fileName + FntTail]) {
+                    //fnt字体不需要图片
+                    this.logger.log(`fnt字体不需要添加图片,已经存在fnt,跳过key:${resName}`)
+                    return;
+                }
+            }
+
 
             const resType = resSyncMap[extName].type;
             const resUrl = path.normalize(file).replace(path.normalize(rootPath), "").replace(/\\/g, "/").slice(1);
@@ -121,7 +148,7 @@ export default class EgretResSync {
             this.logger.log(`添加新的${resName}`)
         }
     };
-    private checkResExists(resMap: { [key: string]: EgretRes }, rootPath: string) {
+    private checkResExists(groups: EgretGroups[], resMap: { [key: string]: EgretRes }, rootPath: string) {
         return new Promise((resolve, reject) => {
             let totalCount = Object.keys(resMap).length;
             let curCount = 0;
@@ -138,6 +165,20 @@ export default class EgretResSync {
                     } else {
                         //文件不存在;
                         this.logger.log(`文件不存在 移除key:${key}`);
+                        if (groups && groups.length) {
+                            for (let i = 0; i < groups.length; i++) {
+                                let keys = groups[i].keys.split(",");
+                                let isChange = false;
+                                for (let j = keys.length - 1; j >= 0; j--) {
+                                    if (keys[j].trim() == key) {
+                                        isChange = true;
+                                        keys.splice(j, 1);
+                                        this.logger.log(`移除group:${groups[i].name}中的key:${key}`);
+                                    }
+                                }
+                                groups[i].keys = keys.join(",");
+                            }
+                        }
                         delete resMap[key];
                     }
                     if (curCount == totalCount) {
