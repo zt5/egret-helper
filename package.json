@@ -11,6 +11,7 @@
 		"Extension Packs",
 		"Other"
 	],
+	"icon": "images/icon.jpg",
 	"keywords": [
 		"egret"
 	],
