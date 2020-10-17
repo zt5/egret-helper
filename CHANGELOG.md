@@ -1,3 +1,14 @@
+## [1.0.0] - 2020-10-17
+
+### 新增
+- 添加配置 `openEgretServer` (`auto`/`alert` 打开项目时怎么开启Egret服务器,默认`auto`。`auto`:打开Egret项目时，自动开启Egret服务器,`alert`:打开Egret项目时，弹框询问是否开启Egret服务器。如果没选择开启，可以在Egret菜单命令中点击重启)
+
+### 删除
+- 删除配置 `egretPropertiesPath` （使用机会少，Egret项目肯定有)
+- 删除配置 `exmlSearchGlob` （改为搜索项目下所有exml文件)
+
+[1.0.0]: https://github.com/zt5/egret-helper/releases/tag/v1.0.0
+-----------------------------------------------------------------------------------------------------------
 ## [0.0.9] - 2020-10-13
 
 ### 新增

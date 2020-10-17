@@ -98,7 +98,7 @@ export default class EgretServerBar extends Listener {
                 }
                 break;
             case EgretServiceStatus.Free:
-                _statusTxt = `$(vm-outline) Egret空闲中`;
+                _statusTxt = `$(vm-outline) Egret已停止`;
                 break;
             case EgretServiceStatus.Starting:
                 _statusTxt = `$(repo-sync~spin) Egret启动中`;

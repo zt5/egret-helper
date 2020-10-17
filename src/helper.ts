@@ -64,24 +64,20 @@ export function getConfigObj() {
 	return <ConfigObj>vscode.workspace.getConfiguration("egret-helper");
 }
 export function getCurRootPath() {
-	let configs = getConfigObj();
-	if (configs.egretPropertiesPath) {
-		const workspaceFolders = vscode.workspace.workspaceFolders;
-		if (workspaceFolders && workspaceFolders.length > 0) {
-			for (const workspaceFolder of workspaceFolders) {
-				const folderString = workspaceFolder.uri.fsPath;
-				if (!folderString) {
-					continue;
-				}
-				const egretConfig = path.join(folderString, configs.egretPropertiesPath);
-				if (!fs.existsSync(egretConfig)) {
-					continue;
-				}
-				return workspaceFolder;
+	const workspaceFolders = vscode.workspace.workspaceFolders;
+	if (workspaceFolders && workspaceFolders.length > 0) {
+		for (const workspaceFolder of workspaceFolders) {
+			const folderString = workspaceFolder.uri.fsPath;
+			if (!folderString) {
+				continue;
 			}
+			const egretConfig = path.join(folderString, "egretProperties.json");
+			if (!fs.existsSync(egretConfig)) {
+				continue;
+			}
+			return workspaceFolder;
 		}
 	}
-
 	return null;
 }
 export function getDefaultResJsonPath() {

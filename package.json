@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具合集,支持调试，编译，添加删除egret资源",
-	"version": "0.0.9",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -71,11 +71,6 @@
 					"default": false,
 					"description": "是否弹出错误弹窗"
 				},
-				"egret-helper.egretPropertiesPath": {
-					"type": "string",
-					"default": "egretProperties.json",
-					"description": "egret项目文件egretProperties.json文件路径(相对于项目根目录)"
-				},
 				"egret-helper.egretResourceJsonPath": {
 					"type": "string",
 					"default": "resource/default.res.json",
@@ -85,11 +80,6 @@
 					"type": "string",
 					"default": "resource",
 					"description": "egret同步资源文件夹路径(要添加或删除到default.res.json的文件夹,相对于项目根目录)"
-				},
-				"egret-helper.exmlSearchGlob": {
-					"type": "string",
-					"default": "**/resource/**/*.exml",
-					"description": "exml搜索路径(glob字符串格式)"
 				},
 				"egret-helper.exmlOpenExternal": {
 					"type": "boolean",
@@ -154,6 +144,19 @@
 						}
 					},
 					"description": "同步default.res.json的资源 对象的key值代表文件扩展名 tail属性：扩展名替换的尾巴(egret资源的名字) type：default.res.json中的type"
+				},
+				"egret-helper.openEgretServer": {
+					"type": "string",
+					"default": "auto",
+					"enum": [
+						"auto",
+						"alert"
+					],
+					"enumDescriptions": [
+						"打开Egret项目时，自动开启Egret服务器",
+						"打开Egret项目时，弹框询问是否开启Egret服务器"
+					],
+					"description": "打开项目时怎么开启Egret服务器"
 				}
 			}
 		},

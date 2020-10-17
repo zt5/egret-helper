@@ -10,7 +10,7 @@ import { getLogger, Logger } from "../common/Logger";
 export default class EgretService {
     private progress: Progress;
     private _urlStr: string | undefined;
-    private isDestroy = false;
+    private _isDestroy = false;
     private logger: Logger;
     constructor(private father: EgretServer) {
         this.logger = getLogger(this);
@@ -53,7 +53,7 @@ export default class EgretService {
         this.exec(folderString, debug);
     }
     private exec(folderString: string, debug: boolean) {
-        if (this.isDestroy) return;
+        if (this._isDestroy) return;
         this.logger.devlog(`exec folderString=${folderString} debug=${debug}`)
         this.father.bar.status = EgretServiceStatus.Starting;
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
@@ -111,8 +111,11 @@ export default class EgretService {
 
     public async destroy() {
         this.logger.devlog(`destroy`)
-        this.isDestroy = true;
+        this._isDestroy = true;
         await this.progress.clear();
+    }
+    public get isDestroy() {
+        return this._isDestroy;
     }
     public get urlStr() {
         return this._urlStr;
