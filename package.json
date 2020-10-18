@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具合集,支持调试，编译，添加删除egret资源",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -25,33 +25,70 @@
 		"commands": [
 			{
 				"command": "egret-helper.goToExml",
-				"title": "从当前文件中搜索exml并跳转到对应文件"
+				"title": "使用Egret UI Editor打开",
+				"icon":"./images/egret_ui_editor.png"
 			},
 			{
 				"command": "egret-helper.egretRestart",
-				"title": "重新运行egret服务器"
+				"title": "重新运行egret服务器",
+				"icon":"./images/icon.png"
 			},
 			{
 				"command": "egret-helper.egretRestartAndDebug",
-				"title": "重新运行egret服务器并调试"
+				"title": "重新运行egret服务器并调试",
+				"icon":"./images/icon.png"
 			},
 			{
 				"command": "egret-helper.egretBuild",
-				"title": "重新编译项目"
+				"title": "重新编译项目",
+				"icon":"./images/icon.png"
 			},
 			{
 				"command": "egret-helper.egretBuildAndDebug",
-				"title": "重新编译项目并调试"
+				"title": "重新编译项目并调试",
+				"icon":"./images/icon.png"
 			},
 			{
 				"command": "egret-helper.egretResSync",
-				"title": "同步default.res.json"
+				"title": "同步default.res.json",
+				"icon":"./images/icon.png"
 			},
 			{
 				"command": "egret-helper.showEgretMenu",
-				"title": "调出egret服务菜单"
+				"title": "调出egret服务菜单",
+				"icon":"./images/icon.png"
 			}
 		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "egret-helper.goToExml",
+					"when": "resourceFilename =~ /.*\\.exml/",
+					"group": "navigation"
+				}
+			],
+			"editor/context": [
+				{
+					"command": "egret-helper.goToExml",
+					"when": "resourceFilename =~ /.*\\.exml/",
+					"group": "navigation"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "egret-helper.goToExml",
+					"when": "resourceFilename =~ /.*\\.exml/",
+					"group": "navigation"
+				}
+			],
+			"editor/title/context": [
+				{
+					"command": "egret-helper.goToExml",
+					"when": "resourceFilename =~ /.*\\.exml/",
+					"group": "navigation"
+				}
+			]
+		},
 		"configuration": {
 			"type": "object",
 			"title": "Egret Helper",

@@ -7,7 +7,7 @@
 - 支持Egret调试(依赖 [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) 插件)
 - 支持ts代码中的 `非空字符.skinName` 路径快速跳转和补全
 - 支持将 `扩展设置 egret-helper.egretResourcePath` 目录的资源文件同步到 `default.res.json` 中
-- 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml(`Mac平台需要手动安装shell命令，打开Egret UI Editor 菜单栏：文件->安装 shell 命令`)
+- 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml(`Mac平台需要手动安装shell命令，打开Egret UI Editor 菜单栏：文件->安装 shell 命令`) 
 
 ## 如何使用
 * 安装 [Chrome](https://www.google.cn/chrome/) 浏览器
@@ -46,5 +46,5 @@
   `alert` 打开Egret项目时，弹框询问是否开启Egret服务器
 
 ## 扩展命令
-* `egret-helper.goToExml`: 快速跳转到exml文件 快捷键默认 `Alt+F1`
+* `egret-helper.goToExml`: 使用Egret UI Editor打开 快捷键默认 `Alt+F1`
 * `egret-helper.egretBuildAndDebug`: 重新编译项目并调试 快捷键默认 `Ctrl+F5`
