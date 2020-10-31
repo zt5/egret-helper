@@ -47,8 +47,6 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	egretResourceJsonPath: string;
 	/**要同步到default.res.json资源文件夹路径(相对于项目根目录)*/
 	egretResourcePath: string;
-	/**是否使用外部编辑器打开exml(目前仅支持在ts文件快捷键打开)*/
-	exmlOpenExternal: boolean;
 	/**同步default.res.json的资源*/
 	resMap: ConfigSyncMap,
 	/**同步default.res.json忽略的资源*/

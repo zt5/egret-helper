@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具合集,支持调试，编译，添加删除egret资源",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -117,11 +117,6 @@
 					"type": "string",
 					"default": "resource",
 					"description": "egret同步资源文件夹路径(要添加或删除到default.res.json的文件夹,相对于项目根目录)"
-				},
-				"egret-helper.exmlOpenExternal": {
-					"type": "boolean",
-					"default": true,
-					"description": "是否使用外部编辑器打开exml(目前仅支持在ts文件快捷键Alt+F1打开)"
 				},
 				"egret-helper.resMapIgnore": {
 					"type": "array",
