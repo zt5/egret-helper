@@ -75,7 +75,7 @@ export default class EgretService {
                         let launchPath = helper.getLaunchJsonPath();
                         if (!launchPath) return;//判断是否返回了路径
                         let launchstr = fs.readFileSync(launchPath, { encoding: "UTF-8" });
-                        launchstr = launchstr.replace(/(?<="url":\s*")\S+(?="\s*,\/\/\#replace)/g, urlMsg[0]);//替换成新的cmd打印的路径
+                        launchstr = launchstr.replace(/(?<="url":\s*")\S+(?="\s*,\s*\/\/\#replace)/g, urlMsg[0]);//替换成新的cmd打印的路径
                         fs.writeFileSync(launchPath, launchstr, { encoding: "UTF-8" });
                         if (debug) vscode.commands.executeCommand("workbench.action.debug.start");
                         this.father.bar.status = EgretServiceStatus.Running;

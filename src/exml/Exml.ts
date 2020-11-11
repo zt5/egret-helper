@@ -66,18 +66,13 @@ export default class Exml extends Listener {
 		return results;
 	}
 	private openExml(urlstr: string) {
-		let configs = helper.getConfigObj();
-		if (configs.exmlOpenExternal) {
-			//调用外部编辑器
-			helper.openExmlEditor(urlstr).then(progress => {
-				this.logger.devlog("open success!");
-			}).catch(err => {
-				this.logger.devlog(err);
-				this.openByVsCode(urlstr);
-			});
-		} else {
+		//调用外部编辑器
+		helper.openExmlEditor(urlstr).then(progress => {
+			this.logger.devlog("open success!");
+		}).catch(err => {
+			this.logger.devlog(err);
 			this.openByVsCode(urlstr);
-		}
+		});
 	}
 	private openByVsCode(urlstr: string) {
 		vscode.workspace.openTextDocument(vscode.Uri.file(urlstr)).then(
