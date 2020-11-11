@@ -14,22 +14,22 @@ export default class EgretBuild {
         this.logger.devlog("constructor");
         this.progress = new Progress();
     }
-    public async start(debug = false) {
+    public async start(debug = false, ...extCmdArgs: string[]) {
         this.father.bar.extStatus = EgretServiceExtStatus.Building;
-        showLog();
-        return this._start(debug).catch(err => {
+        showLog(true);
+        return this._start(debug, extCmdArgs).catch(err => {
             this.logger.devlog(`start err=`, err);
             this.logger.log(err);
             if (this.progress) this.progress.clear();
         })
     }
-    private async _start(debug: boolean) {
+    private async _start(debug: boolean, extCmdArgs: string[]) {
         const workspaceFolder = helper.getCurRootPath();
         this.logger.devlog(`start workspaceFolder=`, workspaceFolder);
         if (!workspaceFolder) return;
         const folderString = workspaceFolder.uri.fsPath;
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
-        await this.progress.exec('egret build', folderString, (type: ProgressMsgType, data: string) => {
+        await this.progress.exec(`egret build ${extCmdArgs.join(" ")}`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
                     toasterr(data);

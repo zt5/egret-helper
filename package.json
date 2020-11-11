@@ -1,8 +1,8 @@
 {
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
-	"description": "egret工具合集,支持调试，编译，添加删除egret资源",
-	"version": "1.0.1",
+	"description": "egret项目工具 支持调试，编译，管理资源，发布，创建",
+	"version": "2.0.0",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -16,7 +16,7 @@
 		"egret"
 	],
 	"activationEvents": [
-		"workspaceContains:**/egretProperties.json"
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"publisher": "zt5",
@@ -26,37 +26,52 @@
 			{
 				"command": "egret-helper.goToExml",
 				"title": "使用Egret UI Editor打开",
-				"icon":"./images/egret_ui_editor.png"
+				"icon": "./images/egret_ui_editor.png"
 			},
 			{
 				"command": "egret-helper.egretRestart",
 				"title": "重新运行egret服务器",
-				"icon":"./images/icon.png"
+				"icon": "./images/icon.svg"
 			},
 			{
 				"command": "egret-helper.egretRestartAndDebug",
 				"title": "重新运行egret服务器并调试",
-				"icon":"./images/icon.png"
+				"icon": "./images/icon.svg"
 			},
 			{
 				"command": "egret-helper.egretBuild",
 				"title": "重新编译项目",
-				"icon":"./images/icon.png"
+				"icon": "./images/icon.svg"
 			},
 			{
 				"command": "egret-helper.egretBuildAndDebug",
 				"title": "重新编译项目并调试",
-				"icon":"./images/icon.png"
+				"icon": "./images/icon.svg"
 			},
 			{
 				"command": "egret-helper.egretResSync",
 				"title": "同步default.res.json",
-				"icon":"./images/icon.png"
+				"icon": "./images/icon.svg"
+			},
+			{
+				"command": "egret-helper.createProject",
+				"title": "调出Egret Launcher的创建项目页面",
+				"icon": "./images/icon.svg"
+			},
+			{
+				"command": "egret-helper-launcher.publish",
+				"title": "调出Egret Launcher的发布项目页面",
+				"icon": "./images/icon.svg"
+			},
+			{
+				"command": "egret-helper.egretBuildEngine",
+				"title": "编译引擎",
+				"icon": "./images/icon.svg"
 			},
 			{
 				"command": "egret-helper.showEgretMenu",
 				"title": "调出egret服务菜单",
-				"icon":"./images/icon.png"
+				"icon": "./images/icon.svg"
 			}
 		],
 		"menus": {
@@ -197,6 +212,25 @@
 				}
 			}
 		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "egretProject",
+					"title": "Egret Launcher",
+					"icon": "images/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"egretProject": [
+				{
+					"id": "egretProject",
+					"name": "",
+					"icon": "images/icon.svg",
+					"contextualTitle": "Egret Project"
+				}
+			]
+		},
 		"keybindings": [
 			{
 				"command": "egret-helper.goToExml",
@@ -221,6 +255,7 @@
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.1",
 		"@types/node": "^12.12.0",
+		"@types/semver": "^7.3.4",
 		"@types/vscode": "^1.45.0",
 		"@typescript-eslint/eslint-plugin": "^3.0.2",
 		"@typescript-eslint/parser": "^3.0.2",
@@ -231,6 +266,7 @@
 		"vsce": "^1.79.5"
 	},
 	"dependencies": {
+		"semver": "^7.3.2",
 		"tree-kill": "^1.2.2"
 	}
 }

@@ -12,6 +12,7 @@ export default class EgretServer extends Listener {
     private _service: EgretService;
     private _bar: EgretServerBar;
     private _build: EgretBuild;
+
     private _resSync: EgretResSync;
     private logger: Logger;
     public constructor(protected subscriptions: vscode.Disposable[]) {
@@ -22,11 +23,6 @@ export default class EgretServer extends Listener {
         this._service = new EgretService(this);
         this._build = new EgretBuild(this);
         this._resSync = new EgretResSync(this);
-
-        this.addListener(vscode.workspace.onDidChangeWorkspaceFolders((e: vscode.WorkspaceFoldersChangeEvent) => {
-            this.logger.devlog("constructor onDidChangeWorkspaceFolders", e);
-            this._service.start();
-        }))
 
         this.addListener(vscode.commands.registerCommand("egret-helper.egretRestart", () => {
             this.logger.devlog("constructor egret-helper.egretRestart");
@@ -45,6 +41,11 @@ export default class EgretServer extends Listener {
         this.addListener(vscode.commands.registerCommand("egret-helper.egretBuildAndDebug", () => {
             this.logger.devlog("constructor egret-helper.egretBuildAndDebug");
             this._build.start(true);
+        }));
+        
+        this.addListener(vscode.commands.registerCommand("egret-helper.egretBuildEngine", () => {
+            this.logger.devlog("constructor egret-helper.egretBuildEngine");
+            this._build.start(false,"-e");
         }));
 
         this.addListener(vscode.commands.registerCommand("egret-helper.egretResSync", () => {

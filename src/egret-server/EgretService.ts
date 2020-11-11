@@ -6,7 +6,7 @@ import * as helper from "../helper";
 import { toasterr } from "../helper";
 import EgretServer from './EgretServer';
 import { ProgressMsgType, EgretServiceStatus } from "../define";
-import { getLogger, Logger } from "../common/Logger";
+import { getLogger, Logger, showLog } from "../common/Logger";
 export default class EgretService {
     private progress: Progress;
     private _urlStr: string | undefined;
@@ -18,6 +18,7 @@ export default class EgretService {
         this.progress = new Progress();
     }
     public async start(debug = false) {
+        showLog(true);
         return this._start(debug).catch(err => {
             this.logger.log(err);
             this.logger.devlog(`exec err=`, err)

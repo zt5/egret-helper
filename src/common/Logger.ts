@@ -32,9 +32,9 @@ export function getLogger(val: any): Logger {
 }
 
 let _channel: vscode.OutputChannel;
-export function showLog() {
+export function showLog(show = false) {
     if (!_channel) _channel = vscode.window.createOutputChannel('Egret');/**日志窗口名*/
-    _channel.show(true);
+    _channel.show(show);
 }
 
 function _log(head: string, ...msg: any[]) {

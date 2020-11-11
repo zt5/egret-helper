@@ -3,6 +3,9 @@ import { getLogger, Logger } from './common/Logger';
 import EgretServer from "./egret-server/EgretServer";
 import Exml from "./exml/Exml";
 import * as helper from './helper';
+import EgretTreeView from './project/EgretTreeView';
+
+let _treeView: EgretTreeView | undefined;
 let _exml: Exml | undefined;
 let _egretServer: EgretServer | undefined;
 let isInit = false;
@@ -28,6 +31,14 @@ function init(subscriptions: { dispose(): any }[]) {
 		destroy();
 		return;
 	}
+
+	if (!_treeView) {
+		_treeView = new EgretTreeView(subscriptions);
+	} else {
+		_treeView.update();
+	}
+
+
 	let curRootPath = helper.getCurRootPath();
 	logger.devlog(`init curRootPath=`, curRootPath);
 	if (curRootPath == null) {
@@ -45,6 +56,10 @@ function init(subscriptions: { dispose(): any }[]) {
 
 export async function deactivate() {
 	logger.devlog("deactivate");
+	if (_treeView) {
+		_treeView.destroy();
+		_treeView = undefined;
+	}
 	await destroy();
 }
 async function destroy() {

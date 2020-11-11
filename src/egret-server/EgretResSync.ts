@@ -14,7 +14,7 @@ export default class EgretResSync {
     }
     public async start() {
         this.father.bar.extStatus = EgretServiceExtStatus.Syncing;
-        showLog();
+        showLog(true);
         return this._start().catch(err => {
             toasterr(err);
             this.logger.log(err);
