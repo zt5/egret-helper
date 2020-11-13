@@ -36,10 +36,6 @@ export enum OpenEgretServerType {
 	auto = "auto",
 	alert = "alert"
 }
-export enum EgretHostType {
-	localhost = "localhost",
-	ip = "ip"
-}
 export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	/**插件是否可用*/
 	enable: boolean;
@@ -47,8 +43,6 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	devlog: boolean;
 	/**是否弹出错误弹窗*/
 	alertErrorWin: boolean;
-	/**Egret服务器http地址的格式*/
-	hostType: EgretHostType;
 	/**egret资源配置default.res.json的路径(相对于项目根目录)*/
 	egretResourceJsonPath: string;
 	/**要同步到default.res.json资源文件夹路径(相对于项目根目录)*/

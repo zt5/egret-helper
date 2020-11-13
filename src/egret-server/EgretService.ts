@@ -1,12 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from 'vscode';
+import { getLogger, Logger, showLog } from "../common/Logger";
 import Progress from '../common/Progress';
+import { EgretServiceStatus, ProgressMsgType } from "../define";
 import * as helper from "../helper";
 import { toasterr } from "../helper";
 import EgretServer from './EgretServer';
-import { ProgressMsgType, EgretServiceStatus, EgretHostType } from "../define";
-import { getLogger, Logger, showLog } from "../common/Logger";
 export default class EgretService {
     private progress: Progress;
     private _urlStr: string | undefined;
@@ -88,17 +88,8 @@ export default class EgretService {
 
         let urls = `${data}`.match(/(?<=Url\s*:\s*)\S+(?=\s*)/g);
 
-        switch (helper.getConfigObj().hostType) {
-            case EgretHostType.ip:
-                if (urls) {
-                    urlMsg = urls[0];
-                }
-                break;
-            case EgretHostType.localhost:
-                if (urls) {
-                    urlMsg = urls[0].replace(/(\d+\s*\.\s*){3}\d+/g, "localhost");
-                }
-                break;
+        if (urls) {
+            urlMsg = urls[0];
         }
         if (urlMsg) {
             //替换路径
