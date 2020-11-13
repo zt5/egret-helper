@@ -17,6 +17,7 @@ export function openExmlEditor(exmlPath: string): Promise<Progress> {
 	if (!openExmlEditorLogger) openExmlEditorLogger = getLogger("openExmlEditor");
 	return new Promise((resolve, reject) => {
 		const prgress = new Progress();
+		openExmlEditorLogger.devlog("open " + exmlPath);
 		prgress.exec(`eui "${exmlPath}"`, undefined, (type, data) => {
 			switch (type) {
 				case ProgressMsgType.Error:

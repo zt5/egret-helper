@@ -31,6 +31,7 @@ export default class Exml extends Listener {
 		}
 		let doc = activieWin.document;
 		if (doc.uri.fsPath.endsWith(".exml")) {
+			this.logger.devlog(doc.uri.fsPath)
 			this.openExml(doc.uri.fsPath);
 		} else {
 			let count = doc.lineCount;
@@ -39,6 +40,7 @@ export default class Exml extends Listener {
 				let line = doc.lineAt(i);
 				results.push(...this.collectOneLineExml(line));
 			}
+			this.logger.devlog("exml result:"+JSON.stringify(results));
 			if (results.length) {
 				if (results.length == 1) {
 					this.openExml(results[0]);

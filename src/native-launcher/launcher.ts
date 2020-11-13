@@ -1,13 +1,12 @@
-import * as path from 'path';
+import * as child from 'child_process';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as os from 'os';
-import * as child from 'child_process';
+import * as path from 'path';
 import * as querystring from 'querystring';
-import * as semver from 'semver';
-import { openExternal } from './launcherHelper';
-import { LauncherError, LauncherErrorCode, AppId } from './launcherDefines';
 import { getLogger, Logger } from '../common/Logger';
+import { LauncherError, LauncherErrorCode } from './launcherDefines';
+import { openExternal } from './launcherHelper';
 
 interface Promgram {
     InstallLocation: string;
@@ -65,24 +64,10 @@ function getAppDataPath(platform: string): string {
     }
 }
 
-const MIN_LAUNCHER_VERSOIN: string = '1.0.61';
-
-/**
- * 以下功能需要 Egret Launcher 版本大于`MIN_LAUNCHER_VERSOIN`
- * `feedback()`
- * `launchEUIEditor()`
- * `launchFeather()`
- * `launchResDepot()`
- * `launchTextureMerger()`
- */
 export default class Launcher {
     private static readonly LauncherWinRegKey = '0a64b195-6a01-532b-9902-30ea12027020';
-    private static readonly LoginPath: string = 'login';
-    private static readonly CheckToolUpdatePath: string = 'checkToolUpdate';
     private static readonly PublishProjectPath: string = 'publishProject';
     private static readonly CreateProjectPath: string = 'createProject';
-    private static readonly LaunchAppPath: string = 'launchApp';
-    private static readonly FeedbackPath: string = 'feedback';
 
     private static logger:Logger=getLogger("Launcher");
     /**
@@ -175,32 +160,6 @@ export default class Launcher {
             let target = await this.getEgretLauncherOnWindows();
             if (target) {
                 return target.exe;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 获取已安装的egret launcher版本号。
-     * @returns 版本号，未安装返回null
-     */
-    public static async getEgretLauncherVersionAsync(): Promise<string | null> {
-        let packageFile: string | null = null;
-        if (process.platform === 'darwin') {
-            packageFile = '/Applications/EgretLauncher.app/Contents/Resources/app/package.json';
-        } else {
-            let target = await this.getEgretLauncherOnWindows();
-            if (target) {
-                packageFile = path.join(target.location, 'resources/app/package.json');
-            }
-        }
-        if (packageFile) {
-            let packageObj = await Launcher.readJsonAsync(packageFile);
-            if (packageObj) {
-                let version = packageObj['version'];
-                if (version) {
-                    return version;
-                }
             }
         }
         return null;
@@ -300,32 +259,6 @@ export default class Launcher {
         return result;
     }
 
-    // 测试代码
-    // public static async testBadRequest() {
-    //     return await Launcher.requestAsync("asdfasdfasdf", null);
-    // }
-
-    /**
-     * 向egret launcher发起登录请求
-     * @param appId 应用Id
-     */
-    public static async loginAsync(appId: AppId): Promise<string> {
-        return Launcher.requestAsync(Launcher.LoginPath, {
-            appid: appId
-        });
-    }
-
-    /**
-     * 检查应用更新
-     * @param appId 应用名称
-     * @returns 应用最新版本号
-     */
-    public static checkAppUpdate(appId: AppId): Promise<string> {
-        return Launcher.requestAsync(Launcher.CheckToolUpdatePath, {
-            appid: appId,
-        });
-    }
-
     /**
      * 打开项目发布设置
      * @param projectFolder 项目文件夹
@@ -347,138 +280,5 @@ export default class Launcher {
      */
     public static createProject(): Promise<string> {
         return Launcher.requestAsync(Launcher.CreateProjectPath, {});
-    }
-
-    /**
-     * 检查launcher版本号是否大于指定的版本号
-     * @param version 要比较的版本号
-     */
-    private static async validLauncherVersion(version: string): Promise<void> {
-        const curVersion = await Launcher.getEgretLauncherVersionAsync();
-        if (!curVersion) {
-            return Promise.reject(new LauncherError(LauncherErrorCode.NotFound, 'Cannot find Egret Launcher.'));
-        }
-        if (!curVersion || !semver.gt(curVersion, version)) {
-            return Promise.reject(new LauncherError(LauncherErrorCode.VersionNotMatch, `Version must greater than ${version}`, version));
-        }
-        return;
-    }
-
-    /**
-     * 报告错误
-     * @param appId
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static async feedback(appId: AppId): Promise<boolean> {
-        let result = await Launcher.requestAsync(Launcher.FeedbackPath, {
-            appid: appId,
-        });
-        if (result === 'true') {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 启动指定应用
-     * @param appId 应用id
-     * @param args 启动参数
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    private static async launchApp(appId: AppId, ...args: string[]): Promise<boolean> {
-        Launcher.logger.devlog('appid', appId);
-        let result = await Launcher.requestAsync(Launcher.LaunchAppPath, {
-            appid: appId,
-            args: args
-        });
-        if (result === 'true') {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 启动EUI Editor
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchEUIEditor(): Promise<boolean>;
-    /**
-     * 启动EUI Editor并打开指定文件夹
-     * @param folder 文件夹
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchEUIEditor(folder: string): Promise<boolean>;
-    public static async launchEUIEditor(folder?: string): Promise<boolean> {
-        await Launcher.validLauncherVersion(MIN_LAUNCHER_VERSOIN);
-        if (folder) {
-            return await Launcher.launchApp(AppId.EUIEditor, `--folder="${folder}"`);
-        }
-        return await Launcher.launchApp(AppId.EUIEditor);
-    }
-
-    /**
-     * 启动Egret Feather
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchFeather(): Promise<boolean>;
-    /**
-     * 启动Egret Feather并打开指定粒子文件
-     * @param particleFile 粒子文件
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchFeather(particleFile: string): Promise<boolean>;
-    public static async launchFeather(particleFile?: string): Promise<boolean> {
-        await Launcher.validLauncherVersion(MIN_LAUNCHER_VERSOIN);
-        if (particleFile) {
-            return await Launcher.launchApp(AppId.Feather, `"${particleFile}"`);
-        }
-        return await Launcher.launchApp(AppId.Feather);
-    }
-
-    /**
-     * 启动Res Depot
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchResDepot(): Promise<boolean>;
-    /**
-     * 启动Res Depot并打开指定资源配置文件
-     * @param resConfigFile res config 文件
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchResDepot(resConfigFile: string): Promise<boolean>;
-    /**
-     * 启动Res Depot并打开指定资源配置文件
-     * @param resConfigFile res config 文件
-     * @param resourceFolder 资源文件夹
-     */
-    public static launchResDepot(resConfigFile: string, resourceFolder: string): Promise<boolean>;
-    public static async launchResDepot(resConfigFile?: string, resourceFolder?: string): Promise<boolean> {
-        await Launcher.validLauncherVersion(MIN_LAUNCHER_VERSOIN);
-        if (resConfigFile) {
-            if (resourceFolder) {
-                return await Launcher.launchApp(AppId.ResDepot, `--config="${resConfigFile}"`, `--resource="${resourceFolder}"`);
-            }
-            return await Launcher.launchApp(AppId.ResDepot, `--config="${resConfigFile}"`);
-        }
-        return await Launcher.launchApp(AppId.ResDepot);
-    }
-
-    /**
-     * 启动Texture Merger
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchTextureMerger(): Promise<boolean>;
-    /**
-     * 启动Texture Merger并打开指定文件
-     * @param file 文件(`.jpg` `.jpeg` `.png` `.tmproject`)
-     * @requires version Egret Launcher > MIN_LAUNCHER_VERSOIN
-     */
-    public static launchTextureMerger(file: string): Promise<boolean>;
-    public static async launchTextureMerger(file?: string): Promise<boolean> {
-        await Launcher.validLauncherVersion(MIN_LAUNCHER_VERSOIN);
-        if (file) {
-            return await Launcher.launchApp(AppId.TextureMerger, `"${file}"`);
-        }
-        return await Launcher.launchApp(AppId.TextureMerger);
     }
 }

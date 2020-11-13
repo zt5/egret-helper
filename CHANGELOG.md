@@ -1,3 +1,10 @@
+## [2.0.1] - 2020-11-11
+
+### 修改
+- 添加`hostType`配置 `ip`/`localhost` (`ip`：Egret服务器使用 ip:端口号 例如(http://192.168.1.1:8000/index.html) 注意使用这种方式 `.vscode/launch.json` 里的ip容易频繁变动。`localhost`：Egret服务器使用 localhost:端口号 例如(http://localhost:8000/index.html))
+
+[2.0.1]: https://github.com/zt5/egret-helper/releases/tag/v2.0.1
+-----------------------------------------------------------------------------------------------------------
 ## [2.0.0] - 2020-11-11
 
 ### 新增

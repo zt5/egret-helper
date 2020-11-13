@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -204,6 +204,19 @@
 						"打开Egret项目时，弹框询问是否开启Egret服务器"
 					],
 					"description": "打开项目时怎么开启Egret服务器"
+				},
+				"egret-helper.hostType": {
+					"type": "string",
+					"default": "localhost",
+					"enum": [
+						"localhost",
+						"ip"
+					],
+					"enumDescriptions": [
+						"Egret服务器使用 localhost:端口号 格式",
+						"Egret服务器使用 ip:端口号 格式"
+					],
+					"description": "Egret服务器http地址的格式"
 				}
 			}
 		},
@@ -261,7 +274,6 @@
 		"vsce": "^1.79.5"
 	},
 	"dependencies": {
-		"semver": "^7.3.2",
 		"tree-kill": "^1.2.2"
 	}
 }
