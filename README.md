@@ -26,7 +26,6 @@
 |`openEgretServer`|`enum`|`auto`,`alert`|`auto`|打开项目时怎么开启Egret服务器 (`注¹`)|
 |`resMap`|`object array`|`-`|`vscode设置中查看`|同步Egret资源映射 (`注²`)|
 |`resMapIgnore`|`string array`|`-`|`vscode设置中查看`|同步Egret忽略资源 (`注³`)|
-|`hostType`|`enum`|`localhost`,`ip`|`localhost`|Egret服务器http地址的格式 (`注⁴`)|
 
 ## 注释
 >`注¹`<br>
@@ -44,10 +43,6 @@
 >>路径的末尾 tmp/xx.png(不区分大小写)<br>
 >>某一类文件 .png(不区分大小写)
 
->`注⁴`<br>
->>`ip`：Egret服务器使用 ip:端口号 例如(http://192.168.1.1:8000/index.html) 注意使用这种方式 `.vscode/launch.json` 里的ip容易频繁变动<br>
->>`localhost`：Egret服务器使用 localhost:端口号 例如(http://localhost:8000/index.html)
-
 ## 扩展命令
-* `egret-helper.goToExml`: 使用Egret UI Editor打开 快捷键默认 `Alt+F1`
-* `egret-helper.egretBuildAndDebug`: 重新编译项目并调试 快捷键默认 `Ctrl+F5`
+* `egret-helper.goToExml`: 使用Egret UI Editor打开 快捷键默认 <kbd>Alt + F1</kbd>
+* `egret-helper.egretBuildAndDebug`: 重新编译项目并调试 快捷键默认 <kbd>Ctrl + F5</kbd>
