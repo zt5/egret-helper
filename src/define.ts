@@ -36,6 +36,10 @@ export enum OpenEgretServerType {
 	auto = "auto",
 	alert = "alert"
 }
+export enum EgretHostType {
+	localhost = "127.0.0.1",
+	ip = "ip"
+}
 export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	/**插件是否可用*/
 	enable: boolean;
@@ -53,4 +57,6 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	resMapIgnore: string[],
 	/**打开项目时怎么开启Egret服务器*/
 	openEgretServer: OpenEgretServerType,
+	/**Egret服务器http地址的格式*/
+	hostType: EgretHostType;
 }

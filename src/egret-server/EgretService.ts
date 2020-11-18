@@ -3,7 +3,7 @@ import * as path from "path";
 import * as vscode from 'vscode';
 import { getLogger, Logger, showLog } from "../common/Logger";
 import Progress from '../common/Progress';
-import { EgretServiceStatus, ProgressMsgType } from "../define";
+import { EgretHostType, EgretServiceStatus, ProgressMsgType } from "../define";
 import * as helper from "../helper";
 import { toasterr } from "../helper";
 import EgretServer from './EgretServer';
@@ -88,8 +88,17 @@ export default class EgretService {
 
         let urls = `${data}`.match(/(?<=Url\s*:\s*)\S+(?=\s*)/g);
 
-        if (urls) {
-            urlMsg = urls[0];
+        switch (helper.getConfigObj().hostType) {
+            case EgretHostType.ip:
+                if (urls) {
+                    urlMsg = urls[0];
+                }
+                break;
+            case EgretHostType.localhost:
+                if (urls) {
+                    urlMsg = urls[0].replace(/(\d+\s*\.\s*){3}\d+/g, "127.0.0.1");
+                }
+                break;
         }
         if (urlMsg) {
             //替换路径
