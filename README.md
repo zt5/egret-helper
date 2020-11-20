@@ -8,7 +8,7 @@
 - 支持ts代码中的 `非空字符.skinName` 路径快速跳转和补全
 - 支持将 `扩展设置 egret-helper.egretResourcePath` 目录的资源文件同步到 `egret-helper.egretResourceJsonPath` json中
 - 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml(`Mac平台需要手动安装shell命令，打开Egret UI Editor 菜单栏：文件->安装 shell 命令`) 
-- 支持在编辑器调用 [Egret UI Editor](https://docs.egret.com/uieditor) 的发布和创建页面
+- 支持在编辑器调用 [Egret Launcher](https://docs.egret.com/engine) 的发布和创建页面
 
 ## 如何使用
 * 安装 [Chrome](https://www.google.cn/chrome/) 浏览器
