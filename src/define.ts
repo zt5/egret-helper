@@ -40,6 +40,17 @@ export enum EgretHostType {
 	localhost = "127.0.0.1",
 	ip = "ip"
 }
+export type LaunchJsonConfType = {
+	type: string;
+	request: string;
+	name: string;
+	url: string;
+	webRoot: string;
+}
+export enum DebugBrowserType {
+	chrome = "chrome",
+	edge = "edge",
+}
 export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	/**插件是否可用*/
 	enable: boolean;
@@ -59,4 +70,6 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	openEgretServer: OpenEgretServerType,
 	/**Egret服务器http地址的格式*/
 	hostType: EgretHostType;
+	/**Egret服务器http地址的格式*/
+	debugBrowser: DebugBrowserType;
 }

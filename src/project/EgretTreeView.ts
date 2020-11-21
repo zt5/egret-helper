@@ -60,10 +60,7 @@ export default class EgretTreeView extends Listener {
         this.addListener(
             vscode.commands.registerCommand('egret-helper.publishProject', () => {
                 showLog(true);
-                let curRootPath = helper.getCurRootPath();
-                if (curRootPath) {
-                    Launcher.publishProject(curRootPath.uri.fsPath).catch(err => vscode.window.showErrorMessage(err));
-                }
+                Launcher.publishProject(helper.getCurRootPath()).catch(err => vscode.window.showErrorMessage(err));
             })
         )
     }

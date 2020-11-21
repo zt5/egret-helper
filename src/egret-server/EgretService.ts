@@ -1,6 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as vscode from 'vscode';
+import { EgretJsonConfig } from "../common/EgretJsonConfig";
 import { getLogger, Logger, showLog } from "../common/Logger";
 import Progress from '../common/Progress';
 import { EgretHostType, EgretServiceStatus, ProgressMsgType } from "../define";
@@ -12,10 +11,12 @@ export default class EgretService {
     private _urlStr: string | undefined;
     private _isDestroy = false;
     private logger: Logger;
+    private egretJson: EgretJsonConfig;
     constructor(private father: EgretServer) {
         this.logger = getLogger(this);
         this.logger.devlog(`constructor`)
         this.progress = new Progress();
+        this.egretJson = new EgretJsonConfig();
     }
     public async start(debug = false) {
         showLog(true);
@@ -27,25 +28,8 @@ export default class EgretService {
     }
     private async _start(debug: boolean) {
         this.logger.devlog(`start debug=`, debug)
-        const workspaceFolder = helper.getCurRootPath();
-        if (!workspaceFolder) return;
-        this.logger.devlog(`start workspaceFolder=`, workspaceFolder)
-        let launchPath = helper.getLaunchJsonPath();
-        if (!launchPath) return;//判断是否返回了路径
-        this.logger.devlog(`start launchPath=`, launchPath)
-        this.checkLaunchJson(launchPath);
-        //检查tsconfig的sourceMap是否存在 不存在就设置
-        let ts_config_Path = path.join(workspaceFolder.uri.fsPath, "tsconfig.json");
-        this.logger.devlog(`start ts_config_Path=`, ts_config_Path)
-        let ts_config_str = fs.readFileSync(ts_config_Path, { encoding: "UTF-8" });
-        let ts_config_json = JSON.parse(ts_config_str);
-        if (!ts_config_json.compilerOptions.sourceMap) {
-            ts_config_json.compilerOptions.sourceMap = true;
-            await helper.writeFile(ts_config_Path, JSON.stringify(ts_config_json, null, "\t"));
-        }
-
-        const folderString = workspaceFolder.uri.fsPath;
-
+        const folderString = helper.getCurRootPath();
+        this.logger.devlog(`start workspaceFolder=`, folderString)
         await this.progress.clear()
         this.exec(folderString, debug);
     }
@@ -64,13 +48,16 @@ export default class EgretService {
                 case ProgressMsgType.Message:
                     this.logger.log(data);
                     this.logger.devlog(`exec message=`, data)
-                    const [urlMsg, launchPath, launchstr] = this.getEgretUrl(data);
-                    if (urlMsg && launchPath) {
+                    const urlMsg = this.getEgretUrl(data);
+                    this.logger.devlog(`egret http url`, urlMsg)
+                    if (urlMsg) {
                         this._urlStr = urlMsg;
-
-                        fs.writeFileSync(launchPath, launchstr, { encoding: "UTF-8" });
-                        if (debug) vscode.commands.executeCommand("workbench.action.debug.start");
-                        this.father.bar.status = EgretServiceStatus.Running;
+                        this.egretJson.step(this._urlStr).then(()=>{
+                            if (debug) vscode.commands.executeCommand("workbench.action.debug.start");
+                            this.father.bar.status = EgretServiceStatus.Running;
+                        }).catch(err => {
+                            this.logger.devlog(err);
+                        })
                     }
                     break;
                 case ProgressMsgType.Exit:
@@ -81,10 +68,8 @@ export default class EgretService {
             }
         });
     }
-    private getEgretUrl(data: string): [string | null, string | null, string | null] {
-        let urlMsg: string | null = null;
-        let launchPath: string | null = null;
-        let launchstr: string | null = null;
+    private getEgretUrl(data: string): string {
+        let urlMsg: string = "";
 
         let urls = `${data}`.match(/(?<=Url\s*:\s*)\S+(?=\s*)/g);
 
@@ -100,42 +85,7 @@ export default class EgretService {
                 }
                 break;
         }
-        if (urlMsg) {
-            //替换路径
-            launchPath = helper.getLaunchJsonPath();
-            if (launchPath) {
-                launchstr = fs.readFileSync(launchPath, { encoding: "UTF-8" });
-                launchstr = launchstr.replace(/(?<="url"\s*:\s*")\S+(?="\s*,\s*\/\/\#replace)/g, urlMsg);//替换成新的cmd打印的路径
-            }
-        }
-        return [urlMsg, launchPath, launchstr];
-    }
-    private checkLaunchJson(launchPath: string) {
-        //检查launch.json是否存在
-        if (!fs.existsSync(launchPath)) this.writeTemplateLaunchJson(launchPath);
-        let launchstr = fs.readFileSync(launchPath, { encoding: "UTF-8" });
-        //检查launch中的#replace是否存在 不存在就覆盖掉
-        if (launchstr.indexOf("#replace") == -1) this.writeTemplateLaunchJson(launchPath);
-    }
-    private writeTemplateLaunchJson(launchPath: string) {
-        let parentPath = path.dirname(launchPath);
-        if (!fs.existsSync(parentPath)) fs.mkdirSync(parentPath);
-        fs.writeFileSync(launchPath,
-            `{
-    // 使用 IntelliSense 了解相关属性。 
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Egret Debug",
-            "url": "http://localhost:8080",//#replace
-            "webRoot": "\${workspaceFolder}"
-        }
-    ]
-}`);
+        return urlMsg;
     }
 
     public async destroy() {

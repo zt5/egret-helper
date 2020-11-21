@@ -4,7 +4,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { getLogger, Logger } from "./common/Logger";
 import Progress from './common/Progress';
-import { ConfigObj, Platform, ProgressMsgType } from "./define";
+import { ConfigObj, DebugBrowserType, Platform, ProgressMsgType } from "./define";
 
 export function valNeedAutoComplete(text: string) {
 	return !!text.match(/\S+\s*\.skinName\s*=\s*(.*?)/);
@@ -56,7 +56,7 @@ export function getPlatform() {
 export function convertFullPath(cur: string) {
 	let rootPath = getCurRootPath()
 	if (rootPath) {
-		return path.normalize(path.join(rootPath.uri.fsPath, cur));
+		return path.normalize(path.join(rootPath, cur));
 	}
 	return null;
 }
@@ -64,7 +64,15 @@ export function convertFullPath(cur: string) {
 export function getConfigObj() {
 	return <ConfigObj>vscode.workspace.getConfiguration("egret-helper");
 }
+export function isEgretProject() {
+	if (getCurRootPath().trim() == "") {
+		return false;
+	} else {
+		return true;
+	}
+}
 export function getCurRootPath() {
+	let result: string = "";
 	const workspaceFolders = vscode.workspace.workspaceFolders;
 	if (workspaceFolders && workspaceFolders.length > 0) {
 		for (const workspaceFolder of workspaceFolders) {
@@ -76,25 +84,35 @@ export function getCurRootPath() {
 			if (!fs.existsSync(egretConfig)) {
 				continue;
 			}
-			return workspaceFolder;
+			result = workspaceFolder.uri.fsPath;
+			break;
 		}
 	}
-	return null;
+	return result;
 }
 export function getDefaultResJsonPath() {
 	let configs = getConfigObj();
 	if (configs.egretResourceJsonPath) {
 		const workspaceFolder = getCurRootPath();
 		if (workspaceFolder) {
-			return path.normalize(path.join(workspaceFolder.uri.fsPath, configs.egretResourceJsonPath));
+			return path.normalize(path.join(workspaceFolder, configs.egretResourceJsonPath));
 		}
 	}
 	return null;
 }
 export function getLaunchJsonPath() {
-	const workspaceFolder = getCurRootPath();
-	if (workspaceFolder) {
-		return path.join(workspaceFolder.uri.fsPath, ".vscode", "launch.json");
+	return path.join(getCurRootPath(), ".vscode", "launch.json");
+}
+export function getTSConfigPath() {
+	return path.join(getCurRootPath(), "tsconfig.json");
+}
+export function getDebugBrowser() {
+	let conf = getConfigObj();
+	switch (conf.debugBrowser) {
+		case DebugBrowserType.chrome:
+			return "pwa-chrome";
+		case DebugBrowserType.edge:
+			return "pwa-edge";
 	}
 	return null;
 }
@@ -103,7 +121,7 @@ export function getEgretResPath() {
 	if (configs.egretResourcePath) {
 		const workspaceFolder = getCurRootPath();
 		if (workspaceFolder) {
-			return path.normalize(path.join(workspaceFolder.uri.fsPath, configs.egretResourcePath));
+			return path.normalize(path.join(workspaceFolder, configs.egretResourcePath));
 		}
 	}
 	return null;
@@ -122,9 +140,19 @@ export function loopFile(file: string, fileFun: (file: string) => void) {
 };
 export function writeFile(file: string, data: string): Promise<void> {
 	return new Promise((resolve, reject) => {
+		let parentPath = path.dirname(file);
+		if (!fs.existsSync(parentPath)) fs.mkdirSync(parentPath);
 		fs.writeFile(file, data, (err) => {
 			if (err) reject(err);
 			else resolve();
+		})
+	})
+}
+export function readFile(file: string): Promise<string> {
+	return new Promise((resolve, reject) => {
+		fs.readFile(file, { encoding: "utf-8" }, (err, data) => {
+			if (err) reject(err);
+			else resolve(data);
 		})
 	})
 }

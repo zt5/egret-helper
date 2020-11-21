@@ -39,9 +39,9 @@ function init(subscriptions: { dispose(): any }[]) {
 	}
 
 
-	let curRootPath = helper.getCurRootPath();
-	logger.devlog(`init curRootPath=`, curRootPath);
-	if (curRootPath == null) {
+	let isEgretProject = helper.isEgretProject();
+	logger.devlog(`init isEgretProject=`, isEgretProject);
+	if (!isEgretProject) {
 		destroy();
 		return;
 	} else {

@@ -24,10 +24,8 @@ export default class EgretBuild {
         })
     }
     private async _start(debug: boolean, extCmdArgs: string[]) {
-        const workspaceFolder = helper.getCurRootPath();
-        this.logger.devlog(`start workspaceFolder=`, workspaceFolder);
-        if (!workspaceFolder) return;
-        const folderString = workspaceFolder.uri.fsPath;
+        const folderString = helper.getCurRootPath();
+        this.logger.devlog(`start workspaceFolder=`, folderString);
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
         await this.progress.exec(`egret build ${extCmdArgs.join(" ")}`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {

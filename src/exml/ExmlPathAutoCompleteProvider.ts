@@ -15,9 +15,7 @@ export default class ExmlPathAutoCompleteProvider implements vscode.CompletionIt
 		let line = doc.lineAt(pos);
 		let result = helper.valNeedAutoComplete(line.text);
 		if (!result) return;
-		let workFolder = helper.getCurRootPath();
-		if (!workFolder) return;
-		let workPath = workFolder.uri.fsPath;
+		let workPath = helper.getCurRootPath();
 		if (workPath.lastIndexOf(path.sep) != workPath.length - 1) {
 			//最后没有分隔符
 			workPath += path.sep;

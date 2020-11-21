@@ -217,6 +217,19 @@
 						"Egret服务器使用 ip:端口号 格式"
 					],
 					"description": "Egret服务器http地址的格式"
+				},
+				"egret-helper.debugBrowser": {
+					"type": "string",
+					"description": "调试使用的浏览器",
+					"default": "chrome",
+					"enum": [
+						"chrome",
+						"edge"
+					],
+					"enumDescriptions": [
+						"Google Chrome浏览器",
+						"Microsoft Edge浏览器"
+					]
 				}
 			}
 		},
@@ -274,6 +287,7 @@
 		"vsce": "^1.79.5"
 	},
 	"dependencies": {
+		"json5-writer": "^0.2.0",
 		"tree-kill": "^1.2.2"
 	}
 }
