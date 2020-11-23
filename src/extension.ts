@@ -10,6 +10,7 @@ let _exml: Exml | undefined;
 let _egretServer: EgretServer | undefined;
 let isInit = false;
 let logger: Logger;
+
 export function activate({ subscriptions }: vscode.ExtensionContext) {
 	logger = getLogger("extension");
 	logger.devlog("activate");
@@ -23,7 +24,7 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	}))
 	init(subscriptions);
 }
-function init(subscriptions: { dispose(): any }[]) {
+function init(subscriptions: vscode.Disposable[]) {
 	logger.devlog("init");
 	let enabled = helper.getConfigObj().enable;
 	logger.devlog(`init enabled=`, enabled);

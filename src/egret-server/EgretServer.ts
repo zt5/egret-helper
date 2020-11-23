@@ -19,8 +19,8 @@ export default class EgretServer extends Listener {
         super();
         this.logger = getLogger(this);
         this.logger.devlog("constructor");
-        this._bar = new EgretServerBar(subscriptions, this);
-        this._service = new EgretService(this);
+        this._bar = new EgretServerBar(this, subscriptions);
+        this._service = new EgretService(this, subscriptions);
         this._build = new EgretBuild(this);
         this._resSync = new EgretResSync(this);
 
@@ -42,10 +42,10 @@ export default class EgretServer extends Listener {
             this.logger.devlog("constructor egret-helper.egretBuildAndDebug");
             this._build.start(true);
         }));
-        
+
         this.addListener(vscode.commands.registerCommand("egret-helper.egretBuildEngine", () => {
             this.logger.devlog("constructor egret-helper.egretBuildEngine");
-            this._build.start(false,"-e");
+            this._build.start(false, "-e");
         }));
 
         this.addListener(vscode.commands.registerCommand("egret-helper.egretResSync", () => {

@@ -100,6 +100,9 @@ export function getDefaultResJsonPath() {
 	}
 	return null;
 }
+export function getDebugName() {
+	return "Egret Debug(" + getDebugBrowser() + ")";
+}
 export function getLaunchJsonPath() {
 	return path.join(getCurRootPath(), ".vscode", "launch.json");
 }
@@ -112,7 +115,7 @@ export function getDebugBrowser() {
 		case DebugBrowserType.chrome:
 			return "pwa-chrome";
 		case DebugBrowserType.edge:
-			return "pwa-edge";
+			return "pwa-msedge";
 	}
 	return null;
 }

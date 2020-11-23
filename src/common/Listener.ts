@@ -11,6 +11,13 @@ export default abstract class Listener {
         this.listeners.push(listener);
         this.subscriptions.push(listener);
     }
+    protected removeListener(listener: vscode.Disposable) {
+        let index = this.listeners.indexOf(listener);
+        if (index != -1) {
+            this.listeners.splice(index, 1);
+        }
+        listener.dispose();
+    }
     protected get isDestroy() {
         return this._isDestroy;
     }

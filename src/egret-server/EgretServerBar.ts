@@ -10,7 +10,7 @@ export default class EgretServerBar extends Listener {
     private _status = EgretServiceStatus.Free;
     private _extStatus = EgretServiceExtStatus.Free;
     private logger: Logger;
-    public constructor(protected subscriptions: vscode.Disposable[], private server: EgretServer) {
+    public constructor(private server: EgretServer, protected subscriptions: vscode.Disposable[]) {
         super();
         this.logger = getLogger(this);
         this.logger.devlog("constructor")

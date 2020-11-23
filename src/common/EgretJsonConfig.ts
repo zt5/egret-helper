@@ -1,17 +1,21 @@
-import * as helper from "../helper";
 import * as fs from "fs";
+import * as jju from "jju";
+import { ParseOptions, StringifyOptions } from "jju";
 import * as vscode from "vscode";
 import { LaunchJsonConfType } from "../define";
+import * as helper from "../helper";
+import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
-const json5Writer = require('json5-writer')
-const JSON5 = require('json5')
 
-export class EgretJsonConfig {
+export class EgretJsonConfig extends Listener {
     private launchPath: string = "";
     private url: string = "";
     private logger: Logger;
-    constructor() {
+    private jsobjParam: ParseOptions & StringifyOptions
+    constructor(protected subscriptions: vscode.Disposable[]) {
+        super();
         this.logger = getLogger(this);
+        this.jsobjParam = { reserved_keys: 'replace', quote: '"', quote_keys: true }
     }
     public async step(url: string) {
         this.url = url;
@@ -33,12 +37,16 @@ export class EgretJsonConfig {
         let ts_config_path = helper.getTSConfigPath();
         this.logger.devlog("changeTSConfig ts_config_path=", ts_config_path)
         let ts_config_str = await helper.readFile(ts_config_path);
-        const writer = json5Writer.load(ts_config_str);
-        this.logger.devlog(writer)
-        if (!writer.compilerOptions || !writer.compilerOptions.sourceMap) {
+
+        let jsObj = jju.parse(ts_config_str, this.jsobjParam)
+
+        this.logger.devlog(jsObj)
+        if (!jsObj.compilerOptions || !jsObj.compilerOptions.sourceMap) {
             this.logger.devlog("changeTSConfig modify sourceMap=true")
-            writer.write({ compilerOptions: { sourceMap: true } })
-            helper.writeFile(ts_config_path, writer.toSource());
+            if (!jsObj.compilerOptions) jsObj.compilerOptions = {};
+            jsObj.compilerOptions.sourceMap = true;
+            let output = jju.update(ts_config_str, jsObj, this.jsobjParam)
+            helper.writeFile(ts_config_path, output);
         }
     }
     private async changeLaunchJson() {
@@ -47,22 +55,19 @@ export class EgretJsonConfig {
             this.logger.devlog("changeLaunchJson create launchJson")
             await helper.writeFile(this.launchPath, this.getTemplate());
         }
-        const config = await helper.readFile(this.launchPath);
-        const writer = json5Writer.load(config);
-        const prevJson = writer.toSource()
-        const prevJsonObj = JSON5.parse(prevJson);
-
-
+        const prevJsonStr = await helper.readFile(this.launchPath);
+        const jsObj = jju.parse(prevJsonStr, this.jsobjParam)
 
         let finalConfs: LaunchJsonConfType[];
+        const curType = helper.getDebugBrowser()
 
-        if (!prevJsonObj[CONF_KEY]) {
+        if (!jsObj[CONF_KEY]) {
             this.logger.devlog("changeLaunchJson create configurations")
             finalConfs = [this.configTemplate()];
 
         } else {
-            finalConfs = <LaunchJsonConfType[]>prevJsonObj[CONF_KEY];
-            const curType = helper.getDebugBrowser()
+            finalConfs = <LaunchJsonConfType[]>jsObj[CONF_KEY];
+
             let findIndex = finalConfs.findIndex(val => val.type == curType);
             if (findIndex == -1) {
                 this.logger.devlog("changeLaunchJson push configurations")
@@ -78,40 +83,52 @@ export class EgretJsonConfig {
             }
         }
 
-        this.logger.devlog("changeLaunchJson seturl configurations" + this.url);
+        this.logger.devlog("changeLaunchJson seturl configurations：" + this.url);
+        
+        let findItem = finalConfs.find(val => val.type == curType);
+        //先保存成一个 让vscode默认选中这个 之后在恢复之前的列表
+        jsObj[CONF_KEY] = [findItem]
+        let output = jju.update(prevJsonStr, jsObj, this.jsobjParam)
 
-        let obj: { [key: string]: unknown } = { [CONF_KEY]: finalConfs };
-        Object.keys(JSON5.parse(writer.toSource())).filter(item => item != CONF_KEY).forEach(args => obj[args] = undefined);
+        this.logger.devlog("changeLaunchJson save one configurations");
 
-        writer.write(obj);
+        helper.writeFile(this.launchPath, output);
+        await this.waitConfigSaveOk();
 
+        this.logger.devlog("changeLaunchJson save all configurations");
 
-        const newJSON = writer.toJSON();
-        if (newJSON == prevJson) {
-            this.logger.devlog("changeLaunchJson skip configurations");
-        } else {
-            this.logger.devlog("changeLaunchJson save configurations");
-            helper.writeFile(this.launchPath, newJSON);
-        }
+        jsObj[CONF_KEY] = finalConfs;
+        output = jju.update(prevJsonStr, jsObj, this.jsobjParam)
+        helper.writeFile(this.launchPath, output);
+        this.logger.devlog("changeLaunchJson save all configurations ok");
 
+    }
+    private waitConfigSaveOk() {
+        return new Promise((resolve, reject) => {
+            let dispose = vscode.workspace.onDidChangeConfiguration((e) => {
+                this.removeListener(dispose);
+                resolve();
+            });
+            this.addListener(dispose);
+        });
     }
     private getTemplate() {
         return `{
-    // 使用 IntelliSense 了解相关属性。 
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        ${JSON.stringify(this.configTemplate(), undefined, "\t\t\t")}
-    ]
-}`
+        // 使用 IntelliSense 了解相关属性。 
+        // 悬停以查看现有属性的描述。
+        // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+        "version": "0.2.0",
+        "configurations": [
+            ${JSON.stringify(this.configTemplate(), undefined, "\t\t\t")}
+        ]
+    }`
     }
     private configTemplate() {
         const curType = helper.getDebugBrowser()
         return <LaunchJsonConfType>{
             type: curType,
             request: "launch",
-            name: "Egret Debug",
+            name: helper.getDebugName(),
             url: this.url,
             webRoot: "${workspaceFolder}"
         }
