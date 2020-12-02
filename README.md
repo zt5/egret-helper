@@ -4,7 +4,7 @@
 ## 特性
 - 支持在编辑器中开启Egret服务器
 - 支持在编辑器中重新编译
-- 支持Egret调试(依赖 [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) 插件)
+- 支持Egret调试
 - 支持ts代码中的 `非空字符.skinName` 路径快速跳转和补全
 - 支持将 `扩展设置 egret-helper.egretResourcePath` 目录的资源文件同步到 `egret-helper.egretResourceJsonPath` json中
 - 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml(`Mac平台需要手动安装shell命令，打开Egret UI Editor 菜单栏：文件->安装 shell 命令`) 
@@ -12,7 +12,6 @@
 
 ## 如何使用
 * 安装 [Chrome](https://www.google.cn/chrome/) 浏览器
-* 安装 [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) 插件
 * 更多功能 点击 `vscode左下角的状态栏插件图标` ，选择对应操作即可即可
 
 ## 扩展设置
@@ -27,6 +26,7 @@
 |`resMap`|`object array`|`-`|`vscode设置中查看`|同步Egret资源映射 (`注²`)|
 |`resMapIgnore`|`string array`|`-`|`vscode设置中查看`|同步Egret忽略资源 (`注³`)|
 |`hostType`|`enum`|`127.0.0.1`,`ip`|`127.0.0.1`|Egret服务器http地址的格式 (`注⁴`)|
+|`debugBrowser`|`enum`|`chrome`,`edge`|`chrome`|调试使用的浏览器|
 
 ## 注释
 >`注¹`<br>

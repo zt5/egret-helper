@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
-import { EgretJsonConfig } from "../common/EgretJsonConfig";
-import Listener from '../common/Listener';
+import { EgretConfig } from "../common/EgretConfig";
 import { getLogger, Logger, showLog } from "../common/Logger";
 import Progress from '../common/Progress';
 import { EgretHostType, EgretServiceStatus, ProgressMsgType } from "../define";
@@ -12,12 +11,9 @@ export default class EgretService {
     private _urlStr: string | undefined;
     private _isDestroy = false;
     private logger: Logger;
-    private egretJson: EgretJsonConfig;
-    constructor(private father: EgretServer, protected subscriptions: vscode.Disposable[]) {
+    constructor(private father: EgretServer,private egretJson:EgretConfig) {
         this.logger = getLogger(this);
-        this.logger.devlog(`constructor`)
         this.progress = new Progress();
-        this.egretJson = new EgretJsonConfig(subscriptions);
     }
     public async start(debug = false) {
         showLog(true);
@@ -56,8 +52,6 @@ export default class EgretService {
                         this.egretJson.step(this._urlStr).then(() => {
                             if (debug) vscode.commands.executeCommand("workbench.action.debug.start");
                             this.father.bar.status = EgretServiceStatus.Running;
-                        }).catch(err => {
-                            this.logger.devlog(err);
                         })
                     }
                     break;

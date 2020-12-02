@@ -4,6 +4,7 @@ import EgretServer from './EgretServer';
 import * as helper from "../helper";
 import { EgretServiceExtStatus, EgretServiceStatus } from "../define";
 import { getLogger, Logger } from '../common/Logger';
+import { Command } from '../common/Command';
 export default class EgretServerBar extends Listener {
     private statusBar: vscode.StatusBarItem;
     private reCompileBar: vscode.StatusBarItem;
@@ -13,7 +14,6 @@ export default class EgretServerBar extends Listener {
     public constructor(private server: EgretServer, protected subscriptions: vscode.Disposable[]) {
         super();
         this.logger = getLogger(this);
-        this.logger.devlog("constructor")
         const barCommandId = 'egret-helper.showEgretMenu';
         const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${helper.getConfigObj().egretResourceJsonPath}]`];
         this.addListener(vscode.commands.registerCommand(barCommandId, () => {
@@ -22,16 +22,16 @@ export default class EgretServerBar extends Listener {
                 this.logger.devlog(`constructor pick ${result}`)
                 switch (result) {
                     case pickItems[0]:
-                        vscode.commands.executeCommand("egret-helper.egretBuild");
+                        vscode.commands.executeCommand(Command.EGRET_BUILD);
                         break;
                     case pickItems[1]:
-                        vscode.commands.executeCommand("egret-helper.egretBuildAndDebug");
+                        vscode.commands.executeCommand(Command.EGRET_BUILD_DEBUG);
                         break;
                     case pickItems[2]:
-                        vscode.commands.executeCommand("egret-helper.egretRestart");
+                        vscode.commands.executeCommand(Command.EGRET_RESTART);
                         break;
                     case pickItems[3]:
-                        vscode.commands.executeCommand("egret-helper.egretResSync");
+                        vscode.commands.executeCommand(Command.EGRET_RES_SYNC);
                         break;
                 }
             })
@@ -43,7 +43,7 @@ export default class EgretServerBar extends Listener {
         subscriptions.push(this.statusBar);
 
         this.reCompileBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-        this.reCompileBar.command = "egret-helper.egretBuildAndDebug";
+        this.reCompileBar.command = Command.EGRET_BUILD_DEBUG;
         subscriptions.push(this.reCompileBar);
 
         this.updateView();

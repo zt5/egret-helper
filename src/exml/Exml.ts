@@ -13,7 +13,6 @@ export default class Exml extends Listener {
 	public constructor(protected subscriptions: vscode.Disposable[]) {
 		super();
 		this.logger = getLogger(this);
-		this.logger.devlog("constructor");
 		this.addListener(vscode.languages.registerHoverProvider(['typescript'], new ExmlHoverProvider()));
 		this.addListener(vscode.languages.registerDefinitionProvider(['typescript'], new ExmlLinkProvider()));
 		this.addListener(vscode.languages.registerCompletionItemProvider(['typescript'], new ExmlPathAutoCompleteProvider(), "="));

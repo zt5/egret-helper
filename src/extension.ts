@@ -19,19 +19,23 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 		init(subscriptions);
 	}));
 	subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
-		logger.devlog("ConfigChange", e);
-		init(subscriptions);
+		logger.devlog("ConfigChange");
+		if (helper.valConfIsChange(e, "enable")) {
+			logger.log("egret-helper.enable change")
+			init(subscriptions);
+		}
 	}))
 	init(subscriptions);
 }
 function init(subscriptions: vscode.Disposable[]) {
-	logger.devlog("init");
 	let enabled = helper.getConfigObj().enable;
-	logger.devlog(`init enabled=`, enabled);
+	logger.devlog(`enabled=`, enabled);
 	if (!enabled) {
 		destroy();
 		return;
 	}
+	
+	logger.devlog("init");
 
 	if (!_treeView) {
 		_treeView = new EgretTreeView(subscriptions);
@@ -64,7 +68,9 @@ export async function deactivate() {
 	await destroy();
 }
 async function destroy() {
-	logger.devlog("destroy");
+	if (isInit) {
+		logger.devlog("destroy");
+	}
 	isInit = false;
 	if (_exml) {
 		_exml.destroy();

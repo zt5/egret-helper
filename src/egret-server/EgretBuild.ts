@@ -11,7 +11,6 @@ export default class EgretBuild {
     private logger: Logger;
     constructor(private father: EgretServer) {
         this.logger = getLogger(this);
-        this.logger.devlog("constructor");
         this.progress = new Progress();
     }
     public async start(debug = false, ...extCmdArgs: string[]) {

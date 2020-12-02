@@ -10,7 +10,6 @@ export default class EgretResSync {
     private logger: Logger;
     constructor(private father: EgretServer) {
         this.logger = getLogger(this);
-        this.logger.devlog("constructor");
     }
     public async start() {
         this.father.bar.extStatus = EgretServiceExtStatus.Syncing;

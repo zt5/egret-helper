@@ -51,7 +51,7 @@ function _logstr(_channel: vscode.OutputChannel, msg: any) {
     if (typeof msg == "string") return msg;
     else if (typeof msg == "number") return `${msg}`;
     else if (typeof msg == "boolean") return `${msg}`;
-    else if(msg instanceof Error) return `${msg.stack}`
+    else if(msg instanceof Error) return `${msg.stack}`;
     else if (msg === null || msg === undefined) return `${msg}`;
     else return JSON.stringify(msg);
 }

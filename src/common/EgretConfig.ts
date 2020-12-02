@@ -7,17 +7,27 @@ import * as helper from "../helper";
 import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
 
-export class EgretJsonConfig extends Listener {
+export class EgretConfig extends Listener {
     private launchPath: string = "";
     private url: string = "";
     private logger: Logger;
-    private jsobjParam: ParseOptions & StringifyOptions
+    private jsobjParam: ParseOptions & StringifyOptions;
+    private isRunning = false;
     constructor(protected subscriptions: vscode.Disposable[]) {
         super();
         this.logger = getLogger(this);
         this.jsobjParam = { reserved_keys: 'replace', quote: '"', quote_keys: true }
     }
     public async step(url: string) {
+        if (this.isRunning) return;
+        this.isRunning = true;
+        return this._step(url).catch(err => {
+            this.logger.devlog(err);
+        }).finally(() => {
+            this.isRunning = false;
+        });
+    }
+    private async _step(url: string) {
         this.url = url;
         this.changeVSConfig();
         await this.changeTSConfig();
@@ -28,7 +38,7 @@ export class EgretJsonConfig extends Listener {
     private changeVSConfig() {
         let conf = vscode.workspace.getConfiguration("debug.javascript");
         if (!conf.usePreview) {
-            this.logger.devlog("modify debug.javascript.usePreview = true")
+            this.logger.devlog("changeVSConfig modify debug.javascript.usePreview = true")
             conf.update("usePreview", true);
         }
     }
@@ -62,7 +72,7 @@ export class EgretJsonConfig extends Listener {
         const curType = helper.getDebugBrowser()
 
         if (!jsObj[CONF_KEY]) {
-            this.logger.devlog("changeLaunchJson create configurations")
+            this.logger.devlog(`changeLaunchJson create configurations ${curType}`)
             finalConfs = [this.configTemplate()];
 
         } else {
@@ -70,38 +80,36 @@ export class EgretJsonConfig extends Listener {
 
             let findIndex = finalConfs.findIndex(val => val.type == curType);
             if (findIndex == -1) {
-                this.logger.devlog("changeLaunchJson push configurations")
-                finalConfs.unshift(this.configTemplate());
+                this.logger.devlog(`changeLaunchJson push configurations ${curType}`)
+                finalConfs.push(this.configTemplate());
             } else {
-                if (findIndex != 0) {
-                    this.logger.devlog("changeLaunchJson sort configurations")
-                    finalConfs.unshift(finalConfs.splice(findIndex, 1)[0]);
-                }
-                if (finalConfs[0].url != this.url) {
-                    finalConfs[0].url = this.url
+                this.logger.devlog(`changeLaunchJson url replace configurations ${curType}`)
+                if (finalConfs[findIndex].url != this.url) {
+                    finalConfs[findIndex].url = this.url
                 }
             }
         }
 
         this.logger.devlog("changeLaunchJson seturl configurations：" + this.url);
-        
-        let findItem = finalConfs.find(val => val.type == curType);
-        //先保存成一个 让vscode默认选中这个 之后在恢复之前的列表
-        jsObj[CONF_KEY] = [findItem]
-        let output = jju.update(prevJsonStr, jsObj, this.jsobjParam)
+        if (finalConfs.length > 1) {
+            //先保存成一个 让vscode默认选中这个 之后在恢复之前的列表
 
-        this.logger.devlog("changeLaunchJson save one configurations");
+            let findItem = finalConfs.find(val => val.type == curType);
+            jsObj[CONF_KEY] = [findItem]
+            let output = jju.update(prevJsonStr, jsObj, this.jsobjParam)
 
-        helper.writeFile(this.launchPath, output);
-        await this.waitConfigSaveOk();
+            this.logger.devlog("changeLaunchJson temp save one configurations");
+
+            helper.writeFile(this.launchPath, output);
+            await this.waitConfigSaveOk();
+        }
 
         this.logger.devlog("changeLaunchJson save all configurations");
 
         jsObj[CONF_KEY] = finalConfs;
-        output = jju.update(prevJsonStr, jsObj, this.jsobjParam)
+        let output = jju.update(prevJsonStr, jsObj, this.jsobjParam)
         helper.writeFile(this.launchPath, output);
         this.logger.devlog("changeLaunchJson save all configurations ok");
-
     }
     private waitConfigSaveOk() {
         return new Promise((resolve, reject) => {
@@ -114,14 +122,14 @@ export class EgretJsonConfig extends Listener {
     }
     private getTemplate() {
         return `{
-        // 使用 IntelliSense 了解相关属性。 
-        // 悬停以查看现有属性的描述。
-        // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-        "version": "0.2.0",
-        "configurations": [
-            ${JSON.stringify(this.configTemplate(), undefined, "\t\t\t")}
-        ]
-    }`
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        ${JSON.stringify(this.configTemplate(), undefined, "\t\t\t").trimEnd().slice(0, -1)}        }
+    ]
+}`
     }
     private configTemplate() {
         const curType = helper.getDebugBrowser()

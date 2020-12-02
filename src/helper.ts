@@ -71,8 +71,11 @@ export function isEgretProject() {
 		return true;
 	}
 }
-export function getCurRootPath() {
-	let result: string = "";
+export function valConfIsChange(e: vscode.ConfigurationChangeEvent, key: string) {
+	return e.affectsConfiguration("egret-helper." + key, getCurRootUri())
+}
+export function getCurRootUri() {
+	let result: vscode.WorkspaceFolder | undefined;
 	const workspaceFolders = vscode.workspace.workspaceFolders;
 	if (workspaceFolders && workspaceFolders.length > 0) {
 		for (const workspaceFolder of workspaceFolders) {
@@ -84,10 +87,16 @@ export function getCurRootPath() {
 			if (!fs.existsSync(egretConfig)) {
 				continue;
 			}
-			result = workspaceFolder.uri.fsPath;
+			result = workspaceFolder;
 			break;
 		}
 	}
+	return result;
+}
+export function getCurRootPath() {
+	let result: string = "";
+	let folder = getCurRootUri();
+	if (folder) result = folder.uri.fsPath
 	return result;
 }
 export function getDefaultResJsonPath() {

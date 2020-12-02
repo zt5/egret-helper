@@ -7,6 +7,8 @@ import EgretServerBar from './EgretServerBar';
 import EgretService from './EgretService';
 import * as helper from "../helper";
 import { OpenEgretServerType } from '../define';
+import { EgretConfig } from '../common/EgretConfig';
+import { Command } from '../common/Command';
 
 export default class EgretServer extends Listener {
     private _service: EgretService;
@@ -15,43 +17,61 @@ export default class EgretServer extends Listener {
 
     private _resSync: EgretResSync;
     private logger: Logger;
+    private _egretJson: EgretConfig;
     public constructor(protected subscriptions: vscode.Disposable[]) {
         super();
         this.logger = getLogger(this);
-        this.logger.devlog("constructor");
+
+        this._egretJson = new EgretConfig(subscriptions);
+
         this._bar = new EgretServerBar(this, subscriptions);
-        this._service = new EgretService(this, subscriptions);
+        this._service = new EgretService(this, this._egretJson);
         this._build = new EgretBuild(this);
         this._resSync = new EgretResSync(this);
 
-        this.addListener(vscode.commands.registerCommand("egret-helper.egretRestart", () => {
-            this.logger.devlog("constructor egret-helper.egretRestart");
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_RESTART, () => {
+            this.logger.devlog(`call ${Command.EGRET_RESTART}`);
             this._service.start();
         }));
 
-        this.addListener(vscode.commands.registerCommand("egret-helper.egretRestartAndDebug", () => {
-            this.logger.devlog("sconstructor egret-helper.egretRestartAndDebug");
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_RESTART_DEBUG, () => {
+            this.logger.devlog(`call ${Command.EGRET_RESTART_DEBUG}`);
             this._service.start(true);
         }));
-        this.addListener(vscode.commands.registerCommand("egret-helper.egretBuild", () => {
-            this.logger.devlog("constructor egret-helper.egretBuild");
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD, () => {
+            this.logger.devlog(`call ${Command.EGRET_BUILD}`);
             this._build.start();
         }));
 
-        this.addListener(vscode.commands.registerCommand("egret-helper.egretBuildAndDebug", () => {
-            this.logger.devlog("constructor egret-helper.egretBuildAndDebug");
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD_DEBUG, () => {
+            this.logger.devlog(`call ${Command.EGRET_BUILD_DEBUG}`);
             this._build.start(true);
         }));
 
-        this.addListener(vscode.commands.registerCommand("egret-helper.egretBuildEngine", () => {
-            this.logger.devlog("constructor egret-helper.egretBuildEngine");
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD_ENGINE, () => {
+            this.logger.devlog(`call ${Command.EGRET_BUILD_DEBUG}`);
             this._build.start(false, "-e");
         }));
 
-        this.addListener(vscode.commands.registerCommand("egret-helper.egretResSync", () => {
-            this.logger.devlog("constructor egret-helper.egretResSync");
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_RES_SYNC, () => {
+            this.logger.devlog(`call ${Command.EGRET_RES_SYNC}`);
             this._resSync.start()
         }));
+
+        this.addListener(vscode.workspace.onDidChangeConfiguration(e => {
+            if (helper.valConfIsChange(e, "debugBrowser")) {
+                this.logger.log("egret-helper.debugBrowser change")
+                if (this._service.urlStr) {
+                    this._egretJson.step(this._service.urlStr).catch(err => {
+                        this.logger.log(err);
+                    })
+                }
+            } else if (helper.valConfIsChange(e, "hostType")) {
+                this.logger.log("egret-helper.hostType change")
+                this._service.start();
+            }
+        }))
+
         let openEgretType = helper.getConfigObj().openEgretServer;
         switch (openEgretType) {
             case OpenEgretServerType.auto:
@@ -72,7 +92,13 @@ export default class EgretServer extends Listener {
     public get service() {
         return this._service;
     }
-    public get bar(): EgretServerBar {
+    public get urlStr() {
+        if (this._service) {
+            return this._service.urlStr;
+        }
+        return undefined;
+    }
+    public get bar() {
         return this._bar;
     }
     public async destroy() {
@@ -89,6 +115,9 @@ export default class EgretServer extends Listener {
         }
         if (this._resSync) {
             this._resSync.destroy();
+        }
+        if (this._egretJson) {
+            this._egretJson.destroy();
         }
     }
 }

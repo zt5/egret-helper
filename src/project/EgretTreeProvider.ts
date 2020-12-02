@@ -15,41 +15,66 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
     }
     getChildren(element?: EgretTreeItem): Thenable<EgretTreeItem[]> {
         let result: EgretTreeItem[] = [];
-        result.push(new EgretTreeItem("创建项目", "create.svg", {
-            command: 'egret-helper.createProject',
-            title: 'create'
-        }))
+        result.push(new EgretTreeItem(
+            "创建项目",
+            "使用Egret Launcher创建项目",
+            "create.svg",
+            {
+                command: 'egret-helper.createProject',
+                title: 'create'
+            }
+        ))
         if (helper.getCurRootPath()) {
             result.push(
-                new EgretTreeItem("构建项目", "build.svg", {
-                    command: 'egret-helper.egretBuild',
-                    title: 'build'
-                }),
-            );
+                new EgretTreeItem(
+                    "构建项目",
+                    "重新编译项目(egret build命令)",
+                    "build.svg",
+                    {
+                        command: 'egret-helper.egretBuild',
+                        title: 'build'
+                    }
+                ));
             result.push(
-                new EgretTreeItem("编译引擎", "builde.svg", {
-                    command: 'egret-helper.egretBuildEngine',
-                    title: 'buildEngine'
-                }),
-            );
+                new EgretTreeItem(
+                    "编译引擎",
+                    "重新编译引擎(egret build -e命令)",
+                    "builde.svg",
+                    {
+                        command: 'egret-helper.egretBuildEngine',
+                        title: 'buildEngine'
+                    }
+                ));
             result.push(
-                new EgretTreeItem("同步资源", "sync.svg", {
-                    command: 'egret-helper.egretResSync',
-                    title: 'sync'
-                }),
-            );
+                new EgretTreeItem(
+                    "同步资源",
+                    `同步资源(${helper.getEgretResPath()})到资源配置文件(${helper.getDefaultResJsonPath()})中`,
+                    "sync.svg",
+                    {
+                        command: 'egret-helper.egretResSync',
+                        title: 'sync'
+                    }
+                ));
             result.push(
-                new EgretTreeItem("发布项目", "publish.svg", {
-                    command: 'egret-helper.publishProject',
-                    title: 'publish'
-                }),
-            );
+                new EgretTreeItem(
+                    "发布项目",
+                    "使用Egret Launcher发布项目",
+                    "publish.svg",
+                    {
+                        command: 'egret-helper.publishProject',
+                        title: 'publish'
+                    }
+                ));
             result.push(
-                new EgretTreeItem("重启服务", "reboot.svg", {
-                    command: 'egret-helper.egretRestart',
-                    title: 'restart'
-                }),
-            );
+                new EgretTreeItem(
+                    "重启服务",
+                    "重新启动Egret 调试服务器",
+                    "reboot.svg",
+                    {
+                        command: 'egret-helper.egretRestart',
+                        title: 'restart'
+                    }
+                ));
         }
 
         return Promise.resolve(result);
