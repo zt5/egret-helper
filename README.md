@@ -21,12 +21,14 @@
 |`devlog`|`boolean`|`true`,`false`|`false`|是否打印详细日志|
 |`egretResourceJsonPath`|`string`|`-`|`resource/default.res.json`|Egret资源配置的路径(<em>`相对于项目根目录`</em>)|
 |`egretResourcePath`|`string`|`-`|`resource`|Egret资源的路径(<em>`相对于项目根目录`</em>)|
-|`alertErrorWin`|`boolean`|`true`,`false`|`false`|是否在碰到错误时弹出错误提示框|
 |`openEgretServer`|`enum`|`auto`,`alert`|`auto`|打开项目时怎么开启Egret服务器 (`注¹`)|
 |`resMap`|`object array`|`-`|`vscode设置中查看`|同步Egret资源映射 (`注²`)|
 |`resMapIgnore`|`string array`|`-`|`vscode设置中查看`|同步Egret忽略资源 (`注³`)|
 |`hostType`|`enum`|`127.0.0.1`,`ip`|`127.0.0.1`|Egret服务器http地址的格式 (`注⁴`)|
 |`debugBrowser`|`enum`|`chrome`,`edge`|`chrome`|调试使用的浏览器|
+|`serverCmd`|`string`|`-`|`egret run --serverOnly`|Egret开启Http服务器使用的命令 (`注⁵`)|
+|`buildCmd`|`string`|`-`|`egret build`|Egret编译项目使用的命令|
+|`buildEngineCmd`|`string`|`-`|`egret build -e`|Egret编译引擎使用的命令|
 
 ## 注释
 >`注¹`<br>
@@ -47,6 +49,9 @@
 >`注⁴`<br>
 >>`ip`：Egret服务器使用 ip:端口号 例如(http://192.168.1.1:8000/index.html) 注意使用这种方式 `.vscode/launch.json` 里的ip容易频繁变动<br>
 >>`127.0.0.1`：强制Egret服务器使用 127.0.0.1:端口号 例如(http://127.0.0.1:8000/index.html)
+
+>`注⁵`<br>
+>>如果想指定端口 可以添加  `--port 端口号` 如果被占用会自动累加到可用端口号开启
 
 ## 扩展命令
 * `egret-helper.goToExml`: 使用Egret UI Editor打开 快捷键默认 <kbd>Alt + F1</kbd>

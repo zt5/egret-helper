@@ -169,12 +169,6 @@ export function readFile(file: string): Promise<string> {
 	})
 }
 
-export function toasterr(err: any) {
-	let configObj = getConfigObj();
-	if (!configObj.alertErrorWin) return;
-	vscode.window.showErrorMessage(typeof err == "object" ? JSON.stringify(err) : err);
-}
-
 export function fillNum(num: string | number) {
 	let _num = +num;
 	if (isNaN(_num)) return `${num}`;

@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as helper from "../helper";
-import { toasterr } from "../helper";
 import EgretServer from "./EgretServer";
 import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus, EgretGroups } from "../define";
 import { getLogger, Logger, showLog } from "../common/Logger";
@@ -15,7 +14,6 @@ export default class EgretResSync {
         this.father.bar.extStatus = EgretServiceExtStatus.Syncing;
         showLog(true);
         return this._start().catch(err => {
-            toasterr(err);
             this.logger.log(err);
             this.logger.devlog(`start err=`, err);
         }).finally(() => {
@@ -26,7 +24,6 @@ export default class EgretResSync {
         const jsonPath = helper.getDefaultResJsonPath();
         if (!jsonPath || !fs.existsSync(jsonPath)) {
             this.logger.log("EgretRes " + jsonPath + "不存在")
-            toasterr("EgretRes " + jsonPath + "不存在");
             return;
         }
         let jsonStr = fs.readFileSync(jsonPath, { encoding: "utf-8" });
@@ -34,14 +31,12 @@ export default class EgretResSync {
         const resources: EgretRes[] = json["resources"];
         if (!resources) {
             this.logger.log("EgretRes json中没有resources节点")
-            toasterr("EgretRes json中没有resources节点");
             return;
         }
         let resMap: EgretResMap = {};
         for (let val of resources) {
             if (resMap[val.name] != undefined) {
                 this.logger.log(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
-                toasterr(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
                 return;
             }
             resMap[val.name] = val;
