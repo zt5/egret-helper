@@ -56,6 +56,8 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	enable: boolean;
 	/**打印详细日志*/
 	devlog: boolean;
+	/**是否弹出错误弹窗*/
+	alertErrorWin: boolean;
 	/**egret资源配置default.res.json的路径(相对于项目根目录)*/
 	egretResourceJsonPath: string;
 	/**要同步到default.res.json资源文件夹路径(相对于项目根目录)*/
@@ -70,10 +72,4 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	hostType: EgretHostType;
 	/**Egret服务器http地址的格式*/
 	debugBrowser: DebugBrowserType;
-	/**Egret开启Http服务器使用的命令*/
-	serverCmd:string;
-	/**Egret编译项目使用的命令*/
-	buildCmd:string;
-	/**Egret编译引擎使用的命令*/
-	buildEngineCmd:string;
 }

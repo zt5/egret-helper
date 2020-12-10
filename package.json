@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
-	"version": "2.0.41",
+	"version": "2.0.4",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -118,6 +118,11 @@
 					"default": false,
 					"description": "是否打印详细日志"
 				},
+				"egret-helper.alertErrorWin": {
+					"type": "boolean",
+					"default": false,
+					"description": "是否弹出错误弹窗"
+				},
 				"egret-helper.egretResourceJsonPath": {
 					"type": "string",
 					"default": "resource/default.res.json",
@@ -225,21 +230,6 @@
 						"Google Chrome浏览器",
 						"Microsoft Edge浏览器"
 					]
-				},
-				"egret-helper.serverCmd": {
-					"type": "string",
-					"description": "Egret开启Http服务器使用的命令",
-					"default": "egret run --serverOnly"
-				},
-				"egret-helper.buildCmd": {
-					"type": "string",
-					"description": "Egret编译项目使用的命令",
-					"default": "egret build"
-				},
-				"egret-helper.buildEngineCmd": {
-					"type": "string",
-					"description": "Egret编译引擎使用的命令",
-					"default": "egret build -e"
 				}
 			}
 		},

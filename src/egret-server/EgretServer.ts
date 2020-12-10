@@ -9,13 +9,11 @@ import * as helper from "../helper";
 import { OpenEgretServerType } from '../define';
 import { EgretConfig } from '../common/EgretConfig';
 import { Command } from '../common/Command';
-import EgretBuildEngine from './EgretBuildEngine';
 
 export default class EgretServer extends Listener {
     private _service: EgretService;
     private _bar: EgretServerBar;
     private _build: EgretBuild;
-    private _buildEngined: EgretBuildEngine;
 
     private _resSync: EgretResSync;
     private logger: Logger;
@@ -29,7 +27,6 @@ export default class EgretServer extends Listener {
         this._bar = new EgretServerBar(this, subscriptions);
         this._service = new EgretService(this, this._egretJson);
         this._build = new EgretBuild(this);
-        this._buildEngined = new EgretBuildEngine(this);
         this._resSync = new EgretResSync(this);
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_RESTART, () => {
@@ -52,8 +49,8 @@ export default class EgretServer extends Listener {
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD_ENGINE, () => {
-            this.logger.devlog(`call ${Command.EGRET_BUILD_ENGINE}`);
-            this._buildEngined.start(false);
+            this.logger.devlog(`call ${Command.EGRET_BUILD_DEBUG}`);
+            this._build.start(false, "-e");
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_RES_SYNC, () => {
@@ -71,9 +68,6 @@ export default class EgretServer extends Listener {
                 }
             } else if (helper.valConfIsChange(e, "hostType")) {
                 this.logger.log("egret-helper.hostType change")
-                this._service.start();
-            }else if (helper.valConfIsChange(e, "serverCmd")) {
-                this.logger.log("egret-helper.serverCmd change")
                 this._service.start();
             }
         }))
@@ -115,9 +109,6 @@ export default class EgretServer extends Listener {
         }
         if (this._build) {
             await this._build.destroy();
-        }
-        if (this._buildEngined) {
-            await this._buildEngined.destroy();
         }
         if (this._service) {
             await this._service.destroy();

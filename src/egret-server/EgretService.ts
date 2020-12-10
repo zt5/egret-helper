@@ -4,6 +4,7 @@ import { getLogger, Logger, showLog } from "../common/Logger";
 import Progress from '../common/Progress';
 import { EgretHostType, EgretServiceStatus, ProgressMsgType } from "../define";
 import * as helper from "../helper";
+import { toasterr } from "../helper";
 import EgretServer from './EgretServer';
 export default class EgretService {
     private progress: Progress;
@@ -34,9 +35,10 @@ export default class EgretService {
         this.logger.devlog(`exec folderString=${folderString} debug=${debug}`)
         this.father.bar.status = EgretServiceStatus.Starting;
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
-        this.progress.exec(helper.getConfigObj().serverCmd, folderString, (type: ProgressMsgType, data: string) => {
+        this.progress.exec('egret run --serverOnly', folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
+                    toasterr(data);
                     this.logger.log(data);
                     this.logger.devlog(`exec error=`, data)
                     break;
