@@ -27,6 +27,7 @@
 |`resMapIgnore`|`string array`|`-`|`vscode设置中查看`|同步Egret忽略资源 (`注³`)|
 |`hostType`|`enum`|`127.0.0.1`,`ip`|`127.0.0.1`|Egret服务器http地址的格式 (`注⁴`)|
 |`debugBrowser`|`enum`|`chrome`,`edge`|`chrome`|调试使用的浏览器|
+|`port`|`number`|`-`|`7000`|Egret服务器首选端口 (`注⁵`)|
 
 ## 注释
 >`注¹`<br>
@@ -47,6 +48,9 @@
 >`注⁴`<br>
 >>`ip`：Egret服务器使用 ip:端口号 例如(http://192.168.1.1:8000/index.html) 注意使用这种方式 `.vscode/launch.json` 里的ip容易频繁变动<br>
 >>`127.0.0.1`：强制Egret服务器使用 127.0.0.1:端口号 例如(http://127.0.0.1:8000/index.html)
+
+>`注⁵`<br>
+>>Egret服务器使用端口 如果被占用默认寻找可用端口
 
 ## 扩展命令
 * `egret-helper.goToExml`: 使用Egret UI Editor打开 快捷键默认 <kbd>Alt + F1</kbd>

@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
-	"version": "2.0.4",
+	"version": "2.0.42",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -230,6 +230,11 @@
 						"Google Chrome浏览器",
 						"Microsoft Edge浏览器"
 					]
+				},
+				"egret-helper.port":{
+					"type": "number",
+					"description": "Egret服务器首选端口",
+					"default": 7000
 				}
 			}
 		},

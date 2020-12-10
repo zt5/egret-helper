@@ -72,4 +72,6 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	hostType: EgretHostType;
 	/**Egret服务器http地址的格式*/
 	debugBrowser: DebugBrowserType;
+	/**Egret服务器首选端口*/
+	port:number;
 }

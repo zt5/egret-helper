@@ -35,7 +35,7 @@ export default class EgretService {
         this.logger.devlog(`exec folderString=${folderString} debug=${debug}`)
         this.father.bar.status = EgretServiceStatus.Starting;
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
-        this.progress.exec('egret run --serverOnly', folderString, (type: ProgressMsgType, data: string) => {
+        this.progress.exec(`egret run --serverOnly --port ${helper.getConfigObj().port}`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
                     toasterr(data);
