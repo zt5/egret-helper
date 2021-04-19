@@ -6,6 +6,7 @@ import { LaunchJsonConfType } from "../define";
 import * as helper from "../helper";
 import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
+import WebpackStrConfig from "./WebpackStrConfig";
 
 export class EgretConfig extends Listener {
     private launchPath: string = "";
@@ -30,10 +31,24 @@ export class EgretConfig extends Listener {
     private async _step(url: string) {
         this.url = url;
         this.changeVSConfig();
-        await this.changeTSConfig();
+        if (helper.getConfigObj().webpackMode) {
+            await this.changeWebpackConfig();
+        } else {
+            await this.changeTSConfig();
+        }
         this.launchPath = helper.getLaunchJsonPath();
         this.logger.devlog("step launchPath=" + this.launchPath)
         await this.changeLaunchJson();
+    }
+    private async changeWebpackConfig() {
+        let webpack_path = helper.getWebpackConfigPath();
+        if (fs.existsSync(webpack_path)) {
+            let webpackstr = await helper.readFile(webpack_path);
+            webpackstr = new WebpackStrConfig().replace(webpackstr);
+            await helper.writeFile(webpack_path, webpackstr);
+        } else {
+            helper.toasterr(`file ${webpack_path} not exist!!!`);
+        }
     }
     private changeVSConfig() {
         let conf = vscode.workspace.getConfiguration("debug.javascript");
@@ -112,7 +127,7 @@ export class EgretConfig extends Listener {
         this.logger.devlog("changeLaunchJson save all configurations ok");
     }
     private waitConfigSaveOk() {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             let dispose = vscode.workspace.onDidChangeConfiguration((e) => {
                 this.removeListener(dispose);
                 resolve();

@@ -34,10 +34,6 @@ export default class EgretServer extends Listener {
             this._service.start();
         }));
 
-        this.addListener(vscode.commands.registerCommand(Command.EGRET_RESTART_DEBUG, () => {
-            this.logger.devlog(`call ${Command.EGRET_RESTART_DEBUG}`);
-            this._service.start(true);
-        }));
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD, () => {
             this.logger.devlog(`call ${Command.EGRET_BUILD}`);
             this._build.start();

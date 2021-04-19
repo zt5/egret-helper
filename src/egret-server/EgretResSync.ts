@@ -148,7 +148,7 @@ export default class EgretResSync {
         }
     };
     private checkResExists(groups: EgretGroups[], resMap: { [key: string]: EgretRes }, rootPath: string) {
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             let totalCount = Object.keys(resMap).length;
             let curCount = 0;
             const timerId = setTimeout(() => {

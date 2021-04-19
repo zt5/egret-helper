@@ -4,7 +4,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { getLogger, Logger } from "./common/Logger";
 import Progress from './common/Progress';
-import { ConfigObj, DebugBrowserType, Platform, ProgressMsgType } from "./define";
+import { ConfigObj, DebugBrowserType, EgretHostType, Platform, ProgressMsgType } from "./define";
 
 export function valNeedAutoComplete(text: string) {
 	return !!text.match(/\S+\s*\.skinName\s*=\s*(.*?)/);
@@ -51,6 +51,29 @@ export function getPlatform() {
 		default:
 			return Platform.Unknown;
 	}
+}
+export function getIp() {
+	let ip: string[] = [];
+	switch (getConfigObj().hostType) {
+		case EgretHostType.ip:
+
+			var interfaces = os.networkInterfaces();
+			for (var devName in interfaces) {
+				var iface = interfaces[devName];
+				for (var i = 0; i < iface.length; i++) {
+					var alias = iface[i];
+					if (alias.family === 'IPv4' && !alias.internal) {
+						ip.push(alias.address)
+					}
+				}
+			}
+			break;
+
+		case EgretHostType.localhost:
+			ip.push("127.0.0.1")
+			break;
+	}
+	return ip;
 }
 
 export function convertFullPath(cur: string) {
@@ -117,6 +140,9 @@ export function getLaunchJsonPath() {
 }
 export function getTSConfigPath() {
 	return path.join(getCurRootPath(), "tsconfig.json");
+}
+export function getWebpackConfigPath() {
+	return path.join(getCurRootPath(), "scripts","config.ts");
 }
 export function getDebugBrowser() {
 	let conf = getConfigObj();

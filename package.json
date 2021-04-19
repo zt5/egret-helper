@@ -235,6 +235,11 @@
 					"type": "number",
 					"description": "Egret服务器首选端口",
 					"default": 7000
+				},
+				"egret-helper.webpackMode":{
+					"type": "boolean",
+					"description": "设置是否使用Egret Webpack编译(新版本的编译方式)",
+					"default": false
 				}
 			}
 		},

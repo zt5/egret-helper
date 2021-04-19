@@ -1,92 +1,67 @@
-import * as vscode from 'vscode';
 import { EgretConfig } from "../common/EgretConfig";
 import { getLogger, Logger, showLog } from "../common/Logger";
-import Progress from '../common/Progress';
-import { EgretHostType, EgretServiceStatus, ProgressMsgType } from "../define";
+import { EgretServiceStatus, HttpMsgType } from "../define";
 import * as helper from "../helper";
-import { toasterr } from "../helper";
 import EgretServer from './EgretServer';
+import HttpServer from './HttpServer';
+
 export default class EgretService {
-    private progress: Progress;
+    private server: HttpServer;
     private _urlStr: string | undefined;
     private _isDestroy = false;
     private logger: Logger;
-    constructor(private father: EgretServer,private egretJson:EgretConfig) {
+    constructor(private father: EgretServer, private egretJson: EgretConfig) {
         this.logger = getLogger(this);
-        this.progress = new Progress();
+        this.server = new HttpServer();
     }
-    public async start(debug = false) {
+    public async start() {
         showLog(true);
-        return this._start(debug).catch(err => {
+        return this._start().catch(err => {
             this.logger.log(err);
             this.logger.devlog(`exec err=`, err)
-            if (this.progress) this.progress.clear();
+            if (this.server) this.server.clear();
         });
     }
-    private async _start(debug: boolean) {
-        this.logger.devlog(`start debug=`, debug)
+    private async _start() {
+        this.logger.devlog(`start`)
         const folderString = helper.getCurRootPath();
         this.logger.devlog(`start workspaceFolder=`, folderString)
-        await this.progress.clear()
-        this.exec(folderString, debug);
+        await this.server.clear()
+        this.exec(folderString);
     }
-    private exec(folderString: string, debug: boolean) {
+    private exec(folderString: string) {
         if (this._isDestroy) return;
-        this.logger.devlog(`exec folderString=${folderString} debug=${debug}`)
+        this.logger.devlog(`exec folderString=${folderString}`)
         this.father.bar.status = EgretServiceStatus.Starting;
-        if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
-        this.progress.exec(`egret run --serverOnly --port ${helper.getConfigObj().port}`, folderString, (type: ProgressMsgType, data: string) => {
+
+        this.server.start(folderString, (type: HttpMsgType, data: string) => {
             switch (type) {
-                case ProgressMsgType.Error:
-                    toasterr(data);
+                case HttpMsgType.Error:
                     this.logger.log(data);
                     this.logger.devlog(`exec error=`, data)
                     break;
-                case ProgressMsgType.Message:
+                case HttpMsgType.Message:
                     this.logger.log(data);
                     this.logger.devlog(`exec message=`, data)
-                    const urlMsg = this.getEgretUrl(data);
-                    this.logger.devlog(`egret http url`, urlMsg)
-                    if (urlMsg) {
-                        this._urlStr = urlMsg;
-                        this.egretJson.step(this._urlStr).then(() => {
-                            if (debug) vscode.commands.executeCommand("workbench.action.debug.start");
-                            this.father.bar.status = EgretServiceStatus.Running;
-                        })
-                    }
                     break;
-                case ProgressMsgType.Exit:
+                case HttpMsgType.Exit:
                     this.father.bar.status = EgretServiceStatus.Free;
                     this.logger.log(`exit code=${data}`);
                     this.logger.devlog(`exec exit=`, data)
                     break;
+                case HttpMsgType.Url:
+                    this._urlStr = data;
+                    this.egretJson.step(this._urlStr).then(() => {
+                        this.father.bar.status = EgretServiceStatus.Running;
+                    })
+                    break;
             }
-        });
+        })
     }
-    private getEgretUrl(data: string): string {
-        let urlMsg: string = "";
-
-        let urls = `${data}`.match(/(?<=Url\s*:\s*)\S+(?=\s*)/g);
-
-        switch (helper.getConfigObj().hostType) {
-            case EgretHostType.ip:
-                if (urls) {
-                    urlMsg = urls[0];
-                }
-                break;
-            case EgretHostType.localhost:
-                if (urls) {
-                    urlMsg = urls[0].replace(/(\d+\s*\.\s*){3}\d+/g, "127.0.0.1");
-                }
-                break;
-        }
-        return urlMsg;
-    }
-
     public async destroy() {
         this.logger.devlog(`destroy`)
         this._isDestroy = true;
-        await this.progress.clear();
+        await this.server.clear();
     }
     public get isDestroy() {
         return this._isDestroy;

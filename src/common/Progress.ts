@@ -68,7 +68,7 @@ export default class Progress {
     private killProgress(pid: number) {
         this.logger.devlog(`killProgress pid=${pid}`)
 
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             treekill(pid, (err) => {
                 if (err) this.logger.devlog(`killProgress pid=${pid} `, err);
                 else this.logger.devlog(`killProgress pid=${pid} success!`)
