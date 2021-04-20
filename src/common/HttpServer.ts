@@ -3,8 +3,8 @@ import * as http from "http";
 import * as net from "net";
 import * as path from "path";
 import * as url from "url";
-import { getLogger, Logger } from "../common/Logger";
-import WebpackStrConfig from "../common/WebpackStrConfig";
+import { getLogger, Logger } from "./Logger";
+import WebpackStrConfig from "./WebpackStrConfig";
 import { HttpMsgType, HttpOutPutFun } from "../define";
 import * as helper from "../helper";
 export default class HttpServer {
@@ -44,18 +44,17 @@ export default class HttpServer {
         }
     }
     private httpListeningHandler = () => {
-        this.logger.devlog(`port:${this.port} connection`);
+        this.outputFun && this.outputFun(HttpMsgType.Message, `port:${this.port} connection`)
     }
     private httpCloseHandler = () => {
         this.logger.devlog(`port:${this.port} close`);
         this.outputFun && this.outputFun(HttpMsgType.Exit, "0");
     }
     private httpConnectHandler = (socket: net.Socket) => {
-        this.logger.devlog(`port:${this.port} socket: connect,`, socket);
+        this.outputFun && this.outputFun(HttpMsgType.Message, `port:${this.port} socket: connect,${helper.convertObjStr(socket)}`);
     }
     private httpErrorHandler = (err: Error) => {
-        this.logger.devlog(`port:${this.port} error,`, err);
-        this.outputFun && this.outputFun(HttpMsgType.Error, `${err.stack}`);
+        this.outputFun && this.outputFun(HttpMsgType.Error, helper.convertObjStr(err));
         if ((<NodeJS.ErrnoException>err).code == 'EADDRINUSE') {
             //端口被占用
             this.port++;
@@ -63,7 +62,7 @@ export default class HttpServer {
         }
     }
     private httpRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
-        this.logger.devlog("http:" + req.url);
+        this.logger.devlog("server request:" + req.url);
         if (!req.url) {
             this.httpResp(404, res, "file not exist");
             return;
@@ -114,12 +113,14 @@ export default class HttpServer {
             this.httpServer.off("close", this.httpCloseHandler);
             this.httpServer.off("connection", this.httpConnectHandler);
             this.httpServer.off("listening", this.httpListeningHandler);
-            this.httpServer.close(err => {
-                if (err) {
-                    this.logger.devlog(err);
-                }
-                resolve();
-            });
+            if (this.httpServer.listening)
+                this.httpServer.close(err => {
+                    if (err) {
+                        this.logger.devlog(err);
+                    }
+                    this.httpServer = undefined;
+                    resolve();
+                });
         });
     }
 }

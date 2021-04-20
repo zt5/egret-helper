@@ -3,9 +3,9 @@ import { getLogger, Logger, showLog } from "../common/Logger";
 import { EgretServiceStatus, HttpMsgType } from "../define";
 import * as helper from "../helper";
 import EgretServer from './EgretServer';
-import HttpServer from './HttpServer';
+import HttpServer from '../common/HttpServer';
 
-export default class EgretService {
+export default class EgretWebServer {
     private server: HttpServer;
     private _urlStr: string | undefined;
     private _isDestroy = false;

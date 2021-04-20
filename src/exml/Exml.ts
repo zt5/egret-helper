@@ -39,7 +39,7 @@ export default class Exml extends Listener {
 				let line = doc.lineAt(i);
 				results.push(...this.collectOneLineExml(line));
 			}
-			this.logger.devlog("exml result:"+JSON.stringify(results));
+			this.logger.devlog("exml result:",results);
 			if (results.length) {
 				if (results.length == 1) {
 					this.openExml(results[0]);

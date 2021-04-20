@@ -2,6 +2,7 @@ import * as cp from 'child_process';
 import * as treekill from "tree-kill";
 import { ChildProcessExt, OutPutFun, ProgressMsgType } from "../define";
 import { getLogger, Logger } from './Logger';
+import * as helper from "../helper";
 
 export default class Progress {
     private _progress: ChildProcessExt | undefined;
@@ -70,7 +71,7 @@ export default class Progress {
 
         return new Promise<void>((resolve, reject) => {
             treekill(pid, (err) => {
-                if (err) this.logger.devlog(`killProgress pid=${pid} `, err);
+                if (err) this.logger.devlog(`killProgress error pid=${pid} `, err);
                 else this.logger.devlog(`killProgress pid=${pid} success!`)
                 resolve();
             });
@@ -78,9 +79,7 @@ export default class Progress {
     }
     private getErrorHandler = (err: any) => {
         this.logger.devlog(`getErrorHandler cmd=`, this.cmd, ` error=`, err)
-        if (this.outputFun) {
-            this.outputFun(ProgressMsgType.Error, typeof err == "object" ? `${JSON.stringify(err)}` : err);
-        }
+        if (this.outputFun) this.outputFun(ProgressMsgType.Error, helper.convertObjStr(err));
     }
     private exitHandler = (code: number) => {
         this.logger.devlog(`exitHandler cmd=${this.cmd} code=${code}`)
@@ -88,6 +87,6 @@ export default class Progress {
     }
     private getDataHandler = (data: any) => {
         this.logger.devlog(`getDataHandler data=`, data)
-        if (this.outputFun) this.outputFun(ProgressMsgType.Message, typeof data == "object" ? `${JSON.stringify(data)}` : data);
+        if (this.outputFun) this.outputFun(ProgressMsgType.Message, helper.convertObjStr(data));
     }
 }

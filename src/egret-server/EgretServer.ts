@@ -4,14 +4,14 @@ import { getLogger, Logger } from '../common/Logger';
 import EgretBuild from './EgretBuild';
 import EgretResSync from './EgretResSync';
 import EgretServerBar from './EgretServerBar';
-import EgretService from './EgretService';
+import EgretWebServer from './EgretWebServer';
 import * as helper from "../helper";
 import { OpenEgretServerType } from '../define';
 import { EgretConfig } from '../common/EgretConfig';
 import { Command } from '../common/Command';
 
 export default class EgretServer extends Listener {
-    private _service: EgretService;
+    private _webServer: EgretWebServer;
     private _bar: EgretServerBar;
     private _build: EgretBuild;
 
@@ -25,13 +25,13 @@ export default class EgretServer extends Listener {
         this._egretJson = new EgretConfig(subscriptions);
 
         this._bar = new EgretServerBar(this, subscriptions);
-        this._service = new EgretService(this, this._egretJson);
+        this._webServer = new EgretWebServer(this, this._egretJson);
         this._build = new EgretBuild(this);
         this._resSync = new EgretResSync(this);
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_RESTART, () => {
             this.logger.devlog(`call ${Command.EGRET_RESTART}`);
-            this._service.start();
+            this._webServer.start();
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD, () => {
@@ -57,28 +57,37 @@ export default class EgretServer extends Listener {
         this.addListener(vscode.workspace.onDidChangeConfiguration(e => {
             if (helper.valConfIsChange(e, "debugBrowser")) {
                 this.logger.log("egret-helper.debugBrowser change")
-                if (this._service.urlStr) {
-                    this._egretJson.step(this._service.urlStr).catch(err => {
+                if (this._webServer.urlStr) {
+                    this._egretJson.step(this._webServer.urlStr).catch(err => {
                         this.logger.log(err);
                     })
                 }
             } else if (helper.valConfIsChange(e, "hostType")) {
                 this.logger.log("egret-helper.hostType change")
-                this._service.start();
+                this._webServer.start();
+            } else if (helper.valConfIsChange(e, "webpackMode")) {
+                this.logger.log("egret-helper.webpackMode change")
+                if (this._webServer.urlStr) {
+                    this._egretJson.step(this._webServer.urlStr).then(() => {
+                        this._webServer.start();
+                    }).catch(err => {
+                        this.logger.log(err);
+                    })
+                }
             }
         }))
 
         let openEgretType = helper.getConfigObj().openEgretServer;
         switch (openEgretType) {
             case OpenEgretServerType.auto:
-                this._service.start();
+                this._webServer.start();
                 break;
             case OpenEgretServerType.alert:
                 let menus = [{ title: "确定", v: "ok" }, { title: "取消", v: "cancel" }]
                 vscode.window.showInformationMessage("是否启动Egret服务器?", ...menus).then(result => {
-                    if (!this._service || this._service.isDestroy) return;
+                    if (!this._webServer || this._webServer.isDestroy) return;
                     if (result && result.v == "ok") {
-                        this._service.start();
+                        this._webServer.start();
                     }
                 });
                 break;
@@ -86,11 +95,11 @@ export default class EgretServer extends Listener {
         // this._resSync.start();//刚初始化时同步一次
     }
     public get service() {
-        return this._service;
+        return this._webServer;
     }
     public get urlStr() {
-        if (this._service) {
-            return this._service.urlStr;
+        if (this._webServer) {
+            return this._webServer.urlStr;
         }
         return undefined;
     }
@@ -106,8 +115,8 @@ export default class EgretServer extends Listener {
         if (this._build) {
             await this._build.destroy();
         }
-        if (this._service) {
-            await this._service.destroy();
+        if (this._webServer) {
+            await this._webServer.destroy();
         }
         if (this._resSync) {
             this._resSync.destroy();

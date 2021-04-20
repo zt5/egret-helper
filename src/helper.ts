@@ -6,6 +6,18 @@ import { getLogger, Logger } from "./common/Logger";
 import Progress from './common/Progress';
 import { ConfigObj, DebugBrowserType, EgretHostType, Platform, ProgressMsgType } from "./define";
 
+export function convertObjStr(msg: string | number | boolean | Error | unknown) {
+	if (typeof msg == "string") return msg;
+	else if (typeof msg == "number") return `${msg}`;
+	else if (typeof msg == "boolean") return `${msg}`;
+	else if (msg instanceof Error) {
+		if (msg.stack) return msg.stack;
+		else return msg.message;
+	}
+	else if (msg === null || msg === undefined) return `${msg}`;
+	else return JSON.stringify(msg);
+}
+
 export function valNeedAutoComplete(text: string) {
 	return !!text.match(/\S+\s*\.skinName\s*=\s*(.*?)/);
 }
@@ -198,10 +210,10 @@ export function readFile(file: string): Promise<string> {
 	})
 }
 
-export function toasterr(err: any) {
+export function toasterr(err: unknown) {
 	let configObj = getConfigObj();
 	if (!configObj.alertErrorWin) return;
-	vscode.window.showErrorMessage(typeof err == "object" ? JSON.stringify(err) : err);
+	vscode.window.showErrorMessage(convertObjStr(err));
 }
 
 export function fillNum(num: string | number) {

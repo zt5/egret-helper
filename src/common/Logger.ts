@@ -37,24 +37,16 @@ export function showLog(show = false) {
     _channel.show(show);
 }
 
-function _log(head: string, ...msg: any[]) {
+function _log(head: string, ...msg: unknown[]) {
     if (!_channel) showLog();
     let str: string = head;
     for (let i = 0; i < msg.length; i++) {
-        str += _logstr(_channel, msg[i]);
+        str += helper.convertObjStr(msg[i]);
     }
     if (str && !str.endsWith("\n")) _channel.appendLine(str);
     else _channel.append(str);
 }
 
-function _logstr(_channel: vscode.OutputChannel, msg: any) {
-    if (typeof msg == "string") return msg;
-    else if (typeof msg == "number") return `${msg}`;
-    else if (typeof msg == "boolean") return `${msg}`;
-    else if(msg instanceof Error) return `${msg.stack}`;
-    else if (msg === null || msg === undefined) return `${msg}`;
-    else return JSON.stringify(msg);
-}
 function _getClassName(target: any) {
     if (target && target.constructor && target.constructor.toString) {
         if (target.constructor.name) {
