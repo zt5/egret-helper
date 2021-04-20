@@ -142,7 +142,10 @@ export function getTSConfigPath() {
 	return path.join(getCurRootPath(), "tsconfig.json");
 }
 export function getWebpackConfigPath() {
-	return path.join(getCurRootPath(), "scripts","config.ts");
+	return path.join(getCurRootPath(), "scripts", "config.ts");
+}
+export function getWebpackDebugPath() {
+	return path.join(getCurRootPath(), "bin-debug");
 }
 export function getDebugBrowser() {
 	let conf = getConfigObj();

@@ -4,6 +4,7 @@ import * as net from "net";
 import * as path from "path";
 import * as url from "url";
 import { getLogger, Logger } from "../common/Logger";
+import WebpackStrConfig from "../common/WebpackStrConfig";
 import { HttpMsgType, HttpOutPutFun } from "../define";
 import * as helper from "../helper";
 export default class HttpServer {
@@ -66,6 +67,10 @@ export default class HttpServer {
         if (!relativeUrl) {
             this.httpResp(500, res, `${req.url} parse error`);
             return;
+        }
+        if (path.basename(req.url) == WebpackStrConfig.SOURCE_MAP_NAME) {
+            // 因为白鹭打包脚本限制 jsmap文件特殊处理路径
+            relativeUrl =  WebpackStrConfig.SOURCE_MAP_NAME;
         }
         const localUrl = path.join(this.httpSource, relativeUrl)
 

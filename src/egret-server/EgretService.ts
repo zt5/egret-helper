@@ -24,7 +24,7 @@ export default class EgretService {
     }
     private async _start() {
         this.logger.devlog(`start`)
-        const folderString = helper.getCurRootPath();
+        const folderString = helper.getConfigObj().webpackMode ? helper.getWebpackDebugPath() : helper.getCurRootPath();
         this.logger.devlog(`start workspaceFolder=`, folderString)
         await this.server.clear()
         this.exec(folderString);
