@@ -10,7 +10,7 @@ import * as helper from "../helper";
 export default class HttpServer {
     private httpServer: http.Server | undefined;
     private logger: Logger;
-    private port: number | undefined;
+    private port: number = -1;
     private httpSource: string | undefined;
     private outputFun: HttpOutPutFun | undefined;
     constructor() {
@@ -23,15 +23,20 @@ export default class HttpServer {
         await this.clear();
 
         this.httpServer = http.createServer(this.httpRequestHandler);
-        this.httpServer.addListener("error", this.httpErrorHandler);
-        this.httpServer.addListener("close", this.httpCloseHandler);
-        this.httpServer.addListener("connection", this.httpConnectHandler);
-        this.httpServer.addListener("listening", this.httpListeningHandler);
+        this.httpServer.on("error", this.httpErrorHandler);
+        this.httpServer.on("close", this.httpCloseHandler);
+        this.httpServer.on("connection", this.httpConnectHandler);
+        this.httpServer.on("listening", this.httpListeningHandler);
 
+        this.tryConnect();
+    }
+    private tryConnect() {
         const ip = helper.getIp()[0];
         this.logger.devlog(ip);
         if (!ip) {
             this.outputFun && this.outputFun(HttpMsgType.Error, "find ip address error");
+        } else if (!this.httpServer) {
+            this.outputFun && this.outputFun(HttpMsgType.Error, "httpServer null");
         } else {
             this.httpServer.listen(this.port, () => {
                 this.outputFun && this.outputFun(HttpMsgType.Url, `http://${ip}:${this.port}`)
@@ -51,6 +56,11 @@ export default class HttpServer {
     private httpErrorHandler = (err: Error) => {
         this.logger.devlog(`port:${this.port} error,`, err);
         this.outputFun && this.outputFun(HttpMsgType.Error, `${err.stack}`);
+        if ((<NodeJS.ErrnoException>err).code == 'EADDRINUSE') {
+            //端口被占用
+            this.port++;
+            this.tryConnect();
+        }
     }
     private httpRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
         this.logger.devlog("http:" + req.url);
@@ -70,7 +80,7 @@ export default class HttpServer {
         }
         if (path.basename(req.url) == WebpackStrConfig.SOURCE_MAP_NAME) {
             // 因为白鹭打包脚本限制 jsmap文件特殊处理路径
-            relativeUrl =  WebpackStrConfig.SOURCE_MAP_NAME;
+            relativeUrl = WebpackStrConfig.SOURCE_MAP_NAME;
         }
         const localUrl = path.join(this.httpSource, relativeUrl)
 
@@ -100,10 +110,10 @@ export default class HttpServer {
                 resolve();
                 return;
             }
-            this.httpServer.removeListener("error", this.httpErrorHandler);
-            this.httpServer.removeListener("close", this.httpCloseHandler);
-            this.httpServer.removeListener("connection", this.httpConnectHandler);
-            this.httpServer.removeListener("listening", this.httpListeningHandler);
+            this.httpServer.off("error", this.httpErrorHandler);
+            this.httpServer.off("close", this.httpCloseHandler);
+            this.httpServer.off("connection", this.httpConnectHandler);
+            this.httpServer.off("listening", this.httpListeningHandler);
             this.httpServer.close(err => {
                 if (err) {
                     this.logger.devlog(err);
