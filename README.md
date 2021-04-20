@@ -11,7 +11,7 @@
 - 支持在编辑器调用 [Egret Launcher](https://docs.egret.com/engine) 的发布和创建页面
 
 ## 如何使用
-* 安装 [Chrome](https://www.google.cn/chrome/) 浏览器
+* 安装 [Chrome](https://www.google.cn/chrome/) 或 [Microsoft Edge](https://www.microsoft.com/zh-cn/edge)  浏览器
 * 更多功能 点击 `vscode左下角的状态栏插件图标` ，选择对应操作即可即可
 
 ## 扩展设置
