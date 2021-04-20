@@ -10,29 +10,13 @@ export default class WebpackStrConfig {
         this.jsobjParam = { reserved_keys: 'replace', quote: '"' }
     }
     public replace(str: string) {
-        let buildCmdStartIndex = str.search(/command\s*\=\=\s*['|"]build['|"]\s*\)\s*/g)//匹配build命令
-        if (buildCmdStartIndex == -1) {
-            this.logger.log(`find "command == 'build')" error`);
+        const { leftIndex, rightIndex, errMsg } = this.getWebpackIndex(str);
+        if (errMsg || leftIndex === undefined || rightIndex === undefined) {
+            this.logger.log(errMsg);
             return str;
         }
-        let buildCmdEndIndex = this.findNextBrance(str, buildCmdStartIndex, str.length);
-        if (buildCmdEndIndex == -1) {
-            this.logger.log(`find "command == 'build')" right brace error`);
-            return str;
-        }
+        let webpackStr = str.slice(leftIndex, rightIndex + 1);
 
-        let webpackBundlePluginIndex = str.search(/new\s+WebpackBundlePlugin\s*\(\s*{/g)//匹配new WebpackBundlePlugin
-        if (webpackBundlePluginIndex == -1) {
-            this.logger.log(`find "new WebpackBundlePlugin({" error`);
-            return str;
-        }
-        let webpackBranceLeftIndex = str.indexOf("{", webpackBundlePluginIndex);
-        let webpackBranceRightIndex = this.findNextBrance(str, webpackBranceLeftIndex, str.length);
-        if (webpackBranceRightIndex == -1) {
-            this.logger.log(`find "new WebpackBundlePlugin({" right brace error`);
-            return str;
-        }
-        let webpackStr = str.slice(webpackBranceLeftIndex, webpackBranceRightIndex + 1);
         let jsObj = jju.parse(webpackStr, this.jsobjParam)
         if (!jsObj.webpackConfig) {
             jsObj.webpackConfig = {}
@@ -46,11 +30,50 @@ export default class WebpackStrConfig {
 
         let output = jju.update(webpackStr, jsObj, this.jsobjParam)
         if (webpackStr != output) {
-            let finalStr = str.slice(0, webpackBranceLeftIndex) + output + str.slice(webpackBranceRightIndex + 1);
+            let finalStr = str.slice(0, leftIndex) + output + str.slice(rightIndex + 1);
             this.logger.devlog(finalStr);
             return finalStr;
         }
         return str;
+    }
+    private getWebpackIndex(str: string) {
+        let { errMsg } = this.getBuildCmd(str);
+        if (errMsg) {
+            return { errMsg };
+        }
+
+        let webpackBundlePluginIndex = str.search(/new\s+WebpackBundlePlugin\s*\(\s*{/g)//匹配new WebpackBundlePlugin
+        if (webpackBundlePluginIndex == -1) {
+            return { errMsg: `find "new WebpackBundlePlugin({" error` };
+        }
+        let leftIndex = str.indexOf("{", webpackBundlePluginIndex);
+        let rightIndex = this.findNextBrance(str, leftIndex, str.length);
+        if (rightIndex == -1) {
+            return { errMsg: `find "new WebpackBundlePlugin({" right brace error` };
+        }
+        return { leftIndex, rightIndex };
+    }
+    private getBuildCmd(str: string) {
+        let buildCmdStartIndex = str.search(/command\s*\=\=\s*['|"]build['|"]\s*\)\s*/g)//匹配build命令
+        if (buildCmdStartIndex == -1) {
+            return { errMsg: `find "command == 'build')" error` };
+        }
+        let buildCmdEndIndex = this.findNextBrance(str, buildCmdStartIndex, str.length);
+        if (buildCmdEndIndex == -1) {
+            return { errMsg: `find "command == 'build')" right brace error` };
+        }
+        return { buildCmdStartIndex, buildCmdEndIndex }
+    }
+    public getWebpackIsEnabled(str: string) {
+        const { buildCmdStartIndex, buildCmdEndIndex, errMsg } = this.getBuildCmd(str);
+        if (errMsg || buildCmdStartIndex === undefined || buildCmdEndIndex === undefined) {
+            return false;
+        }
+        let webpackBundlePluginIndex = str.search(/(?<!\/\/)\s+new\s+WebpackBundlePlugin\s*\(\s*\{/g)//匹配new WebpackBundlePlugin
+        if (webpackBundlePluginIndex == -1) {
+            return false;
+        }
+        return true;
     }
     //找寻起点第一个大括号后的 对应的第一个关闭大括号
     private findNextBrance(str: string, startIndex: number, endIndex: number) {
