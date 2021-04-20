@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
-	"version": "2.0.42",
+	"version": "3.0.0",
 	"engines": {
 		"vscode": "^1.45.0"
 	},
@@ -238,7 +238,7 @@
 				},
 				"egret-helper.webpackMode":{
 					"type": "boolean",
-					"description": "设置是否使用Egret Webpack编译(新版本的编译方式)",
+					"description": "设置是否使用Egret Webpack编译(Egret新版本的编译方式)",
 					"default": false
 				}
 			}
