@@ -4,7 +4,7 @@
 ## 特性
 - 支持在编辑器中开启Egret服务器
 - 支持在编辑器中重新编译
-- 支持Egret调试(支持传统编译和最新的Webpack编译)
+- 支持Egret调试(支持传统编译和最新的Webpack编译,需要手动开启`webpackMode` 目前没什么好办法判断客户端是否使用webpack编译)
 - 支持ts代码中的 `非空字符.skinName` 路径快速跳转和补全
 - 支持将 `扩展设置 egret-helper.egretResourcePath` 目录的资源文件同步到 `egret-helper.egretResourceJsonPath` json中
 - 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml(`Mac平台需要手动安装shell命令，打开Egret UI Editor 菜单栏：文件->安装 shell 命令`) 
