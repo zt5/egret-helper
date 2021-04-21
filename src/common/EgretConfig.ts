@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as jju from "jju";
 import { ParseOptions, StringifyOptions } from "jju";
 import * as vscode from "vscode";
-import { LaunchJsonConfType } from "../define";
+import { EgretCompileType, LaunchJsonConfType } from "../define";
 import * as helper from "../helper";
 import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
@@ -31,10 +31,18 @@ export class EgretConfig extends Listener {
     private async _step(url: string) {
         this.url = url;
         this.changeVSConfig();
-        if (helper.getConfigObj().webpackMode) {
-            await this.changeWebpackConfig();
-        } else {
-            await this.changeTSConfig();
+        switch (helper.getConfigObj().egretCompileType) {
+            case EgretCompileType.auto:
+                let isWebpackMode = await helper.isWebpackMode();
+                if (isWebpackMode) await this.changeWebpackConfig();
+                else await this.changeTSConfig();
+                break;
+            case EgretCompileType.webpack:
+                await this.changeWebpackConfig();
+                break;
+            case EgretCompileType.legacy:
+                await this.changeTSConfig();
+                break;
         }
         this.launchPath = helper.getLaunchJsonPath();
         this.logger.devlog("step launchPath=" + this.launchPath)

@@ -40,6 +40,11 @@ export enum OpenEgretServerType {
 	auto = "auto",
 	alert = "alert"
 }
+export enum EgretCompileType {
+	auto = "auto",
+	legacy = "legacy",
+	webpack = "webpack"
+}
 export enum EgretHostType {
 	localhost = "127.0.0.1",
 	ip = "ip"
@@ -78,6 +83,6 @@ export interface ConfigObj extends vscode.WorkspaceConfiguration {
 	debugBrowser: DebugBrowserType;
 	/**Egret服务器首选端口*/
 	port: number;
-	/**设置是否使用Egret Webpack编译(Egret新版本的编译方式)*/
-	webpackMode: boolean;
+	/**Egret的编译代码方式*/
+	egretCompileType: EgretCompileType;
 }

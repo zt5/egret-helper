@@ -65,8 +65,8 @@ export default class EgretServer extends Listener {
             } else if (helper.valConfIsChange(e, "hostType")) {
                 this.logger.log("egret-helper.hostType change")
                 this._webServer.start();
-            } else if (helper.valConfIsChange(e, "webpackMode")) {
-                this.logger.log("egret-helper.webpackMode change")
+            } else if (helper.valConfIsChange(e, "egretCompileType")) {
+                this.logger.log("egret-helper.egretCompileType change")
                 if (this._webServer.urlStr) {
                     this._egretJson.step(this._webServer.urlStr).then(() => {
                         this._webServer.start();

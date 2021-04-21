@@ -1,6 +1,6 @@
 import { EgretConfig } from "../common/EgretConfig";
 import { getLogger, Logger, showLog } from "../common/Logger";
-import { EgretServiceStatus, HttpMsgType } from "../define";
+import { EgretCompileType, EgretServiceStatus, HttpMsgType } from "../define";
 import * as helper from "../helper";
 import EgretServer from './EgretServer';
 import HttpServer from '../common/HttpServer';
@@ -24,7 +24,21 @@ export default class EgretWebServer {
     }
     private async _start() {
         this.logger.devlog(`start`)
-        const folderString = helper.getConfigObj().webpackMode ? helper.getWebpackDebugPath() : helper.getCurRootPath();
+        let folderString = helper.getCurRootPath();
+
+        switch (helper.getConfigObj().egretCompileType) {
+            case EgretCompileType.auto:
+                let isWebpackMode = await helper.isWebpackMode();
+                if (isWebpackMode) folderString = helper.getWebpackDebugPath();
+                break;
+            case EgretCompileType.webpack:
+                folderString = helper.getWebpackDebugPath();
+                break;
+            case EgretCompileType.legacy:
+                break;
+        }
+
+
         this.logger.devlog(`start workspaceFolder=`, folderString)
         await this.server.clear()
         this.exec(folderString);

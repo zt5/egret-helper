@@ -65,11 +65,12 @@ export default class WebpackStrConfig {
         return { buildCmdStartIndex, buildCmdEndIndex }
     }
     public getWebpackIsEnabled(str: string) {
+        if (!str) return false;
         const { buildCmdStartIndex, buildCmdEndIndex, errMsg } = this.getBuildCmd(str);
         if (errMsg || buildCmdStartIndex === undefined || buildCmdEndIndex === undefined) {
             return false;
         }
-        let webpackBundlePluginIndex = str.search(/(?<!\/\/)\s+new\s+WebpackBundlePlugin\s*\(\s*\{/g)//匹配new WebpackBundlePlugin
+        let webpackBundlePluginIndex = str.search(/^\s*(,)?\s*new\s+WebpackBundlePlugin((\s*\(.*)|\s*)$/g)//匹配new WebpackBundlePlugin (仅以空格，换行，逗号开头的。跳过注释//的)
         if (webpackBundlePluginIndex == -1) {
             return false;
         }

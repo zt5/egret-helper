@@ -231,15 +231,25 @@
 						"Microsoft Edge浏览器"
 					]
 				},
-				"egret-helper.port":{
+				"egret-helper.port": {
 					"type": "number",
 					"description": "Egret服务器首选端口",
 					"default": 7000
 				},
-				"egret-helper.webpackMode":{
-					"type": "boolean",
-					"description": "设置是否使用Egret Webpack编译(Egret新版本的编译方式)",
-					"default": false
+				"egret-helper.egretCompileType": {
+					"type": "string",
+					"description": "Egret的编译代码方式",
+					"default": "auto",
+					"enum": [
+						"auto",
+						"legacy",
+						"webpack"
+					],
+					"enumDescriptions": [
+						"根据项目下scripts/config.ts文件中是否含有WebpackBundlePlugin判断(build命令中)，如果这种判断有问题可以手动选择其他的编译方式",
+						"传统编译模式(适用版本一般在5.3.6以下)",
+						"webpack编译(适用版本一般在5.3.6和5.3.6以上)"
+					]
 				}
 			}
 		},

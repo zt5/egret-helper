@@ -4,6 +4,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { getLogger, Logger } from "./common/Logger";
 import Progress from './common/Progress';
+import WebpackStrConfig from "./common/WebpackStrConfig";
 import { ConfigObj, DebugBrowserType, EgretHostType, Platform, ProgressMsgType } from "./define";
 
 export function convertObjStr(msg: string | number | boolean | Error | unknown) {
@@ -221,4 +222,13 @@ export function fillNum(num: string | number) {
 	if (isNaN(_num)) return `${num}`;
 	else if (_num < 10) return `0${_num}`;
 	else return `${_num}`;
+}
+export async function isWebpackMode() {
+	let webpack_path = getWebpackConfigPath();
+	if (fs.existsSync(webpack_path)) {
+		let webpackstr = await readFile(webpack_path);
+		return new WebpackStrConfig().getWebpackIsEnabled(webpackstr);
+	} else {
+		return false;
+	}
 }
