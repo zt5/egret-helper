@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
+import Helper from '../common/Helper';
 import { getLogger, Logger, showLog } from '../common/Logger';
 import Progress from '../common/Progress';
 import { EgretServiceExtStatus, ProgressMsgType } from "../define";
-import * as helper from "../helper";
-import { toasterr } from "../helper";
 import EgretServer from './EgretServer';
 export default class EgretBuild {
     private progress: Progress;
@@ -23,13 +22,13 @@ export default class EgretBuild {
         })
     }
     private async _start(debug: boolean, extCmdArgs: string[]) {
-        const folderString = helper.getCurRootPath();
+        const folderString = Helper.getCurRootPath();
         this.logger.devlog(`start workspaceFolder=`, folderString);
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
         await this.progress.exec(`egret build ${extCmdArgs.join(" ")}`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
-                    toasterr(data);
+                    Helper.toasterr(data);
                     this.logger.devlog(`start error=`, data);
                     this.logger.log(data);
                     break;

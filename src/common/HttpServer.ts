@@ -4,9 +4,9 @@ import * as net from "net";
 import * as path from "path";
 import * as url from "url";
 import { getLogger, Logger } from "./Logger";
-import WebpackStrConfig from "./WebpackStrConfig";
+import ConfigWebpackWriter from "./config-writer/impl/ConfigWebpackWriter";
 import { HttpMsgType, HttpOutPutFun } from "../define";
-import * as helper from "../helper";
+import Helper from "./Helper";
 export default class HttpServer {
     private httpServer: http.Server | undefined;
     private logger: Logger;
@@ -19,7 +19,7 @@ export default class HttpServer {
     public async start(httpSource: string, outputFun?: HttpOutPutFun) {
         this.httpSource = httpSource;
         this.outputFun = outputFun;
-        this.port = helper.getConfigObj().port;
+        this.port = Helper.getConfigObj().port;
         await this.clear();
 
         this.httpServer = http.createServer(this.httpRequestHandler);
@@ -31,7 +31,7 @@ export default class HttpServer {
         this.tryConnect();
     }
     private tryConnect() {
-        const ip = helper.getIp()[0];
+        const ip = Helper.getIp()[0];
         this.logger.devlog(ip);
         if (!ip) {
             this.outputFun && this.outputFun(HttpMsgType.Error, "find ip address error");
@@ -51,10 +51,10 @@ export default class HttpServer {
         this.outputFun && this.outputFun(HttpMsgType.Exit, "0");
     }
     private httpConnectHandler = (socket: net.Socket) => {
-        this.outputFun && this.outputFun(HttpMsgType.Message, `port:${this.port} socket: connect,${helper.convertObjStr(socket)}`);
+        this.outputFun && this.outputFun(HttpMsgType.Message, `port:${this.port} socket: connect,${Helper.convertObjStr(socket)}`);
     }
     private httpErrorHandler = (err: Error) => {
-        this.outputFun && this.outputFun(HttpMsgType.Error, helper.convertObjStr(err));
+        this.outputFun && this.outputFun(HttpMsgType.Error, Helper.convertObjStr(err));
         if ((<NodeJS.ErrnoException>err).code == 'EADDRINUSE') {
             //端口被占用
             this.port++;
@@ -77,9 +77,9 @@ export default class HttpServer {
             this.httpResp(500, res, `${req.url} parse error`);
             return;
         }
-        if (path.basename(req.url) == WebpackStrConfig.SOURCE_MAP_NAME) {
+        if (path.basename(req.url) == ConfigWebpackWriter.SOURCE_MAP_NAME) {
             // 因为白鹭打包脚本限制 jsmap文件特殊处理路径
-            relativeUrl = WebpackStrConfig.SOURCE_MAP_NAME;
+            relativeUrl = ConfigWebpackWriter.SOURCE_MAP_NAME;
         }
         const localUrl = path.join(this.httpSource, relativeUrl)
 

@@ -1,9 +1,10 @@
 import { EgretConfig } from "../common/EgretConfig";
 import { getLogger, Logger, showLog } from "../common/Logger";
 import { EgretCompileType, EgretServiceStatus, HttpMsgType } from "../define";
-import * as helper from "../helper";
 import EgretServer from './EgretServer';
 import HttpServer from '../common/HttpServer';
+import Helper from "../common/Helper";
+import ConfigUtil from "../common/config-writer/ConfigUtil";
 
 export default class EgretWebServer {
     private server: HttpServer;
@@ -24,15 +25,14 @@ export default class EgretWebServer {
     }
     private async _start() {
         this.logger.devlog(`start`)
-        let folderString = helper.getCurRootPath();
+        let folderString = Helper.getCurRootPath();
 
-        switch (helper.getConfigObj().egretCompileType) {
+        switch (Helper.getConfigObj().egretCompileType) {
             case EgretCompileType.auto:
-                let isWebpackMode = await helper.isWebpackMode();
-                if (isWebpackMode) folderString = helper.getWebpackDebugPath();
+                if (ConfigUtil.instance.webpackEnabled) folderString = Helper.getWebpackDebugPath();
                 break;
             case EgretCompileType.webpack:
-                folderString = helper.getWebpackDebugPath();
+                folderString = Helper.getWebpackDebugPath();
                 break;
             case EgretCompileType.legacy:
                 break;

@@ -1,10 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as helper from "../helper";
-import { toasterr } from "../helper";
 import EgretServer from "./EgretServer";
 import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus, EgretGroups } from "../define";
 import { getLogger, Logger, showLog } from "../common/Logger";
+import Helper from "../common/Helper";
 
 export default class EgretResSync {
     private logger: Logger;
@@ -15,7 +14,7 @@ export default class EgretResSync {
         this.father.bar.extStatus = EgretServiceExtStatus.Syncing;
         showLog(true);
         return this._start().catch(err => {
-            toasterr(err);
+            Helper.toasterr(err);
             this.logger.log(err);
             this.logger.devlog(`start err=`, err);
         }).finally(() => {
@@ -23,10 +22,10 @@ export default class EgretResSync {
         })
     }
     private async _start() {
-        const jsonPath = helper.getDefaultResJsonPath();
+        const jsonPath = Helper.getDefaultResJsonPath();
         if (!jsonPath || !fs.existsSync(jsonPath)) {
             this.logger.log("EgretRes " + jsonPath + "不存在")
-            toasterr("EgretRes " + jsonPath + "不存在");
+            Helper.toasterr("EgretRes " + jsonPath + "不存在");
             return;
         }
         let jsonStr = fs.readFileSync(jsonPath, { encoding: "utf-8" });
@@ -34,14 +33,14 @@ export default class EgretResSync {
         const resources: EgretRes[] = json["resources"];
         if (!resources) {
             this.logger.log("EgretRes json中没有resources节点")
-            toasterr("EgretRes json中没有resources节点");
+            Helper.toasterr("EgretRes json中没有resources节点");
             return;
         }
         let resMap: EgretResMap = {};
         for (let val of resources) {
             if (resMap[val.name] != undefined) {
                 this.logger.log(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
-                toasterr(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
+                Helper.toasterr(`资源中存在重复的key:${val.name} 直接退出 不会做任何处理`);
                 return;
             }
             resMap[val.name] = val;
@@ -53,7 +52,7 @@ export default class EgretResSync {
         const rootPath = path.dirname(jsonPath);
         await this.checkResExists(groups, resMap, rootPath);
 
-        helper.loopFile(rootPath, file => this.addFile(file, resMap, rootPath));
+        Helper.loopFile(rootPath, file => this.addFile(file, resMap, rootPath));
 
         let arr: EgretRes[] = [];
         for (let key in resMap) {
@@ -61,11 +60,11 @@ export default class EgretResSync {
         }
         json["resources"] = arr;
         if (groups) json["groups"] = groups;
-        await helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
+        await Helper.writeFile(jsonPath, JSON.stringify(json, undefined, "\t"))
         this.logger.log("default.res.json同步完成")
     }
     private blockFile(resSyncMap: ConfigSyncMap, file: string): boolean {
-        const ignores = helper.getConfigObj().resMapIgnore;
+        const ignores = Helper.getConfigObj().resMapIgnore;
         const extName = path.extname(file).toLocaleLowerCase();
         const fileName = path.basename(file);
         let normalFilePath = path.normalize(file);
@@ -109,7 +108,7 @@ export default class EgretResSync {
         return fileName.replace(extName, resSyncMap[extName.toLocaleLowerCase()].tail);
     };
     private addFile(file: string, resMap: EgretResMap, rootPath: string) {
-        const resSyncMap = helper.getConfigObj().resMap;
+        const resSyncMap = Helper.getConfigObj().resMap;
         if (this.blockFile(resSyncMap, file)) return;
         const FntTail = resSyncMap[".fnt"].tail;
         const PngTail = resSyncMap[".png"].tail;

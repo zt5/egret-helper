@@ -1,8 +1,10 @@
 import * as fs from "fs";
 import * as vscode from 'vscode';
+import Helper from "../common/Helper";
 import Listener from "../common/Listener";
 import { getLogger, Logger } from "../common/Logger";
-import * as helper from "../helper";
+import Progress from "../common/Progress";
+import { ProgressMsgType } from "../define";
 import ExmlHoverProvider from './ExmlHoverProvider';
 import ExmlLinkProvider from './ExmlLinkProvider';
 import ExmlPathAutoCompleteProvider from './ExmlPathAutoCompleteProvider';
@@ -39,7 +41,7 @@ export default class Exml extends Listener {
 				let line = doc.lineAt(i);
 				results.push(...this.collectOneLineExml(line));
 			}
-			this.logger.devlog("exml result:",results);
+			this.logger.devlog("exml result:", results);
 			if (results.length) {
 				if (results.length == 1) {
 					this.openExml(results[0]);
@@ -54,11 +56,11 @@ export default class Exml extends Listener {
 	}
 	//收集一行行的exml
 	private collectOneLineExml(line: vscode.TextLine) {
-		let matchResult = helper.getSkinExmlDefine(line.text);
+		let matchResult = Helper.getSkinExmlDefine(line.text);
 		let results: string[] = [];
 		if (matchResult != null) {
 			for (let i = 0; i < matchResult.length; i++) {
-				let destExmlPath = helper.convertFullPath(matchResult[i]);
+				let destExmlPath = Helper.convertFullPath(matchResult[i]);
 				if (destExmlPath && fs.existsSync(destExmlPath)) {
 					results.push(destExmlPath);
 				}
@@ -68,11 +70,38 @@ export default class Exml extends Listener {
 	}
 	private openExml(urlstr: string) {
 		//调用外部编辑器
-		helper.openExmlEditor(urlstr).then(progress => {
+		this.openExmlEditor(urlstr).then(progress => {
 			this.logger.devlog("open success!");
 		}).catch(err => {
 			this.logger.devlog(err);
 			this.openByVsCode(urlstr);
+		});
+	}
+	public openExmlEditor(exmlPath: string): Promise<Progress> {
+		return new Promise((resolve, reject) => {
+			const prgress = new Progress();
+			this.logger.devlog("open " + exmlPath);
+			prgress.exec(`eui "${exmlPath}"`, undefined, (type, data) => {
+				switch (type) {
+					case ProgressMsgType.Error:
+						this.logger.log("error=", data);
+						this.logger.devlog(`exec error=`, data)
+						reject(data);
+						break;
+					case ProgressMsgType.Message:
+						this.logger.devlog(`exec message=`, data)
+						break;
+					case ProgressMsgType.Exit:
+						this.logger.devlog(`exec exit=`, data)
+						if (prgress) prgress.clear();
+						if (data != "0") {
+							reject("exit code:" + data);
+						}
+						break;
+				}
+			})
+
+			resolve(prgress);
 		});
 	}
 	private openByVsCode(urlstr: string) {

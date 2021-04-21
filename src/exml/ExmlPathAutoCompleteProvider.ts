@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as vscode from "vscode";
 import { CancellationToken, CompletionItem, CompletionList } from "vscode";
-import * as helper from "../helper";
+import Helper from "../common/Helper";
 
 
 export default class ExmlPathAutoCompleteProvider implements vscode.CompletionItemProvider {
@@ -13,9 +13,9 @@ export default class ExmlPathAutoCompleteProvider implements vscode.CompletionIt
 	*/
 	public provideCompletionItems(doc: vscode.TextDocument, pos: vscode.Position, token: CancellationToken): vscode.ProviderResult<CompletionItem[] | CompletionList> {
 		let line = doc.lineAt(pos);
-		let result = helper.valNeedAutoComplete(line.text);
+		let result = Helper.valNeedAutoComplete(line.text);
 		if (!result) return;
-		let workPath = helper.getCurRootPath();
+		let workPath = Helper.getCurRootPath();
 		if (workPath.lastIndexOf(path.sep) != workPath.length - 1) {
 			//最后没有分隔符
 			workPath += path.sep;

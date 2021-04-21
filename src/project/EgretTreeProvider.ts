@@ -1,6 +1,6 @@
 
 import * as vscode from "vscode";
-import * as helper from "../helper";
+import Helper from "../common/Helper";
 import EgretTreeItem from "./EgretTreeItem";
 
 export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretTreeItem>{
@@ -24,7 +24,7 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
                 title: 'create'
             }
         ))
-        if (helper.getCurRootPath()) {
+        if (Helper.getCurRootPath()) {
             result.push(
                 new EgretTreeItem(
                     "构建项目",
@@ -48,7 +48,7 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
             result.push(
                 new EgretTreeItem(
                     "同步资源",
-                    `同步资源(${helper.getEgretResPath()})到资源配置文件(${helper.getDefaultResJsonPath()})中`,
+                    `同步资源(${Helper.getEgretResPath()})到资源配置文件(${Helper.getDefaultResJsonPath()})中`,
                     "sync.svg",
                     {
                         command: 'egret-helper.egretResSync',

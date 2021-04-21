@@ -1,8 +1,8 @@
 import * as cp from 'child_process';
 import * as treekill from "tree-kill";
 import { ChildProcessExt, OutPutFun, ProgressMsgType } from "../define";
+import Helper from './Helper';
 import { getLogger, Logger } from './Logger';
-import * as helper from "../helper";
 
 export default class Progress {
     private _progress: ChildProcessExt | undefined;
@@ -79,7 +79,7 @@ export default class Progress {
     }
     private getErrorHandler = (err: any) => {
         this.logger.devlog(`getErrorHandler cmd=`, this.cmd, ` error=`, err)
-        if (this.outputFun) this.outputFun(ProgressMsgType.Error, helper.convertObjStr(err));
+        if (this.outputFun) this.outputFun(ProgressMsgType.Error, Helper.convertObjStr(err));
     }
     private exitHandler = (code: number) => {
         this.logger.devlog(`exitHandler cmd=${this.cmd} code=${code}`)
@@ -87,6 +87,6 @@ export default class Progress {
     }
     private getDataHandler = (data: any) => {
         this.logger.devlog(`getDataHandler data=`, data)
-        if (this.outputFun) this.outputFun(ProgressMsgType.Message, helper.convertObjStr(data));
+        if (this.outputFun) this.outputFun(ProgressMsgType.Message, Helper.convertObjStr(data));
     }
 }

@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import Listener from '../common/Listener';
 import EgretServer from './EgretServer';
-import * as helper from "../helper";
 import { EgretServiceExtStatus, EgretServiceStatus } from "../define";
 import { getLogger, Logger } from '../common/Logger';
 import { Command } from '../common/Command';
+import Helper from '../common/Helper';
 export default class EgretServerBar extends Listener {
     private statusBar: vscode.StatusBarItem;
     private reCompileBar: vscode.StatusBarItem;
@@ -15,7 +15,7 @@ export default class EgretServerBar extends Listener {
         super();
         this.logger = getLogger(this);
         const barCommandId = 'egret-helper.showEgretMenu';
-        const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${helper.getConfigObj().egretResourceJsonPath}]`];
+        const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${Helper.getConfigObj().egretResourceJsonPath}]`];
         this.addListener(vscode.commands.registerCommand(barCommandId, () => {
             this.logger.devlog(`constructor receive cmd ${barCommandId}`)
             vscode.window.showQuickPick(pickItems).then(result => {

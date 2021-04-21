@@ -1,9 +1,9 @@
 import * as cp from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
+import Helper from "../common/Helper";
 import Listener from "../common/Listener";
 import { getLogger, Logger, showLog } from "../common/Logger";
-import * as helper from "../helper";
 import Launcher from "../native-launcher/launcher";
 import EgretTreeProvider from "./EgretTreeProvider";
 
@@ -60,7 +60,7 @@ export default class EgretTreeView extends Listener {
         this.addListener(
             vscode.commands.registerCommand('egret-helper.publishProject', () => {
                 showLog(true);
-                Launcher.publishProject(helper.getCurRootPath()).catch(err => vscode.window.showErrorMessage(err));
+                Launcher.publishProject(Helper.getCurRootPath()).catch(err => vscode.window.showErrorMessage(err));
             })
         )
     }

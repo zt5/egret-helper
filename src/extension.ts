@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
+import ConfigUtil from './common/config-writer/ConfigUtil';
+import Helper from './common/Helper';
 import { getLogger, Logger } from './common/Logger';
 import EgretServer from "./egret-server/EgretServer";
 import Exml from "./exml/Exml";
-import * as helper from './helper';
 import EgretTreeView from './project/EgretTreeView';
 
 let _treeView: EgretTreeView | undefined;
@@ -20,22 +21,24 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 	}));
 	subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
 		logger.devlog("ConfigChange");
-		if (helper.valConfIsChange(e, "enable")) {
+		if (Helper.valConfIsChange(e, "enable")) {
 			logger.log("egret-helper.enable change")
 			init(subscriptions);
 		}
 	}))
 	init(subscriptions);
 }
-function init(subscriptions: vscode.Disposable[]) {
-	let enabled = helper.getConfigObj().enable;
+async function init(subscriptions: vscode.Disposable[]) {
+	let enabled = Helper.getConfigObj().enable;
 	logger.devlog(`enabled=`, enabled);
 	if (!enabled) {
-		destroy();
+		await destroy();
 		return;
 	}
-	
+
 	logger.devlog("init");
+
+	await ConfigUtil.instance.init();
 
 	if (!_treeView) {
 		_treeView = new EgretTreeView(subscriptions);
@@ -44,10 +47,10 @@ function init(subscriptions: vscode.Disposable[]) {
 	}
 
 
-	let isEgretProject = helper.isEgretProject();
+	let isEgretProject = Helper.isEgretProject();
 	logger.devlog(`init isEgretProject=`, isEgretProject);
 	if (!isEgretProject) {
-		destroy();
+		await destroy();
 		return;
 	} else {
 		logger.devlog("init isInit=", isInit);

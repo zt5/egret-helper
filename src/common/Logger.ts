@@ -1,13 +1,12 @@
-import * as helper from "../helper";
 import * as vscode from "vscode";
-import { fillNum } from "../helper";
+import Helper from "./Helper";
 export class Logger {
     private headerName: string = "";
     constructor(headerName: string) {
         this.headerName = headerName;
     }
     public log(...msg: any[]) {
-        const configObj = helper.getConfigObj();
+        const configObj = Helper.getConfigObj();
         if (configObj.devlog) {
             _log(this.headerName, ...msg);
         } else {
@@ -15,7 +14,7 @@ export class Logger {
         }
     }
     public devlog(...msg: any[]) {
-        const configObj = helper.getConfigObj();
+        const configObj = Helper.getConfigObj();
         if (!configObj.devlog) return;
         _log(_getDebugHeader(this.headerName), ...msg);
     }
@@ -41,7 +40,7 @@ function _log(head: string, ...msg: unknown[]) {
     if (!_channel) showLog();
     let str: string = head;
     for (let i = 0; i < msg.length; i++) {
-        str += helper.convertObjStr(msg[i]);
+        str += Helper.convertObjStr(msg[i]);
     }
     if (str && !str.endsWith("\n")) _channel.appendLine(str);
     else _channel.append(str);
@@ -66,6 +65,6 @@ function _getClassName(target: any) {
 }
 function _getDebugHeader(headerName: string) {
     const time = new Date();
-    const timeStr = `[${fillNum(time.getHours())}:${fillNum(time.getMinutes())}:${fillNum(time.getSeconds())}.${time.getMilliseconds()}]`;
+    const timeStr = `[${Helper.fillNum(time.getHours())}:${Helper.fillNum(time.getMinutes())}:${Helper.fillNum(time.getSeconds())}.${time.getMilliseconds()}]`;
     return `${timeStr}${headerName}[DEBUG]:`;
 }

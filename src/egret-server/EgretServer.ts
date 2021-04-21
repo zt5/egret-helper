@@ -5,10 +5,10 @@ import EgretBuild from './EgretBuild';
 import EgretResSync from './EgretResSync';
 import EgretServerBar from './EgretServerBar';
 import EgretWebServer from './EgretWebServer';
-import * as helper from "../helper";
 import { OpenEgretServerType } from '../define';
 import { EgretConfig } from '../common/EgretConfig';
 import { Command } from '../common/Command';
+import Helper from '../common/Helper';
 
 export default class EgretServer extends Listener {
     private _webServer: EgretWebServer;
@@ -55,17 +55,17 @@ export default class EgretServer extends Listener {
         }));
 
         this.addListener(vscode.workspace.onDidChangeConfiguration(e => {
-            if (helper.valConfIsChange(e, "debugBrowser")) {
+            if (Helper.valConfIsChange(e, "debugBrowser")) {
                 this.logger.log("egret-helper.debugBrowser change")
                 if (this._webServer.urlStr) {
                     this._egretJson.step(this._webServer.urlStr).catch(err => {
                         this.logger.log(err);
                     })
                 }
-            } else if (helper.valConfIsChange(e, "hostType")) {
+            } else if (Helper.valConfIsChange(e, "hostType")) {
                 this.logger.log("egret-helper.hostType change")
                 this._webServer.start();
-            } else if (helper.valConfIsChange(e, "egretCompileType")) {
+            } else if (Helper.valConfIsChange(e, "egretCompileType")) {
                 this.logger.log("egret-helper.egretCompileType change")
                 if (this._webServer.urlStr) {
                     this._egretJson.step(this._webServer.urlStr).then(() => {
@@ -77,7 +77,7 @@ export default class EgretServer extends Listener {
             }
         }))
 
-        let openEgretType = helper.getConfigObj().openEgretServer;
+        let openEgretType = Helper.getConfigObj().openEgretServer;
         switch (openEgretType) {
             case OpenEgretServerType.auto:
                 this._webServer.start();
