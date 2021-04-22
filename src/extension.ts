@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import ConfigUtil from './common/config-writer/ConfigUtil';
+import ConfigWriterUtil from './common/config-writer/ConfigWriterUtil';
 import Helper from './common/Helper';
 import { getLogger, Logger } from './common/Logger';
 import EgretServer from "./egret-server/EgretServer";
@@ -37,15 +37,11 @@ async function init(subscriptions: vscode.Disposable[]) {
 	}
 
 	logger.devlog("init");
-
-	await ConfigUtil.instance.init();
-
 	if (!_treeView) {
 		_treeView = new EgretTreeView(subscriptions);
 	} else {
 		_treeView.update();
 	}
-
 
 	let isEgretProject = Helper.isEgretProject();
 	logger.devlog(`init isEgretProject=`, isEgretProject);
@@ -53,6 +49,7 @@ async function init(subscriptions: vscode.Disposable[]) {
 		await destroy();
 		return;
 	} else {
+		await ConfigWriterUtil.instance.checkWebpackEnabled();
 		logger.devlog("init isInit=", isInit);
 		if (!isInit) {
 			isInit = true;

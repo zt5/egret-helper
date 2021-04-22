@@ -62,7 +62,7 @@ export default class HttpServer {
         }
     }
     private httpRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
-        this.logger.devlog("server request:" + req.url);
+        this.logger.devlog("httpserver request:" + req.url);
         if (!req.url) {
             this.httpResp(404, res, "file not exist");
             return;
@@ -113,7 +113,7 @@ export default class HttpServer {
             this.httpServer.off("close", this.httpCloseHandler);
             this.httpServer.off("connection", this.httpConnectHandler);
             this.httpServer.off("listening", this.httpListeningHandler);
-            if (this.httpServer.listening)
+            if (this.httpServer.listening) {
                 this.httpServer.close(err => {
                     if (err) {
                         this.logger.devlog(err);
@@ -121,6 +121,7 @@ export default class HttpServer {
                     this.httpServer = undefined;
                     resolve();
                 });
+            }
         });
     }
 }

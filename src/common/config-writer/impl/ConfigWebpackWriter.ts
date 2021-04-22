@@ -1,7 +1,7 @@
 import ConfigWriterImpl from "../ConfigWriterImpl";
 import * as fs from "fs";
 import * as jju from "jju";
-import ConfigUtil from "../ConfigUtil";
+import ConfigWriterUtil from "../ConfigWriterUtil";
 import Helper from "../../Helper";
 
 export default class ConfigWebpackWriter extends ConfigWriterImpl {
@@ -46,7 +46,7 @@ export default class ConfigWebpackWriter extends ConfigWriterImpl {
         return str;
     }
     private getWebpackIndex(str: string) {
-        let { errMsg } = ConfigUtil.instance.getBuildCmd(str);
+        let { errMsg } = ConfigWriterUtil.instance.getBuildCmd(str);
         if (errMsg) {
             return { errMsg };
         }
@@ -56,7 +56,7 @@ export default class ConfigWebpackWriter extends ConfigWriterImpl {
             return { errMsg: `find "new WebpackBundlePlugin({" error` };
         }
         let leftIndex = str.indexOf("{", webpackBundlePluginIndex);
-        let rightIndex = ConfigUtil.instance.findNextBrance(str, leftIndex, str.length);
+        let rightIndex = ConfigWriterUtil.instance.findNextBrance(str, leftIndex, str.length);
         if (rightIndex == -1) {
             return { errMsg: `find "new WebpackBundlePlugin({" right brace error` };
         }

@@ -69,7 +69,7 @@ export default abstract class ConfigWriterImpl extends Listener {
 
         jsObj[CONF_KEY] = finalConfs;
         let output = jju.update(prevJsonStr, jsObj, jsobjParam)
-        Helper.writeFile(launchPath, output);
+        await Helper.writeFile(launchPath, output);
         this.logger.devlog("changeLaunchJson save all configurations ok");
     }
     private waitConfigSaveOk() {

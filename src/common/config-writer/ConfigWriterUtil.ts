@@ -1,13 +1,14 @@
 import * as fs from "fs";
+import { EgretCompileType } from "../../define";
 import Helper from "../Helper";
-export default class ConfigUtil {
-    private static _instance: ConfigUtil;
+export default class ConfigWriterUtil {
+    private static _instance: ConfigWriterUtil;
     public static get instance() {
-        if (!this._instance) this._instance = new ConfigUtil();
+        if (!this._instance) this._instance = new ConfigWriterUtil();
         return this._instance;
     }
     private _webpackEnabled: boolean = false;
-    public async init() {
+    public async checkWebpackEnabled() {
         let webpack_path = Helper.getWebpackConfigPath();
         if (fs.existsSync(webpack_path)) {
             let webpackstr = await Helper.readFile(webpack_path);
@@ -58,5 +59,14 @@ export default class ConfigUtil {
             }
         }
         return -1;
+    }
+    public get egretCompileMode() {
+        const compileMode = Helper.getConfigObj().egretCompileType;
+        switch (compileMode) {
+            case EgretCompileType.auto:
+                if (this._webpackEnabled) return EgretCompileType.webpack;
+                else return EgretCompileType.legacy;
+        }
+        return compileMode;
     }
 }
