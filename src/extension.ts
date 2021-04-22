@@ -49,7 +49,6 @@ async function init(subscriptions: vscode.Disposable[]) {
 		await destroy();
 		return;
 	} else {
-		await ConfigWriterUtil.instance.checkWebpackEnabled();
 		logger.devlog("init isInit=", isInit);
 		if (!isInit) {
 			isInit = true;

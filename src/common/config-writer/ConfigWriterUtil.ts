@@ -7,18 +7,14 @@ export default class ConfigWriterUtil {
         if (!this._instance) this._instance = new ConfigWriterUtil();
         return this._instance;
     }
-    private _webpackEnabled: boolean = false;
     public async checkWebpackEnabled() {
         let webpack_path = Helper.getWebpackConfigPath();
         if (fs.existsSync(webpack_path)) {
             let webpackstr = await Helper.readFile(webpack_path);
-            this._webpackEnabled = this.getWebpackIsEnabled(webpackstr);
+            return this.getWebpackIsEnabled(webpackstr);
         } else {
-            this._webpackEnabled = false;
+            return false;
         }
-    }
-    public get webpackEnabled() {
-        return this._webpackEnabled;
     }
     public getBuildCmd(str: string) {
         let buildCmdStartIndex = str.search(/command\s*\=\=\s*['|"]build['|"]\s*\)\s*/g)//匹配build命令
@@ -37,7 +33,8 @@ export default class ConfigWriterUtil {
         if (errMsg || buildCmdStartIndex === undefined || buildCmdEndIndex === undefined) {
             return false;
         }
-        let webpackBundlePluginIndex = str.search(/^\s*(,)?\s*new\s+WebpackBundlePlugin((\s*\(.*)|\s*)$/g)//匹配new WebpackBundlePlugin (仅以空格，换行，逗号开头的。跳过注释//的)
+        const buildCmdStr = str.slice(buildCmdStartIndex, buildCmdEndIndex + 1);
+        let webpackBundlePluginIndex = buildCmdStr.search(/^\s*(,)?\s*new\s+WebpackBundlePlugin((\s*\(.*)|\s*)$/gm)//匹配new WebpackBundlePlugin (仅以空格，换行，逗号开头的。跳过注释//的)
         if (webpackBundlePluginIndex == -1) {
             return false;
         }
@@ -60,11 +57,12 @@ export default class ConfigWriterUtil {
         }
         return -1;
     }
-    public get egretCompileMode() {
+    public async getEgretCompileMode() {
         const compileMode = Helper.getConfigObj().egretCompileType;
         switch (compileMode) {
             case EgretCompileType.auto:
-                if (this._webpackEnabled) return EgretCompileType.webpack;
+                const webpackEnabled = await this.checkWebpackEnabled();
+                if (webpackEnabled) return EgretCompileType.webpack;
                 else return EgretCompileType.legacy;
         }
         return compileMode;

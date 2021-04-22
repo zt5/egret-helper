@@ -7,18 +7,21 @@ import { getLogger, Logger } from "./Logger";
 import ConfigWebpackWriter from "./config-writer/impl/ConfigWebpackWriter";
 import { HttpMsgType, HttpOutPutFun } from "../define";
 import Helper from "./Helper";
+import ConfigWriterUtil from "./config-writer/ConfigWriterUtil";
 export default class HttpServer {
     private httpServer: http.Server | undefined;
     private logger: Logger;
     private port: number = -1;
     private httpSource: string | undefined;
     private outputFun: HttpOutPutFun | undefined;
+    private urlMap: { [key: string]: string } | undefined;
     constructor() {
         this.logger = getLogger(this);
     }
-    public async start(httpSource: string, outputFun?: HttpOutPutFun) {
+    public async start(httpSource: string, outputFun?: HttpOutPutFun, urlMap?: { [key: string]: string }) {
         this.httpSource = httpSource;
         this.outputFun = outputFun;
+        this.urlMap = urlMap;
         this.port = Helper.getConfigObj().port;
         await this.clear();
 
@@ -77,9 +80,8 @@ export default class HttpServer {
             this.httpResp(500, res, `${req.url} parse error`);
             return;
         }
-        if (path.basename(req.url) == ConfigWebpackWriter.SOURCE_MAP_NAME) {
-            // 因为白鹭打包脚本限制 jsmap文件特殊处理路径
-            relativeUrl = ConfigWebpackWriter.SOURCE_MAP_NAME;
+        if(this.urlMap&&this.urlMap[req.url]){
+            relativeUrl = this.urlMap[req.url];
         }
         const localUrl = path.join(this.httpSource, relativeUrl)
 

@@ -4,7 +4,6 @@ import ConfigWriterImpl from "./config-writer/ConfigWriterImpl";
 import ConfigWriterUtil from "./config-writer/ConfigWriterUtil";
 import ConfigLegacyWriter from "./config-writer/impl/ConfigLegacyWriter";
 import ConfigWebpackWriter from "./config-writer/impl/ConfigWebpackWriter";
-import Helper from "./Helper";
 import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
 
@@ -28,7 +27,7 @@ export class EgretConfig extends Listener {
     }
     private async _step(url: string) {
         this.url = url;
-        const compileType = ConfigWriterUtil.instance.egretCompileMode;
+        const compileType = await ConfigWriterUtil.instance.getEgretCompileMode();
         switch (compileType) {
             case EgretCompileType.webpack:
                 this.writer = new ConfigWebpackWriter(this.subscriptions);
@@ -41,16 +40,5 @@ export class EgretConfig extends Listener {
         await this.writer.changeVSConfig();
         await this.writer.changeLaunchJson(this.url);
         await this.writer.changeExt();
-    }
-    private getCompileType() {
-        switch (Helper.getConfigObj().egretCompileType) {
-            case EgretCompileType.auto:
-                if (ConfigWriterUtil.instance.webpackEnabled) return EgretCompileType.webpack;
-                else return EgretCompileType.legacy;
-            case EgretCompileType.webpack:
-                return EgretCompileType.webpack;
-            case EgretCompileType.legacy:
-                return EgretCompileType.legacy;
-        }
     }
 }

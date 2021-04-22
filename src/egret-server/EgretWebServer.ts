@@ -5,6 +5,7 @@ import EgretServer from './EgretServer';
 import HttpServer from '../common/HttpServer';
 import Helper from "../common/Helper";
 import ConfigWriterUtil from "../common/config-writer/ConfigWriterUtil";
+import ConfigWebpackWriter from "../common/config-writer/impl/ConfigWebpackWriter";
 
 export default class EgretWebServer {
     private server: HttpServer;
@@ -26,10 +27,14 @@ export default class EgretWebServer {
     private async _start() {
         this.logger.devlog(`start`)
         let folderString = Helper.getCurRootPath();
-        const compileMode = ConfigWriterUtil.instance.egretCompileMode;;
+        const compileMode = await ConfigWriterUtil.instance.getEgretCompileMode();
+        this.logger.devlog("egret compile mode=", compileMode);
+        let mapUrl: { [key: string]: string } | undefined = undefined;
         switch (compileMode) {
             case EgretCompileType.webpack:
                 folderString = Helper.getWebpackDebugPath();
+                // 因为白鹭打包脚本限制 webpack的main.js.map文件特殊处理路径 
+                mapUrl = { ["/js/" + ConfigWebpackWriter.SOURCE_MAP_NAME]: ConfigWebpackWriter.SOURCE_MAP_NAME };
                 break;
             case EgretCompileType.legacy:
                 break;
@@ -37,9 +42,9 @@ export default class EgretWebServer {
 
         this.logger.devlog(`start workspaceFolder=`, folderString)
         await this.server.clear()
-        this.exec(folderString);
+        this.exec(folderString, mapUrl);
     }
-    private exec(folderString: string) {
+    private exec(folderString: string, mapUrl?: { [key: string]: string }) {
         if (this._isDestroy) return;
         this.logger.devlog(`exec folderString=${folderString}`)
         this.father.bar.status = EgretServiceStatus.Starting;
@@ -66,7 +71,7 @@ export default class EgretWebServer {
                     })
                     break;
             }
-        })
+        }, mapUrl)
     }
     public async destroy() {
         this.logger.devlog(`destroy`)
