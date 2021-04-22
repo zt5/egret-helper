@@ -67,13 +67,9 @@ export default class EgretServer extends Listener {
                 this._webServer.start();
             } else if (Helper.valConfIsChange(e, "egretCompileType")) {
                 this.logger.log("egret-helper.egretCompileType change")
-                if (this._webServer.urlStr) {
-                    this._egretJson.step(this._webServer.urlStr).then(() => {
-                        this._webServer.start();
-                    }).catch(err => {
-                        this.logger.log(err);
-                    })
-                }
+                this._webServer.start().catch(err => {
+                    this.logger.log(err);
+                })
             }
         }))
 

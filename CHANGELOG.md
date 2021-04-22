@@ -3,8 +3,8 @@
 ### 新增
 - 添加`egretCompileType`配置，支持Egret最新编译方式
 1. `auto`自动判断Egret的编译方式，如果有问题 可以手动选择正确方式(`legacy`或`webpack`)
-2. `legacy`传统的Egret编译方式，适用版本一般在5.3.6以下
-3. `webpack`Egret最新的编译方式，适用版本一般在5.3.6和5.3.6以上
+2. `legacy`传统的Egret编译方式，适用版本在5.3.6以下
+3. `webpack`Egret最新的编译方式，适用版本在5.3.6和5.3.6以上
 - 调试服务器不再使用egret run命令（官方已放弃）
 - 可能存在bug，可以通过边栏的 `扩展 -> Egret-helper -> 齿轮按钮 -> 安装另一个版本 -> 2.0.42` 回滚到上一个版本
 

@@ -1,3 +1,4 @@
+import * as vscode from "vscode";
 import { EgretConfig } from "../common/EgretConfig";
 import { getLogger, Logger, showLog } from "../common/Logger";
 import { EgretCompileType, EgretServiceStatus, HttpMsgType } from "../define";
@@ -6,6 +7,7 @@ import HttpServer from '../common/HttpServer';
 import Helper from "../common/Helper";
 import ConfigWriterUtil from "../common/config-writer/ConfigWriterUtil";
 import ConfigWebpackWriter from "../common/config-writer/impl/ConfigWebpackWriter";
+import { Command } from "../common/Command";
 
 export default class EgretWebServer {
     private server: HttpServer;
@@ -68,6 +70,7 @@ export default class EgretWebServer {
                     this._urlStr = data;
                     this.egretJson.step(this._urlStr).then(() => {
                         this.father.bar.status = EgretServiceStatus.Running;
+                        vscode.commands.executeCommand(Command.EGRET_BUILD);
                     })
                     break;
             }
