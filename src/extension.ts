@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import ConfigWriterUtil from './common/config-writer/ConfigWriterUtil';
 import Helper from './common/Helper';
 import { getLogger, Logger } from './common/Logger';
 import EgretServer from "./egret-server/EgretServer";
@@ -13,6 +12,7 @@ let isInit = false;
 let logger: Logger;
 
 export function activate({ subscriptions }: vscode.ExtensionContext) {
+
 	logger = getLogger("extension");
 	logger.devlog("activate");
 	subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(e => {

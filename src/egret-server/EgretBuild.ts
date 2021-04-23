@@ -25,6 +25,41 @@ export default class EgretBuild {
         const folderString = Helper.getCurRootPath();
         this.logger.devlog(`start workspaceFolder=`, folderString);
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
+
+        // const writeEmitter = new vscode.EventEmitter<string>();
+        // const closeEmitter = new vscode.EventEmitter<number | void>();
+        // const pty: vscode.Pseudoterminal = {
+        //     onDidWrite: writeEmitter.event,
+        //     onDidClose: closeEmitter.event,
+        //     open: () => { /** writeEmitter.fire('Press y to exit successfully')*/ },
+        //     close: () => { vscode.window.showInformationMessage('close') },
+        //     handleInput: data => {
+        //         if (data == 'y') {
+        //             vscode.window.showInformationMessage('exit');
+        //             closeEmitter.fire(0);
+        //         } else {
+        //             if (data === "\r") {
+        //                 writeEmitter.fire("\r\n");
+        //             } else {
+        //                 writeEmitter.fire(data);
+        //             }
+        //         }
+        //     }
+        // };
+       
+        // // vscode.window.onDidCloseTerminal(t => {
+        // //     if (t.exitStatus && t.exitStatus.code) {
+        // //         vscode.window.showInformationMessage(`Exit code: ${t.exitStatus.code}`);
+        // //     }
+        // // });
+        // let cmd = vscode.window.createTerminal({
+        //     name: "egret", pty
+        // })
+        // cmd.sendText("egret build");
+        // cmd.show();
+
+
+
         await this.progress.exec(`egret build ${extCmdArgs.join(" ")}`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:

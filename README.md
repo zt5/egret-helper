@@ -4,7 +4,7 @@
 ## 特性
 - 支持在编辑器中开启Egret服务器
 - 支持在编辑器中重新编译
-- 支持Egret调试(支持之前的编译方式和最新的Webpack编译)
+- 支持Egret调试(支持`Egret自带编译`和最新的`Webpack编译`)
 - 支持ts代码中的 `非空字符.skinName` 路径快速跳转和补全
 - 支持将 `扩展设置 egret-helper.egretResourcePath` 目录的资源文件同步到 `egret-helper.egretResourceJsonPath` json中
 - 如果安装了 [Egret UI Editor](https://docs.egret.com/uieditor) 按下快捷键(默认 `Alt+F1` )会自动打开当前ts绑定的exml(`Mac平台需要手动安装shell命令，打开Egret UI Editor 菜单栏：文件->安装 shell 命令`) 
@@ -56,7 +56,7 @@
 >`注⁶`<br>
 >>`auto`自动判断Egret的编译方式，如果有问题 可以手动选择正确方式(`legacy`或`webpack`)  
 >>`legacy`传统的Egret编译方式，适用版本在5.3.6以下  
->>`webpack`Egret最新的编译方式，适用版本在5.3.6和5.3.6以上，会自动修改`scripts/config.ts`中的`build`命令配置，默认调试资源输出目录`bin-debug`(`scripts/config.ts`中`outputDir`的默认值)暂时不支持修改 
+>>`webpack`Egret最新的编译方式，适用版本在5.3.6和5.3.6以上，会自动修改`scripts/config.ts`中的`build`命令配置，默认调试资源输出目录`bin-debug`(`scripts/config.ts`中`outputDir`的默认值)
 
 ## 扩展命令
 * `egret-helper.goToExml`: 使用Egret UI Editor打开 快捷键默认 <kbd>Alt + F1</kbd>
