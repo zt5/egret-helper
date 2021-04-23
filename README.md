@@ -31,32 +31,32 @@
 |`egretCompileType`|`auto`|`auto`,`legacy`,`webpack`|Egret编译方式 (`注⁶`)|
 
 ## 注释
->`注¹`<br>
+>`注¹`<br>  
 >>`auto`：打开Egret项目时，自动开启Egret服务器<br>
 >>`alert`：打开Egret项目时，弹框询问是否开启Egret服务器
-
->`注²`<br>
+---
+>`注²`<br>  
 >>例如{"`.png`":{tail:"`_png`",type:"`image`"}}<br>
 >>`.png`：代表文件扩展名(必须小写)<br>
 >>`_png`：扩展名尾巴(Egret资源的名字xxx_xx_png)<br>
 >>`image`：`default.res.json` 中资源的type属性定义
-
+---
 >`注³`<br>
 >>可以是文件名 xx.png(不区分大小写)<br>
 >>路径的末尾 tmp/xx.png(不区分大小写)<br>
 >>某一类文件 .png(不区分大小写)
-
+---
 >`注⁴`<br>
 >>`ip`：Egret服务器使用 ip:端口号 例如(http://192.168.1.1:8000/index.html) 注意使用这种方式 `.vscode/launch.json` 里的ip容易频繁变动<br>
 >>`127.0.0.1`：强制Egret服务器使用 127.0.0.1:端口号 例如(http://127.0.0.1:8000/index.html)
-
->`注⁵`<br>
+---
+>`注⁵` 
 >>Egret服务器使用端口 如果被占用默认寻找可用端口
-
->`注⁶`<br>
+---
+>`注⁶`<br>  
 >>`auto`自动判断Egret的编译方式，如果有问题 可以手动选择正确方式(`legacy`或`webpack`)  
->>`legacy`传统的Egret编译方式，适用版本在5.3.6以下  
->>`webpack`Egret最新的编译方式，适用版本在5.3.6和5.3.6以上，会自动修改`scripts/config.ts`中的`build`命令配置，默认调试资源输出目录`bin-debug`(`scripts/config.ts`中`outputDir`的默认值)
+>>`legacy`传统的编译方式，适用版本在5.3.6以下(非绝对，要看项目脚本中是否使用了WebpackBundlePlugin)  
+>>`webpack`最新的编译方式，适用版本在5.3.6和5.3.6以上(非绝对，要看项目脚本中是否使用了WebpackBundlePlugin)，自动修改`scripts/config.ts`中的`build`命令配置，默认调试资源输出目录`bin-debug`(目前没有什么好办法动态读取,因为白鹭在`scripts/config.ts`中以`outputDir`变量配置,太灵活)
 
 ## 扩展命令
 * `egret-helper.goToExml`: 使用Egret UI Editor打开 快捷键默认 <kbd>Alt + F1</kbd>

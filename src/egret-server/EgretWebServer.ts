@@ -58,7 +58,6 @@ export default class EgretWebServer {
                     this.logger.devlog(`exec error=`, data)
                     break;
                 case HttpMsgType.Message:
-                    this.logger.log(data);
                     this.logger.devlog(`exec message=`, data)
                     break;
                 case HttpMsgType.Exit:

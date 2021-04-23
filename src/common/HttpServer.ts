@@ -55,11 +55,12 @@ export default class HttpServer {
         this.outputFun && this.outputFun(HttpMsgType.Message, `port:${this.port} socket: connect,${Helper.convertObjStr(socket)}`);
     }
     private httpErrorHandler = (err: Error) => {
-        this.outputFun && this.outputFun(HttpMsgType.Error, Helper.convertObjStr(err));
         if ((<NodeJS.ErrnoException>err).code == 'EADDRINUSE') {
             //端口被占用
             this.port++;
             this.tryConnect();
+        } else {
+            this.outputFun && this.outputFun(HttpMsgType.Error, Helper.convertObjStr(err));
         }
     }
     private httpRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
@@ -78,7 +79,7 @@ export default class HttpServer {
             this.httpResp(500, res, `${req.url} parse error`);
             return;
         }
-        if(this.urlMap&&this.urlMap[req.url]){
+        if (this.urlMap && this.urlMap[req.url]) {
             relativeUrl = this.urlMap[req.url];
         }
         const localUrl = path.join(this.httpSource, relativeUrl)
