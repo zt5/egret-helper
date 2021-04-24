@@ -19,47 +19,38 @@ export default class EgretTreeView extends Listener {
         )
         this.addListener(
             vscode.commands.registerCommand('egret-helper.createProject', () => {
-                showLog(true);
+                showLog();
                 Launcher.createProject().then(result => {
                     if (result == "cancel") {
                         //取消了
                     } else if (fs.existsSync(result)) {
                         //创建了并返回了路径
-                        this.logger.devlog("open:" + result);
+                        this.logger.debug("open:" + result);
                         const spawnObj = cp.exec(`code .`, { cwd: result }, (err, stdout, stderr) => {
-                            if (err) {
-                                this.logger.devlog(err);
-                            }
-                            if (stdout) {
-                                this.logger.devlog(stdout);
-                            }
-                            if (stderr) {
-                                this.logger.devlog(stderr);
-                            }
                         })
                         if (spawnObj.stdout) {
                             spawnObj.stdout.on('data', (chunk) => {
-                                this.logger.devlog(chunk);
+                                this.logger.debug(chunk);
                             });
                         }
                         if (spawnObj.stderr) {
                             spawnObj.stderr.on('data', (data) => {
-                                this.logger.log(data);
+                                this.logger.error(data);
                             });
                         }
                         spawnObj.on('close', (code) => {
-                            this.logger.devlog('close code : ' + code);
+                            this.logger.debug('close code : ' + code);
                         });
                         spawnObj.on('exit', (code, signal) => {
-                            this.logger.devlog("exit code:" + code);
+                            this.logger.debug("exit code:" + code);
                         });
                     }
-                }).catch(err => vscode.window.showErrorMessage(err));
+                }).catch(err => this.logger.error(err));
             })
         )
         this.addListener(
             vscode.commands.registerCommand('egret-helper.publishProject', () => {
-                showLog(true);
+                showLog();
                 Launcher.publishProject(Helper.getCurRootPath()).catch(err => vscode.window.showErrorMessage(err));
             })
         )

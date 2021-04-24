@@ -20,19 +20,19 @@ export default class Exml extends Listener {
 		this.addListener(vscode.languages.registerCompletionItemProvider(['typescript'], new ExmlPathAutoCompleteProvider(), "="));
 
 		this.addListener(vscode.commands.registerCommand("egret-helper.goToExml", () => {
-			this.logger.devlog("egret-helper.goToExml");
+			this.logger.debug("egret-helper.goToExml");
 			this.exec();
 		}));
 	}
 	public exec() {
 		let activieWin = vscode.window.activeTextEditor;
 		if (!activieWin) {
-			this.logger.devlog("未找到激活的窗口")
+			this.logger.warn("未找到激活的窗口")
 			return;
 		}
 		let doc = activieWin.document;
 		if (doc.uri.fsPath.endsWith(".exml")) {
-			this.logger.devlog(doc.uri.fsPath)
+			this.logger.debug(doc.uri.fsPath)
 			this.openExml(doc.uri.fsPath);
 		} else {
 			let count = doc.lineCount;
@@ -41,7 +41,7 @@ export default class Exml extends Listener {
 				let line = doc.lineAt(i);
 				results.push(...this.collectOneLineExml(line));
 			}
-			this.logger.devlog("exml result:", results);
+			this.logger.debug("exml result:", results);
 			if (results.length) {
 				if (results.length == 1) {
 					this.openExml(results[0]);
@@ -71,28 +71,27 @@ export default class Exml extends Listener {
 	private openExml(urlstr: string) {
 		//调用外部编辑器
 		this.openExmlEditor(urlstr).then(progress => {
-			this.logger.devlog("open success!");
+			this.logger.debug("open success!");
 		}).catch(err => {
-			this.logger.devlog(err);
+			this.logger.error(err);
 			this.openByVsCode(urlstr);
 		});
 	}
 	public openExmlEditor(exmlPath: string): Promise<Progress> {
 		return new Promise((resolve, reject) => {
 			const prgress = new Progress();
-			this.logger.devlog("open " + exmlPath);
+			this.logger.debug("open " + exmlPath);
 			prgress.exec(`eui "${exmlPath}"`, undefined, (type, data) => {
 				switch (type) {
 					case ProgressMsgType.Error:
-						this.logger.log("error=", data);
-						this.logger.devlog(`exec error=`, data)
+						this.logger.error(data);
 						reject(data);
 						break;
 					case ProgressMsgType.Message:
-						this.logger.devlog(`exec message=`, data)
+						this.logger.debug(`exec message=`, data)
 						break;
 					case ProgressMsgType.Exit:
-						this.logger.devlog(`exec exit=`, data)
+						this.logger.debug(`exec exit=`, data)
 						if (prgress) prgress.clear();
 						if (data != "0") {
 							reject("exit code:" + data);

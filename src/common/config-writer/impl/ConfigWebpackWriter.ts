@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as jju from "jju";
 import ConfigWriterUtil from "../ConfigWriterUtil";
 import Helper from "../../Helper";
+import { showLog } from "../../Logger";
 
 export default class ConfigWebpackWriter extends ConfigWriterImpl {
     public static readonly SOURCE_MAP_NAME = "main.js.map";
@@ -13,13 +14,17 @@ export default class ConfigWebpackWriter extends ConfigWriterImpl {
             webpackstr = this.replace(webpackstr);
             await Helper.writeFile(webpack_path, webpackstr);
         } else {
-            Helper.toasterr(`file ${webpack_path} not exist!!!`);
+            Helper.toasterr(`file ${webpack_path} not exist!!!`, {
+                "查看log": () => {
+                    showLog();
+                }
+            });
         }
     }
     public replace(str: string) {
         const { leftIndex, rightIndex, errMsg } = this.getWebpackIndex(str);
         if (errMsg || leftIndex === undefined || rightIndex === undefined) {
-            this.logger.log(errMsg);
+            this.logger.error(errMsg);
             return str;
         }
         let webpackStr = str.slice(leftIndex, rightIndex + 1);
@@ -40,7 +45,7 @@ export default class ConfigWebpackWriter extends ConfigWriterImpl {
         let output = jju.update(webpackStr, jsObj, jsobjParam)
         if (webpackStr != output) {
             let finalStr = str.slice(0, leftIndex) + output + str.slice(rightIndex + 1);
-            this.logger.devlog(finalStr);
+            this.logger.debug("webpack config changed");
             return finalStr;
         }
         return str;

@@ -19,18 +19,17 @@ export default class EgretWebServer {
         this.server = new HttpServer();
     }
     public async start() {
-        showLog(true);
+        showLog();
         return this._start().catch(err => {
-            this.logger.log(err);
-            this.logger.devlog(`exec err=`, err)
+            this.logger.error(err);
             if (this.server) this.server.clear();
         });
     }
     private async _start() {
-        this.logger.devlog(`start`)
+        this.logger.debug(`start`)
         let folderString = Helper.getCurRootPath();
         const compileMode = await ConfigWriterUtil.instance.getEgretCompileMode();
-        this.logger.devlog("egret compile mode=", compileMode);
+        this.logger.debug("egret compile mode: ", compileMode);
         let mapUrl: { [key: string]: string } | undefined = undefined;
         switch (compileMode) {
             case EgretCompileType.webpack:
@@ -42,31 +41,30 @@ export default class EgretWebServer {
                 break;
         }
 
-        this.logger.devlog(`start workspaceFolder=`, folderString)
+        this.logger.debug(`workspaceFolder: `, folderString)
         await this.server.clear()
         this.exec(folderString, mapUrl);
     }
     private exec(folderString: string, mapUrl?: { [key: string]: string }) {
         if (this._isDestroy) return;
-        this.logger.devlog(`exec folderString=${folderString}`)
+        this.logger.debug(`folderString: ${folderString}`)
         this.father.bar.status = EgretServiceStatus.Starting;
 
         this.server.start(folderString, (type: HttpMsgType, data: string) => {
             switch (type) {
                 case HttpMsgType.Error:
-                    this.logger.log(data);
-                    this.logger.devlog(`exec error=`, data)
+                    this.logger.debug(data);
                     break;
                 case HttpMsgType.Message:
-                    this.logger.devlog(`exec message=`, data)
+                    this.logger.debug(data)
                     break;
                 case HttpMsgType.Exit:
                     this.father.bar.status = EgretServiceStatus.Free;
-                    this.logger.log(`exit code=${data}`);
-                    this.logger.devlog(`exec exit=`, data)
+                    this.logger.debug(`exit code: ${data}`);
                     break;
                 case HttpMsgType.Url:
                     this._urlStr = data;
+                    this.logger.debug(`url: ${data}`);
                     this.egretJson.step(this._urlStr).then(() => {
                         this.father.bar.status = EgretServiceStatus.Running;
                         vscode.commands.executeCommand(Command.EGRET_BUILD);
@@ -76,7 +74,7 @@ export default class EgretWebServer {
         }, mapUrl)
     }
     public async destroy() {
-        this.logger.devlog(`destroy`)
+        this.logger.debug(`destroy`)
         this._isDestroy = true;
         await this.server.clear();
     }

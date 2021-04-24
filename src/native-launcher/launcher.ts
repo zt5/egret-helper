@@ -69,7 +69,7 @@ export default class Launcher {
     private static readonly PublishProjectPath: string = 'publishProject';
     private static readonly CreateProjectPath: string = 'createProject';
 
-    private static logger:Logger=getLogger("Launcher");
+    private static logger: Logger = getLogger("Launcher");
     /**
      * 延迟指定时长
      * @param milliseconds 延迟时间，毫秒
@@ -243,7 +243,7 @@ export default class Launcher {
                 result = await Launcher.httpGetAsync(urlPath, args);
                 break;
             } catch (error) {
-                Launcher.logger.devlog('launcher request: ', error);
+                Launcher.logger.error('launcher request: ', error);
                 if (retryCount > 0) {
                     let launched = await Launcher.launchAsync();
                     if (!launched) {

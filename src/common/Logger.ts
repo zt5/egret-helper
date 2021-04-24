@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { LogLevel } from "../define";
 import Helper from "./Helper";
 export class Logger {
     private headerName: string = "";
@@ -6,17 +7,21 @@ export class Logger {
         this.headerName = headerName;
     }
     public log(...msg: any[]) {
-        const configObj = Helper.getConfigObj();
-        if (configObj.devlog) {
-            _log(this.headerName, ...msg);
-        } else {
-            _log("", ...msg);
-        }
+        _log(_getDebugHeader(this.headerName, LogLevel.LOG), ...msg);
     }
-    public devlog(...msg: any[]) {
+    public warn(...msg: any[]) {
+        _log(_getDebugHeader(this.headerName, LogLevel.WARN), ...msg);
+    }
+    public raw(...msg: any[]) {
+        _log(_getDebugHeader(this.headerName, LogLevel.RAW), ...msg);
+    }
+    public error(...msg: any[]) {
+        _log(_getDebugHeader(this.headerName, LogLevel.ERROR), ...msg);
+    }
+    public debug(...msg: any[]) {
         const configObj = Helper.getConfigObj();
         if (!configObj.devlog) return;
-        _log(_getDebugHeader(this.headerName), ...msg);
+        _log(_getDebugHeader(this.headerName, LogLevel.DEBUG), ...msg);
     }
 }
 export function getLogger(val: any): Logger {
@@ -29,21 +34,74 @@ export function getLogger(val: any): Logger {
     }
     return new Logger(headerName);
 }
+let logIsRun = false;
+let writeEmitter: vscode.EventEmitter<string> | undefined;
+let logLocalStr = "";
+let logTerminal: vscode.Terminal | undefined;
+const COLOR_STR_END = "\u001b[39m";
+export async function showLog() {
+    if (!writeEmitter) {
+        writeEmitter = new vscode.EventEmitter<string>();
+        let closeEmitter: vscode.EventEmitter<number | void> | undefined = new vscode.EventEmitter<number | void>();
+        const pty: vscode.Pseudoterminal = {
+            onDidWrite: writeEmitter.event,
+            onDidClose: closeEmitter.event,
+            open: () => { },
+            close: () => {
+                logIsRun = false;
+                if (closeEmitter) {
+                    closeEmitter.dispose();
+                    closeEmitter = undefined;
+                }
+                if (writeEmitter) {
+                    writeEmitter.dispose();
+                    writeEmitter = undefined;
+                }
+                logTerminal = undefined;
+            },
+            handleInput: data => {
+                if (data === "\r") {
+                    queueLog("\r\n");
+                } else {
+                    queueLog(data);
+                }
+            }
+        };
 
-let _channel: vscode.OutputChannel;
-export function showLog(show = false) {
-    if (!_channel) _channel = vscode.window.createOutputChannel('Egret');/**日志窗口名*/
-    _channel.show(show);
+        logTerminal = vscode.window.createTerminal({
+            name: "Egret", pty
+        })
+        logTerminal.show(true);
+    }
+    await vscode.commands.executeCommand("workbench.action.terminal.focus");
+    logIsRun = true;
+    if (logLocalStr) {
+        writeEmitter.fire(logLocalStr);
+        logLocalStr = "";
+    }
+}
+function queueLog(str: string) {
+    str += COLOR_STR_END;//结束格式
+    if (logIsRun && writeEmitter) {
+        writeEmitter.fire(str);
+    } else {
+        logLocalStr += str;
+    }
 }
 
 function _log(head: string, ...msg: unknown[]) {
-    if (!_channel) showLog();
     let str: string = head;
     for (let i = 0; i < msg.length; i++) {
         str += Helper.convertObjStr(msg[i]);
     }
-    if (str && !str.endsWith("\n")) _channel.appendLine(str);
-    else _channel.append(str);
+    const JOIN_STR = `\r\n${COLOR_STR_END}`;
+    str = str.split("\n").join(JOIN_STR)
+    if (str && !str.endsWith("\n")) {
+        queueLog(str + "\r\n")
+    }
+    else {
+        queueLog(str)
+    }
 }
 
 function _getClassName(target: any) {
@@ -63,8 +121,18 @@ function _getClassName(target: any) {
     }
     return undefined;
 }
-function _getDebugHeader(headerName: string) {
+function _getDebugHeader(headerName: string, level: LogLevel) {
     const time = new Date();
     const timeStr = `[${Helper.fillNum(time.getHours())}:${Helper.fillNum(time.getMinutes())}:${Helper.fillNum(time.getSeconds())}.${time.getMilliseconds()}]`;
-    return `${timeStr}${headerName}[DEBUG]:`;
+    switch (level) {
+        case LogLevel.DEBUG:
+            return `\u001b[90m${timeStr}${headerName}[DEBUG]:`;//灰色
+        case LogLevel.ERROR:
+            return `\u001b[31m${timeStr}${headerName}[ERROR]:`;//红色
+        case LogLevel.WARN:
+            return `\u001b[33m${timeStr}${headerName}[WARN]:`; //黄色
+        case LogLevel.LOG:
+        case LogLevel.RAW:
+            return `\u001b[39m`; //默认颜色
+    }
 }

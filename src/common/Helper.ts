@@ -181,10 +181,15 @@ export default class Helper {
 		})
 	}
 
-	public static toasterr(err: unknown) {
+	public static toasterr(err: unknown, btn?: { [label: string]: Function }) {
 		let configObj = this.getConfigObj();
 		if (!configObj.alertErrorWin) return;
-		vscode.window.showErrorMessage(this.convertObjStr(err));
+		let btns = btn ? Object.keys(btn) : [];
+		vscode.window.showErrorMessage(this.convertObjStr(err), ...btns).then(pickItem => {
+			if (pickItem && btn) {
+				btn[pickItem]();
+			}
+		});
 	}
 
 	public static fillNum(num: string | number) {
@@ -192,5 +197,8 @@ export default class Helper {
 		if (isNaN(_num)) return `${num}`;
 		else if (_num < 10) return `0${_num}`;
 		else return `${_num}`;
+	}
+	public static stripAnsiColorStr(str: string) {
+		return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g, '')
 	}
 }

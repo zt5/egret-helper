@@ -14,15 +14,22 @@ let logger: Logger;
 export function activate({ subscriptions }: vscode.ExtensionContext) {
 
 	logger = getLogger("extension");
-	logger.devlog("activate");
+	logger.debug("activate");
+
+	// logger._debug("测试1");
+	// logger._warn("测试2");
+	// logger._log("测试3");
+	// logger._error("测试4");
+	// logger._raw("测试5");
+
 	subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(e => {
-		logger.devlog("WorkspaceFolderChange", e);
+		logger.debug("WorkspaceFolderChange", e);
 		init(subscriptions);
 	}));
 	subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => {
-		logger.devlog("ConfigChange");
+		logger.debug("ConfigChange");
 		if (Helper.valConfIsChange(e, "enable")) {
-			logger.log("egret-helper.enable change")
+			logger.debug("egret-helper.enable change")
 			init(subscriptions);
 		}
 	}))
@@ -30,13 +37,13 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 }
 async function init(subscriptions: vscode.Disposable[]) {
 	let enabled = Helper.getConfigObj().enable;
-	logger.devlog(`enabled=`, enabled);
+	logger.debug(`enabled=`, enabled);
 	if (!enabled) {
 		await destroy();
 		return;
 	}
 
-	logger.devlog("init");
+	logger.debug("init");
 	if (!_treeView) {
 		_treeView = new EgretTreeView(subscriptions);
 	} else {
@@ -44,12 +51,12 @@ async function init(subscriptions: vscode.Disposable[]) {
 	}
 
 	let isEgretProject = Helper.isEgretProject();
-	logger.devlog(`init isEgretProject=`, isEgretProject);
+	logger.debug(`init isEgretProject=`, isEgretProject);
 	if (!isEgretProject) {
 		await destroy();
 		return;
 	} else {
-		logger.devlog("init isInit=", isInit);
+		logger.debug("init isInit=", isInit);
 		if (!isInit) {
 			isInit = true;
 			_exml = new Exml(subscriptions);
@@ -59,7 +66,7 @@ async function init(subscriptions: vscode.Disposable[]) {
 }
 
 export async function deactivate() {
-	logger.devlog("deactivate");
+	logger.debug("deactivate");
 	if (_treeView) {
 		_treeView.destroy();
 		_treeView = undefined;
@@ -68,7 +75,7 @@ export async function deactivate() {
 }
 async function destroy() {
 	if (isInit) {
-		logger.devlog("destroy");
+		logger.debug("destroy");
 	}
 	isInit = false;
 	if (_exml) {

@@ -19,23 +19,14 @@ export default class Progress {
         this.outputFun = outputFun;
         let execOption: { encoding: BufferEncoding } & cp.ExecOptions = { encoding: "utf-8" };
         if (cwdstr) {
-            this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr)
+            this.logger.debug(`exec cmd: `, cmd, ` cwd: `, cwdstr)
             execOption.cwd = cwdstr;
         } else {
-            this.logger.devlog(`exec cmd=`, cmd)
+            this.logger.debug(`exec cmd: `, cmd)
         }
         const progress: ChildProcessExt = cp.exec(cmd, execOption, (error, stdout, stderr) => {
             //这里只有进程彻底结束后才会回调
             if (progress.isDestroy) return;
-            if (error && this.outputFun) {
-                this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr, ` error=`, error)
-            }
-            if (stdout && this.outputFun) {
-                this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr, ` stdout=`, stdout)
-            }
-            if (stderr && this.outputFun) {
-                this.logger.devlog(`exec cmd=`, cmd, ` cwd=`, cwdstr, ` stderr=`, stderr)
-            }
         });
         if (progress.stdout) {
             progress.stdout.on('data', this.getDataHandler);
@@ -50,7 +41,7 @@ export default class Progress {
         return this._progress;
     }
     public async clear() {
-        this.logger.devlog(`clear cmd=${this.cmd}`)
+        this.logger.debug(`clear cmd: ${this.cmd}`)
         if (this._progress) {
             if (this._progress.stdout) {
                 this._progress.stdout.off('data', this.getDataHandler);
@@ -67,26 +58,22 @@ export default class Progress {
         this.outputFun = undefined;
     }
     private killProgress(pid: number) {
-        this.logger.devlog(`killProgress pid=${pid}`)
+        this.logger.debug(`killProgress pid: ${pid}`)
 
         return new Promise<void>((resolve, reject) => {
             treekill(pid, (err) => {
-                if (err) this.logger.devlog(`killProgress error pid=${pid} `, err);
-                else this.logger.devlog(`killProgress pid=${pid} success!`)
+                this.logger.debug(`killProgress pid: ${pid} success!`)
                 resolve();
             });
         });
     }
     private getErrorHandler = (err: any) => {
-        this.logger.devlog(`getErrorHandler cmd=`, this.cmd, ` error=`, err)
         if (this.outputFun) this.outputFun(ProgressMsgType.Error, Helper.convertObjStr(err));
     }
     private exitHandler = (code: number) => {
-        this.logger.devlog(`exitHandler cmd=${this.cmd} code=${code}`)
         if (this.outputFun) this.outputFun(ProgressMsgType.Exit, `${code}`);
     }
     private getDataHandler = (data: any) => {
-        this.logger.devlog(`getDataHandler data=`, data)
         if (this.outputFun) this.outputFun(ProgressMsgType.Message, Helper.convertObjStr(data));
     }
 }

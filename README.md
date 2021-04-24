@@ -28,7 +28,7 @@
 |`hostType`|`enum`|`127.0.0.1`,`ip`|`127.0.0.1`|Egret服务器http地址的格式 (`注⁴`)|
 |`debugBrowser`|`enum`|`chrome`,`edge`|`chrome`|调试使用的浏览器|
 |`port`|`number`|`-`|`7000`|Egret服务器首选端口 (`注⁵`)|
-|`egretCompileType`|`auto`|`auto`,`legacy`,`webpack`|Egret编译方式 (`注⁶`)|
+|`egretCompileType`|`enum`|`auto`|`auto`,`legacy`,`webpack`|Egret编译方式 (`注⁶`)|
 
 ## 注释
 >`注¹`<br>  

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import Listener from '../common/Listener';
 import EgretServer from './EgretServer';
 import { EgretServiceExtStatus, EgretServiceStatus } from "../define";
-import { getLogger, Logger } from '../common/Logger';
+import { getLogger, Logger, showLog } from '../common/Logger';
 import { Command } from '../common/Command';
 import Helper from '../common/Helper';
 export default class EgretServerBar extends Listener {
@@ -15,11 +15,11 @@ export default class EgretServerBar extends Listener {
         super();
         this.logger = getLogger(this);
         const barCommandId = 'egret-helper.showEgretMenu';
-        const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${Helper.getConfigObj().egretResourceJsonPath}]`];
+        const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${Helper.getConfigObj().egretResourceJsonPath}]`,`$(output) 显示日志窗口`];
         this.addListener(vscode.commands.registerCommand(barCommandId, () => {
-            this.logger.devlog(`constructor receive cmd ${barCommandId}`)
+            this.logger.debug(`receive cmd: ${barCommandId}`)
             vscode.window.showQuickPick(pickItems).then(result => {
-                this.logger.devlog(`constructor pick ${result}`)
+                this.logger.debug(`select cmd: ${result}`)
                 switch (result) {
                     case pickItems[0]:
                         vscode.commands.executeCommand(Command.EGRET_BUILD);
@@ -32,6 +32,9 @@ export default class EgretServerBar extends Listener {
                         break;
                     case pickItems[3]:
                         vscode.commands.executeCommand(Command.EGRET_RES_SYNC);
+                        break;
+                    case pickItems[4]:
+                        showLog();
                         break;
                 }
             })
@@ -52,7 +55,7 @@ export default class EgretServerBar extends Listener {
         return this._status;
     }
     public set status(status: EgretServiceStatus) {
-        this.logger.devlog(`status=${status}`)
+        this.logger.debug(`status: ${status}`)
         this._status = status;
         this.updateView();
     }
@@ -60,7 +63,7 @@ export default class EgretServerBar extends Listener {
         return this._extStatus;
     }
     public set extStatus(exStatus: EgretServiceExtStatus) {
-        this.logger.devlog(`extStatus=${exStatus}`)
+        this.logger.debug(`extStatus: ${exStatus}`)
         this._extStatus = exStatus;
         this.updateView();
     }
@@ -122,7 +125,7 @@ export default class EgretServerBar extends Listener {
     }
     public destroy() {
         super.destroy();
-        this.logger.devlog(`destroy`)
+        this.logger.debug(`destroy`)
         if (this.statusBar) {
             this.statusBar.dispose();
         }

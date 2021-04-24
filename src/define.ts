@@ -11,6 +11,9 @@ export interface ChildProcessExt extends cp.ChildProcess {
 }
 export type OutPutFun = ((progressMsgType: ProgressMsgType, msg: string) => void) | undefined
 export type HttpOutPutFun = ((httpMsgType: HttpMsgType, msg: string) => void) | undefined
+export enum LogLevel {
+	DEBUG, LOG, WARN, ERROR, RAW
+}
 export type EgretRes = {
 	url: string;
 	type: string;

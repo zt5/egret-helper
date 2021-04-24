@@ -20,7 +20,7 @@ export class EgretConfig extends Listener {
         if (this.isRunning) return;
         this.isRunning = true;
         return this._step(url).catch(err => {
-            this.logger.devlog(err);
+            this.logger.error(err);
         }).finally(() => {
             this.isRunning = false;
         });

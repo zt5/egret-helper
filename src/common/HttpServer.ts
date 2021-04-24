@@ -33,7 +33,7 @@ export default class HttpServer {
     }
     private tryConnect() {
         const ip = Helper.getIp()[0];
-        this.logger.devlog(ip);
+        this.logger.debug(ip);
         if (!ip) {
             this.outputFun && this.outputFun(HttpMsgType.Error, "find ip address error");
         } else if (!this.httpServer) {
@@ -48,7 +48,6 @@ export default class HttpServer {
         this.outputFun && this.outputFun(HttpMsgType.Message, `port:${this.port} connection`)
     }
     private httpCloseHandler = () => {
-        this.logger.devlog(`port:${this.port} close`);
         this.outputFun && this.outputFun(HttpMsgType.Exit, "0");
     }
     private httpConnectHandler = (socket: net.Socket) => {
@@ -64,19 +63,22 @@ export default class HttpServer {
         }
     }
     private httpRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
-        this.logger.devlog("httpserver request:" + req.url);
+        this.logger.debug("httpserver request:" + req.url);
         if (!req.url) {
             this.httpResp(404, res, "file not exist");
+            this.logger.warn(`[file not exist] ${req.url}`)
             return;
         }
         if (!this.httpSource) {
             this.httpResp(404, res, "local root not exist");
+            this.logger.warn(`[local root not exist] ${req.url}`)
             return;
         }
         let relativeUrl = url.parse(req.url).pathname
         if (relativeUrl == "/") relativeUrl = "index.html";
         if (!relativeUrl) {
             this.httpResp(500, res, `${req.url} parse error`);
+            this.logger.warn( `${req.url} parse error`)
             return;
         }
         if (this.urlMap && this.urlMap[req.url]) {
@@ -87,6 +89,7 @@ export default class HttpServer {
         fs.readFile(localUrl, (err, data) => {
             if (err) {
                 this.httpResp(404, res, err.stack);
+                this.logger.warn(`[404] ${req.url}`)
                 return
             }
             let ext = path.extname(localUrl).trim().toLowerCase().slice(1);
@@ -117,7 +120,7 @@ export default class HttpServer {
             if (this.httpServer.listening) {
                 this.httpServer.close(err => {
                     if (err) {
-                        this.logger.devlog(err);
+                        this.logger.debug(err);
                     }
                     this.httpServer = undefined;
                     resolve();

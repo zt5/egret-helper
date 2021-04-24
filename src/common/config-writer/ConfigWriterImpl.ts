@@ -14,7 +14,7 @@ export default abstract class ConfigWriterImpl extends Listener {
     public async changeVSConfig() {
         let conf = vscode.workspace.getConfiguration("debug.javascript");
         if (!conf.usePreview) {
-            this.logger.devlog("changeVSConfig modify debug.javascript.usePreview = true")
+            this.logger.debug("changeVSConfig modify debug.javascript.usePreview = true")
             conf.update("usePreview", true);
         }
     }
@@ -23,7 +23,7 @@ export default abstract class ConfigWriterImpl extends Listener {
         const launchPath = Helper.getLaunchJsonPath();
         const jsobjParam: jju.ParseOptions & jju.StringifyOptions = { reserved_keys: 'replace', quote: '"', quote_keys: true };
         if (!launchPath || !fs.existsSync(launchPath)) {
-            this.logger.devlog("changeLaunchJson create launchJson")
+            this.logger.debug("changeLaunchJson create launchJson")
             await Helper.writeFile(launchPath, this.getTemplate(url));
         }
         const prevJsonStr = await Helper.readFile(launchPath);
@@ -33,7 +33,7 @@ export default abstract class ConfigWriterImpl extends Listener {
         const curType = Helper.getDebugBrowser()
 
         if (!jsObj[CONF_KEY]) {
-            this.logger.devlog(`changeLaunchJson create configurations ${curType}`)
+            this.logger.debug(`changeLaunchJson create configurations ${curType}`)
             finalConfs = [this.configTemplate(url)];
 
         } else {
@@ -41,17 +41,17 @@ export default abstract class ConfigWriterImpl extends Listener {
 
             let findIndex = finalConfs.findIndex(val => val.type == curType);
             if (findIndex == -1) {
-                this.logger.devlog(`changeLaunchJson push configurations ${curType}`)
+                this.logger.debug(`changeLaunchJson push configurations ${curType}`)
                 finalConfs.push(this.configTemplate(url));
             } else {
-                this.logger.devlog(`changeLaunchJson url replace configurations ${curType}`)
+                this.logger.debug(`changeLaunchJson url replace configurations ${curType}`)
                 if (finalConfs[findIndex].url != url) {
                     finalConfs[findIndex].url = url
                 }
             }
         }
 
-        this.logger.devlog("changeLaunchJson seturl configurations：" + url);
+        this.logger.debug("changeLaunchJson seturl configurations：" + url);
         if (finalConfs.length > 1) {
             //先保存成一个 让vscode默认选中这个 之后在恢复之前的列表
 
@@ -59,18 +59,18 @@ export default abstract class ConfigWriterImpl extends Listener {
             jsObj[CONF_KEY] = [findItem]
             let output = jju.update(prevJsonStr, jsObj, jsobjParam)
 
-            this.logger.devlog("changeLaunchJson temp save one configurations");
+            this.logger.debug("changeLaunchJson temp save one configurations");
 
             Helper.writeFile(launchPath, output);
             await this.waitConfigSaveOk();
         }
 
-        this.logger.devlog("changeLaunchJson save all configurations");
+        this.logger.debug("changeLaunchJson save all configurations");
 
         jsObj[CONF_KEY] = finalConfs;
         let output = jju.update(prevJsonStr, jsObj, jsobjParam)
         await Helper.writeFile(launchPath, output);
-        this.logger.devlog("changeLaunchJson save all configurations ok");
+        this.logger.debug("changeLaunchJson save all configurations ok");
     }
     private waitConfigSaveOk() {
         return new Promise<void>((resolve, reject) => {

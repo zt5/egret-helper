@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import Listener from "../common/Listener";
-import { getLogger, Logger } from '../common/Logger';
+import { getLogger, Logger, showLog } from '../common/Logger';
 import EgretBuild from './EgretBuild';
 import EgretResSync from './EgretResSync';
 import EgretServerBar from './EgretServerBar';
@@ -30,46 +30,44 @@ export default class EgretServer extends Listener {
         this._resSync = new EgretResSync(this);
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_RESTART, () => {
-            this.logger.devlog(`call ${Command.EGRET_RESTART}`);
+            this.logger.debug(`call ${Command.EGRET_RESTART}`);
             this._webServer.start();
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD, () => {
-            this.logger.devlog(`call ${Command.EGRET_BUILD}`);
+            this.logger.debug(`call ${Command.EGRET_BUILD}`);
             this._build.start();
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD_DEBUG, () => {
-            this.logger.devlog(`call ${Command.EGRET_BUILD_DEBUG}`);
+            this.logger.debug(`call ${Command.EGRET_BUILD_DEBUG}`);
             this._build.start(true);
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD_ENGINE, () => {
-            this.logger.devlog(`call ${Command.EGRET_BUILD_DEBUG}`);
+            this.logger.debug(`call ${Command.EGRET_BUILD_DEBUG}`);
             this._build.start(false, "-e");
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_RES_SYNC, () => {
-            this.logger.devlog(`call ${Command.EGRET_RES_SYNC}`);
+            this.logger.debug(`call ${Command.EGRET_RES_SYNC}`);
             this._resSync.start()
         }));
 
         this.addListener(vscode.workspace.onDidChangeConfiguration(e => {
             if (Helper.valConfIsChange(e, "debugBrowser")) {
-                this.logger.log("egret-helper.debugBrowser change")
+                this.logger.debug("egret-helper.debugBrowser change")
                 if (this._webServer.urlStr) {
                     this._egretJson.step(this._webServer.urlStr).catch(err => {
-                        this.logger.log(err);
+                        this.logger.error(err);
                     })
                 }
             } else if (Helper.valConfIsChange(e, "hostType")) {
-                this.logger.log("egret-helper.hostType change")
+                this.logger.debug("egret-helper.hostType change")
                 this._webServer.start();
             } else if (Helper.valConfIsChange(e, "egretCompileType")) {
-                this.logger.log("egret-helper.egretCompileType change")
-                this._webServer.start().catch(err => {
-                    this.logger.log(err);
-                })
+                this.logger.debug("egret-helper.egretCompileType change")
+                this._webServer.start();
             }
         }))
 
@@ -104,7 +102,7 @@ export default class EgretServer extends Listener {
     }
     public async destroy() {
         super.destroy();
-        this.logger.devlog("destroy");
+        this.logger.debug("destroy");
         if (this._bar) {
             this._bar.destroy();
         }
