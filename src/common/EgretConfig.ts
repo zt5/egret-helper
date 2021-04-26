@@ -1,16 +1,12 @@
 import * as vscode from "vscode";
-import { EgretCompileType } from "../define";
-import ConfigWriterImpl from "./config-writer/ConfigWriterImpl";
-import ConfigWriterUtil from "./config-writer/ConfigWriterUtil";
-import ConfigLegacyWriter from "./config-writer/impl/ConfigLegacyWriter";
-import ConfigWebpackWriter from "./config-writer/impl/ConfigWebpackWriter";
+import EgretConfigImpl from "./EgretConfigImpl";
 import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
 
 export class EgretConfig extends Listener {
     private logger: Logger;
     private isRunning = false;
-    private writer: ConfigWriterImpl | undefined;
+    private writer: EgretConfigImpl | undefined;
     private url: string | undefined;
     constructor(protected subscriptions: vscode.Disposable[]) {
         super();
@@ -27,18 +23,9 @@ export class EgretConfig extends Listener {
     }
     private async _step(url: string) {
         this.url = url;
-        const compileType = await ConfigWriterUtil.instance.getEgretCompileMode();
-        switch (compileType) {
-            case EgretCompileType.webpack:
-                this.writer = new ConfigWebpackWriter(this.subscriptions);
-                break;
-            case EgretCompileType.legacy:
-                this.writer = new ConfigLegacyWriter(this.subscriptions);
-                break;
-        }
-        if (!this.writer) throw new Error("unsupport egret compile type" + compileType);
+        this.writer = new EgretConfigImpl(this.subscriptions);
         await this.writer.changeVSConfig();
         await this.writer.changeLaunchJson(this.url);
-        await this.writer.changeExt();
+        await this.writer.changeTsConfig();
     }
 }

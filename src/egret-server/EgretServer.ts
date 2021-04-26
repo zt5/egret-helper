@@ -1,20 +1,19 @@
 import * as vscode from 'vscode';
+import { Command } from '../common/Command';
+import { EgretConfig } from '../common/EgretConfig';
+import Helper from '../common/Helper';
 import Listener from "../common/Listener";
-import { getLogger, Logger, showLog } from '../common/Logger';
+import { getLogger, Logger } from '../common/Logger';
+import { OpenEgretServerType } from '../define';
 import EgretBuild from './EgretBuild';
+import EgretDebugHost from './EgretDebugHost';
 import EgretResSync from './EgretResSync';
 import EgretServerBar from './EgretServerBar';
-import EgretWebServer from './EgretWebServer';
-import { OpenEgretServerType } from '../define';
-import { EgretConfig } from '../common/EgretConfig';
-import { Command } from '../common/Command';
-import Helper from '../common/Helper';
 
 export default class EgretServer extends Listener {
-    private _webServer: EgretWebServer;
+    private _webServer: EgretDebugHost;
     private _bar: EgretServerBar;
     private _build: EgretBuild;
-
     private _resSync: EgretResSync;
     private logger: Logger;
     private _egretJson: EgretConfig;
@@ -25,13 +24,14 @@ export default class EgretServer extends Listener {
         this._egretJson = new EgretConfig(subscriptions);
 
         this._bar = new EgretServerBar(this, subscriptions);
-        this._webServer = new EgretWebServer(this, this._egretJson);
+        this._webServer = new EgretDebugHost(this, this._egretJson);
+
         this._build = new EgretBuild(this);
         this._resSync = new EgretResSync(this);
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_RESTART, () => {
             this.logger.debug(`call ${Command.EGRET_RESTART}`);
-            this._webServer.start();
+            this._webServer.step();
         }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD, () => {
@@ -64,24 +64,24 @@ export default class EgretServer extends Listener {
                 }
             } else if (Helper.valConfIsChange(e, "hostType")) {
                 this.logger.debug("egret-helper.hostType change")
-                this._webServer.start();
+                this._webServer.step();
             } else if (Helper.valConfIsChange(e, "egretCompileType")) {
                 this.logger.debug("egret-helper.egretCompileType change")
-                this._webServer.start();
+                this._webServer.step();
             }
         }))
 
         let openEgretType = Helper.getConfigObj().openEgretServer;
         switch (openEgretType) {
             case OpenEgretServerType.auto:
-                this._webServer.start();
+                this._webServer.step();
                 break;
             case OpenEgretServerType.alert:
                 let menus = [{ title: "确定", v: "ok" }, { title: "取消", v: "cancel" }]
                 vscode.window.showInformationMessage("是否启动Egret服务器?", ...menus).then(result => {
                     if (!this._webServer || this._webServer.isDestroy) return;
                     if (result && result.v == "ok") {
-                        this._webServer.start();
+                        this._webServer.step();
                     }
                 });
                 break;

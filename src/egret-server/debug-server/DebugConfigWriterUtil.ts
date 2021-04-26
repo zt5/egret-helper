@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import { EgretCompileType } from "../../define";
-import Helper from "../Helper";
-export default class ConfigWriterUtil {
-    private static _instance: ConfigWriterUtil;
+import Helper from "../../common/Helper";
+export default class DebugConfigWriterUtil {
+    private static _instance: DebugConfigWriterUtil;
     public static get instance() {
-        if (!this._instance) this._instance = new ConfigWriterUtil();
+        if (!this._instance) this._instance = new DebugConfigWriterUtil();
         return this._instance;
     }
     public async checkWebpackEnabled() {
@@ -16,26 +16,26 @@ export default class ConfigWriterUtil {
             return false;
         }
     }
-    public getBuildCmd(str: string) {
-        let buildCmdStartIndex = str.search(/command\s*\=\=\s*['|"]build['|"]\s*\)\s*/g)//匹配build命令
-        if (buildCmdStartIndex == -1) {
-            return { errMsg: `find "command == 'build')" error` };
+    public getRunCmd(str: string) {
+        let runCmdStartIndex = str.search(/command\s*\=\=\s*['|"]run['|"]\s*\)\s*/g)//匹配run命令
+        if (runCmdStartIndex == -1) {
+            return { errMsg: `find "command == 'run')" error` };
         }
-        let buildCmdEndIndex = this.findNextBrance(str, buildCmdStartIndex, str.length);
-        if (buildCmdEndIndex == -1) {
-            return { errMsg: `find "command == 'build')" right brace error` };
+        let runCmdEndIndex = this.findNextBrance(str, runCmdStartIndex, str.length);
+        if (runCmdEndIndex == -1) {
+            return { errMsg: `find "command == 'run')" right brace error` };
         }
-        return { buildCmdStartIndex, buildCmdEndIndex }
+        return { runCmdStartIndex, runCmdEndIndex }
     }
     public getWebpackIsEnabled(str: string) {
         if (!str) return false;
-        const { buildCmdStartIndex, buildCmdEndIndex, errMsg } = this.getBuildCmd(str);
-        if (errMsg || buildCmdStartIndex === undefined || buildCmdEndIndex === undefined) {
+        const { runCmdStartIndex, runCmdEndIndex, errMsg } = this.getRunCmd(str);
+        if (errMsg || runCmdStartIndex === undefined || runCmdEndIndex === undefined) {
             return false;
         }
-        const buildCmdStr = str.slice(buildCmdStartIndex, buildCmdEndIndex + 1);
-        let webpackBundlePluginIndex = buildCmdStr.search(/^\s*(,)?\s*new\s+WebpackBundlePlugin((\s*\(.*)|\s*)$/gm)//匹配new WebpackBundlePlugin (仅以空格，换行，逗号开头的。跳过注释//的)
-        if (webpackBundlePluginIndex == -1) {
+        const buildCmdStr = str.slice(runCmdStartIndex, runCmdEndIndex + 1);
+        let WebpackDevServerPluginIndex = buildCmdStr.search(/^\s*(,)?\s*new\s+WebpackDevServerPlugin((\s*\(.*)|\s*)$/gm)//匹配new WebpackDevServerPlugin (仅以空格，换行，逗号开头的。跳过注释//的)
+        if (WebpackDevServerPluginIndex == -1) {
             return false;
         }
         return true;

@@ -1,11 +1,11 @@
 import * as fs from "fs";
 import * as jju from "jju";
 import * as vscode from "vscode";
-import { LaunchJsonConfType } from "../../define";
-import Helper from "../Helper";
-import Listener from "../Listener";
-import { getLogger, Logger } from "../Logger";
-export default abstract class ConfigWriterImpl extends Listener {
+import { LaunchJsonConfType } from "../define";
+import Helper from "./Helper";
+import Listener from "./Listener";
+import { getLogger, Logger } from "./Logger";
+export default class EgretConfigImpl extends Listener {
     protected logger: Logger;
     public constructor(protected subscriptions: vscode.Disposable[]) {
         super();
@@ -102,6 +102,22 @@ export default abstract class ConfigWriterImpl extends Listener {
             webRoot: "${workspaceFolder}"
         }
     }
-    //额外的修改 不强制实现
-    public async changeExt() { }
+    public async changeTsConfig() {
+        //检查tsconfig的sourceMap是否存在 不存在就设置
+        const jsobjParam: jju.ParseOptions & jju.StringifyOptions = { reserved_keys: 'replace', quote: '"', quote_keys: true }
+        let ts_config_path = Helper.getTSConfigPath();
+        this.logger.debug("changeTSConfig ts_config_path=", ts_config_path)
+        let ts_config_str = await Helper.readFile(ts_config_path);
+
+        let jsObj = jju.parse(ts_config_str, jsobjParam)
+
+        this.logger.debug(jsObj)
+        if (!jsObj.compilerOptions || !jsObj.compilerOptions.sourceMap) {
+            this.logger.debug("changeTSConfig modify sourceMap=true")
+            if (!jsObj.compilerOptions) jsObj.compilerOptions = {};
+            jsObj.compilerOptions.sourceMap = true;
+            let output = jju.update(ts_config_str, jsObj, jsobjParam)
+            Helper.writeFile(ts_config_path, output);
+        }
+    }
 }
