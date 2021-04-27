@@ -11,12 +11,13 @@ export default class DebugConfigWriterUtil {
         let webpack_path = Helper.getWebpackConfigPath();
         if (fs.existsSync(webpack_path)) {
             let webpackstr = await Helper.readFile(webpack_path);
-            return this.getWebpackIsEnabled(webpackstr);
+            return this.valHasWebpackDevServerPlugin(webpackstr);
         } else {
             return false;
         }
     }
     public getRunCmd(str: string) {
+        if (!str) return { errMsg: `getRunCmd string null` };
         let runCmdStartIndex = str.search(/command\s*\=\=\s*['|"]run['|"]\s*\)\s*/g)//匹配run命令
         if (runCmdStartIndex == -1) {
             return { errMsg: `find "command == 'run')" error` };
@@ -27,7 +28,7 @@ export default class DebugConfigWriterUtil {
         }
         return { runCmdStartIndex, runCmdEndIndex }
     }
-    public getWebpackIsEnabled(str: string) {
+    private valHasWebpackDevServerPlugin(str: string) {
         if (!str) return false;
         const { runCmdStartIndex, runCmdEndIndex, errMsg } = this.getRunCmd(str);
         if (errMsg || runCmdStartIndex === undefined || runCmdEndIndex === undefined) {
@@ -42,6 +43,7 @@ export default class DebugConfigWriterUtil {
     }
     //找寻起点第一个大括号后的 对应的第一个关闭大括号
     public findNextBrance(str: string, startIndex: number, endIndex: number) {
+        if (!str) return -1;
         let leftBraceNums = 0;
         let rightBraceNums = 0;
         for (let i = startIndex; i < endIndex; i++) {

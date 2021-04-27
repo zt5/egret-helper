@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import Helper from './common/Helper';
 import { getLogger, Logger } from './common/Logger';
-import EgretServer from "./egret-server/EgretServer";
+import EgretController from "./egret-server/EgretController";
 import Exml from "./exml/Exml";
 import EgretTreeView from './project/EgretTreeView';
 
 let _treeView: EgretTreeView | undefined;
 let _exml: Exml | undefined;
-let _egretServer: EgretServer | undefined;
+let _egretController: EgretController | undefined;
 let isInit = false;
 let logger: Logger;
 
@@ -60,7 +60,7 @@ async function init(subscriptions: vscode.Disposable[]) {
 		if (!isInit) {
 			isInit = true;
 			_exml = new Exml(subscriptions);
-			_egretServer = new EgretServer(subscriptions);
+			_egretController = new EgretController(subscriptions);
 		}
 	}
 }
@@ -82,8 +82,8 @@ async function destroy() {
 		_exml.destroy();
 		_exml = undefined;
 	}
-	if (_egretServer) {
-		await _egretServer.destroy();
-		_egretServer = undefined;
+	if (_egretController) {
+		await _egretController.destroy();
+		_egretController = undefined;
 	}
 }

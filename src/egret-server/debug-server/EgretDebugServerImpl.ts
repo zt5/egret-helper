@@ -1,20 +1,19 @@
 import { getLogger, Logger } from "../../common/Logger";
 import Progress from '../../common/Progress';
 import { EgretCompileType } from "../../define";
-import EgretDebugHost from "../EgretDebugHost";
+import EgretDebugServer from "../EgretDebugServer";
 export default abstract class EgretDebugServerImpl {
-    public CompileType: EgretCompileType | undefined;
-    public progress: Progress;
+    protected _compileType: EgretCompileType | undefined;
+    protected progress: Progress;
     protected _urlStr: string | undefined;
     protected logger: Logger;
-    constructor(protected host: EgretDebugHost) {
+    constructor(protected host: EgretDebugServer, compileType: EgretCompileType) {
+        this._compileType = compileType;
         this.logger = getLogger(this);
         this.progress = new Progress();
     }
     //执行过程
     public abstract exec(folderString: string): Promise<void>;
-    //修改配置
-    public async changeConfig() { };
     //清理方法
     public async clear() {
         await this.progress.clear()
@@ -22,5 +21,9 @@ export default abstract class EgretDebugServerImpl {
     //服务器地址
     public get urlStr() {
         return this._urlStr;
+    }
+    //类型
+    public get compileType() {
+        return this._compileType;
     }
 }

@@ -3,6 +3,7 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import { ConfigObj, DebugBrowserType, EgretHostType, Platform } from "../define";
+import { showLog } from "./Logger";
 
 export default class Helper {
 	public static convertObjStr(msg: string | number | boolean | Error | unknown) {
@@ -180,7 +181,15 @@ export default class Helper {
 			})
 		})
 	}
-
+	public static checkHasError(data:string){
+        if (data.toLocaleLowerCase().indexOf("error") != -1) {
+            Helper.toasterr("编译出错", {
+                "查看log": () => {
+                    showLog();
+                }
+            });
+        }
+    }
 	public static toasterr(err: unknown, btn?: { [label: string]: Function }) {
 		let configObj = this.getConfigObj();
 		if (!configObj.alertErrorWin) return;

@@ -1,22 +1,22 @@
 import * as fs from "fs";
 import * as path from "path";
-import EgretServer from "./EgretServer";
+import EgretController from "./EgretController";
 import { EgretRes, EgretResMap, ConfigSyncMap, EgretServiceExtStatus, EgretGroups } from "../define";
 import { getLogger, Logger, showLog } from "../common/Logger";
 import Helper from "../common/Helper";
 
 export default class EgretResSync {
     private logger: Logger;
-    constructor(private father: EgretServer) {
+    constructor(private controller: EgretController) {
         this.logger = getLogger(this);
     }
     public async start() {
-        this.father.bar.extStatus = EgretServiceExtStatus.Syncing;
+        this.controller.bar.extStatus = EgretServiceExtStatus.Syncing;
         showLog();
         return this._start().catch(err => {
             this.logger.error(err);
         }).finally(() => {
-            this.father.bar.extStatus = EgretServiceExtStatus.Free;
+            this.controller.bar.extStatus = EgretServiceExtStatus.Free;
         })
     }
     private async _start() {

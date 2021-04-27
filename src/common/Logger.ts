@@ -12,9 +12,6 @@ export class Logger {
     public warn(...msg: any[]) {
         _log(_getDebugHeader(this.headerName, LogLevel.WARN), ...msg);
     }
-    public raw(...msg: any[]) {
-        _log(_getDebugHeader(this.headerName, LogLevel.RAW), ...msg);
-    }
     public error(...msg: any[]) {
         _log(_getDebugHeader(this.headerName, LogLevel.ERROR), ...msg);
     }
@@ -132,7 +129,6 @@ function _getDebugHeader(headerName: string, level: LogLevel) {
         case LogLevel.WARN:
             return `\u001b[33m${timeStr}${headerName}[WARN]:`; //黄色
         case LogLevel.LOG:
-        case LogLevel.RAW:
             return `\u001b[39m`; //默认颜色
     }
 }

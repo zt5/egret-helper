@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
-	"version": "3.0.1",
+	"version": "3.0.2",
 	"engines": {
 		"vscode": "^1.45.0"
 	},

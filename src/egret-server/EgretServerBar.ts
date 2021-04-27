@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import Listener from '../common/Listener';
-import EgretServer from './EgretServer';
+import EgretController from './EgretController';
 import { EgretServiceExtStatus, EgretServiceStatus } from "../define";
 import { getLogger, Logger, showLog } from '../common/Logger';
 import { Command } from '../common/Command';
@@ -11,7 +11,7 @@ export default class EgretServerBar extends Listener {
     private _status = EgretServiceStatus.Free;
     private _extStatus = EgretServiceExtStatus.Free;
     private logger: Logger;
-    public constructor(private server: EgretServer, protected subscriptions: vscode.Disposable[]) {
+    public constructor(private controller: EgretController, protected subscriptions: vscode.Disposable[]) {
         super();
         this.logger = getLogger(this);
         const barCommandId = 'egret-helper.showEgretMenu';
@@ -94,8 +94,8 @@ export default class EgretServerBar extends Listener {
                 _statusTxt = `$(loading~spin) Egret关闭中`;
                 break;
             case EgretServiceStatus.Running:
-                if (this.server && this.server.service && this.server.service.urlStr) {
-                    _statusTxt = `$(vm-active) ${this.server.service.urlStr}`;
+                if (this.controller && this.controller.service && this.controller.service.urlStr) {
+                    _statusTxt = `$(vm-active) ${this.controller.service.urlStr}`;
                 } else {
                     _statusTxt = `$(vm-active) Egret运行中`;
                 }

@@ -8,29 +8,39 @@ import DebugConfigWriterUtil from '../DebugConfigWriterUtil';
 import EgretDebugServerImpl from "../EgretDebugServerImpl";
 export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
     private myPort: number | undefined;
+    private serverCanUse = false;
     public async exec(folderString: string) {
         if (this.host.isDestroy) return;
+        await this.changeConfig();
         this.logger.debug(`exec folderString: ${folderString}`)
-        this.host.server.bar.status = EgretServiceStatus.Starting;
+        this.host.controller.bar.status = EgretServiceStatus.Starting;
+        this.serverCanUse = false;
         await this.progress.exec(`egret run`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
-                    Helper.toasterr(data);
+                    Helper.checkHasError(this.stripAnsiColor(data));
                     this.logger.error(data);
                     break;
                 case ProgressMsgType.Message:
-                    this.logger.raw(data);
-                    const urlMsg = this.getEgretUrl(data);
-                    if (urlMsg) {
-                        this.logger.debug(`egret http url: `, urlMsg)
-                        this._urlStr = urlMsg;
-                        this.host.egretJson.step(this._urlStr).then(() => {
-                            this.host.server.bar.status = EgretServiceStatus.Running;
-                        })
+                    const str = this.stripAnsiColor(data);
+                    Helper.checkHasError(str);
+                    this.logger.log(data);
+                    if (!this.serverCanUse) {//webpack现在没法关闭自动编译 这里只要代码改变了就会多次调用 所以加了重复判断
+                        const urlMsg = this.getEgretUrl(str);
+                        if (urlMsg) {
+                            this.logger.debug(`egret http url: `, urlMsg)
+                            this._urlStr = urlMsg;
+                            this.host.egretJson.step(this._urlStr).then(() => {
+                                this.host.controller.bar.status = EgretServiceStatus.Running;
+                                this.serverCanUse = true;
+                            })
+                        }
                     }
+
                     break;
                 case ProgressMsgType.Exit:
-                    this.host.server.bar.status = EgretServiceStatus.Free;
+                    this.serverCanUse = false;
+                    this.host.controller.bar.status = EgretServiceStatus.Free;
                     this.logger.warn(`exit code: ${data}`);
                     break;
             }
@@ -57,7 +67,7 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
     private async findCanUsePort(port: number) {
         let myPort = await this.checkPortInUse(port);
         while (myPort == -1) {
-            this.logger.debug(`端口：${port}被占用`);
+            this.logger.debug(`port：${port} bind error`);
             port++;
             myPort = await this.checkPortInUse(port);
         }
@@ -105,6 +115,9 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
         }
         return str;
     }
+    private stripAnsiColor(str: string) {
+        return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g, '')
+    }
     private getWebpackIndex(str: string) {
         let { errMsg } = DebugConfigWriterUtil.instance.getRunCmd(str);
         if (errMsg) {
@@ -124,8 +137,7 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
     }
     private getEgretUrl(data: string): string {
         let urlMsg: string = "";
-        data = data.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g, '')
-        if (data.indexOf("Compiled successfully") != -1) {
+        if (data.indexOf("Compiled successfully") != -1 || data.indexOf("Failed to compile") != -1) {
             const ip = Helper.getIp()[0];
             if (ip) {
                 return `http://${ip}:${this.myPort}/index.html`;
