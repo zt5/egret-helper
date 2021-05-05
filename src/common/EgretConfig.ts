@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import EgretConfigImpl from "./EgretConfigImpl";
+import EgretConfigPrepare from "./EgretConfigPrepare";
 import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
 
@@ -8,9 +9,11 @@ export class EgretConfig extends Listener {
     private isRunning = false;
     private writer: EgretConfigImpl | undefined;
     private url: string | undefined;
+    public prepare: EgretConfigPrepare;
     constructor(protected subscriptions: vscode.Disposable[]) {
         super();
         this.logger = getLogger(this);
+        this.prepare = new EgretConfigPrepare();
     }
     public async step(url: string) {
         if (this.isRunning) return;
@@ -28,4 +31,5 @@ export class EgretConfig extends Listener {
         await this.writer.changeLaunchJson(this.url);
         await this.writer.changeTsConfig();
     }
+
 }

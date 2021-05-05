@@ -131,6 +131,9 @@ export default class Helper {
 	public static getWebpackDebugPath() {
 		return path.join(this.getCurRootPath(), "bin-debug");
 	}
+	public static getDevServerIndexJs() {
+		return path.join(this.getCurRootPath(), "scripts", "plugins", "node_modules", "@egret", "egret-webpack-bundler", "lib", "index.js");
+	}
 	public static getDebugBrowser() {
 		let conf = this.getConfigObj();
 		switch (conf.debugBrowser) {

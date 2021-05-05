@@ -23,12 +23,14 @@ export default class EgretDebugServer {
     private async _start() {
         showLog();
         const compileType = await DebugConfigWriterUtil.instance.getEgretCompileMode();
+        await this.egretJson.prepare.start();
         await this.createServer(compileType);
         if (!this.debugServer) throw new Error("unsupport egret compile type: " + compileType);
         const folderString = Helper.getCurRootPath();
         this.logger.debug(`start workspaceFolder: `, folderString);
         await this.debugServer.exec(folderString);
     }
+
     public get urlStr() {
         return this.debugServer?.urlStr;
     }
