@@ -1,9 +1,6 @@
 # egret 工具 
 [建议和bug反馈](https://github.com/zt5/egret-helper/issues/new)
 
-## 已知问题
-- webpack编译模式无法关闭代码改变自动编译（官方命令无法关闭）
-
 ## 特性
 - 支持在编辑器中开启Egret服务器
 - 支持在编辑器中重新编译

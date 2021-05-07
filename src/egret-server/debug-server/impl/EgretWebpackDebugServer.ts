@@ -102,11 +102,6 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
         let jsObj = jju.parse(webpackStr, jsobjParam)
         jsObj.open = false;
         jsObj.port = this.myPort;
-        if (!jsObj.webpackConfig) {
-            jsObj.webpackConfig = {};
-        }
-        jsObj.webpackConfig.watch = false;
-
         let output = jju.update(webpackStr, jsObj, jsobjParam)
         if (webpackStr != output) {
             let finalStr = str.slice(0, leftIndex) + output + str.slice(rightIndex + 1);
