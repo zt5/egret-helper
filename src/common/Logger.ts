@@ -68,9 +68,8 @@ export async function showLog() {
         logTerminal = vscode.window.createTerminal({
             name: "Egret", pty
         })
-        logTerminal.show(true);
     }
-    await vscode.commands.executeCommand("workbench.action.terminal.focus");
+    if (logTerminal) logTerminal.show(true);
     logIsRun = true;
     if (logLocalStr) {
         writeEmitter.fire(logLocalStr);

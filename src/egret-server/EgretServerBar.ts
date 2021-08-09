@@ -15,27 +15,15 @@ export default class EgretServerBar extends Listener {
         super();
         this.logger = getLogger(this);
         const barCommandId = 'egret-helper.showEgretMenu';
-        const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${Helper.getConfigObj().egretResourceJsonPath}]`,`$(output) 显示日志窗口`];
+        const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${Helper.getConfigObj().egretResourceJsonPath}]`, `$(output) 显示日志窗口`];
+        const pickItemCmds = [Command.EGRET_BUILD, Command.EGRET_BUILD_DEBUG, Command.EGRET_RESTART, Command.EGRET_RES_SYNC, Command.EGRET_SHOW_LOG];
         this.addListener(vscode.commands.registerCommand(barCommandId, () => {
             this.logger.debug(`receive cmd: ${barCommandId}`)
             vscode.window.showQuickPick(pickItems).then(result => {
                 this.logger.debug(`select cmd: ${result}`)
-                switch (result) {
-                    case pickItems[0]:
-                        vscode.commands.executeCommand(Command.EGRET_BUILD);
-                        break;
-                    case pickItems[1]:
-                        vscode.commands.executeCommand(Command.EGRET_BUILD_DEBUG);
-                        break;
-                    case pickItems[2]:
-                        vscode.commands.executeCommand(Command.EGRET_RESTART);
-                        break;
-                    case pickItems[3]:
-                        vscode.commands.executeCommand(Command.EGRET_RES_SYNC);
-                        break;
-                    case pickItems[4]:
-                        showLog();
-                        break;
+                if (result) {
+                    let pickIndex = pickItems.indexOf(result);
+                    if (pickIndex != -1) vscode.commands.executeCommand(pickItemCmds[pickIndex]);
                 }
             })
         }));
@@ -44,6 +32,11 @@ export default class EgretServerBar extends Listener {
         this.statusBar.command = barCommandId;
         this.statusBar.show();
         subscriptions.push(this.statusBar);
+        let menus = Helper.createMarkTxt();
+        for (let i = 0; i < pickItems.length; i++) {
+            menus.appendMarkdown(`[${pickItems[i]}](command:${pickItemCmds[i]})  \n`);
+        }
+        this.statusBar.tooltip = menus;
 
         this.reCompileBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
         this.reCompileBar.command = Command.EGRET_BUILD_DEBUG;

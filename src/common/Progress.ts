@@ -50,7 +50,7 @@ export default class Progress {
                 this._progress.stderr.off('data', this.getErrorHandler);
             }
             this._progress.off('exit', this.exitHandler);
-            const pid = this._progress.pid;//先保留pid
+            const pid = <number>this._progress.pid;//先保留pid
             this._progress.isDestroy = true;
             this._progress = undefined;//确保执行了就把进程信息删除掉 防止重复调用
             await this.killProgress(pid)

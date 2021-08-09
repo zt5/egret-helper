@@ -4,7 +4,7 @@
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
 	"version": "3.0.31",
 	"engines": {
-		"vscode": "^1.45.0"
+		"vscode": "^1.59.0"
 	},
 	"categories": [
 		"Debuggers",
@@ -292,20 +292,16 @@
 		"watch": "tsc -watch -p ./",
 		"package": "vsce package"
 	},
+	"license": "MIT",
 	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/jju": "^1.4.1",
-		"@types/mocha": "^7.0.1",
-		"@types/node": "^12.12.0",
-		"@types/semver": "^7.3.4",
-		"@types/vscode": "^1.45.0",
-		"@typescript-eslint/eslint-plugin": "^3.0.2",
-		"@typescript-eslint/parser": "^3.0.2",
-		"eslint": "^7.1.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.0.1",
-		"typescript": "^4.0.2",
-		"vsce": "^1.87.1"
+		"@types/jju": "^1.4.2",
+		"@types/node": "^16.4.13",
+		"@types/vscode": "^1.59.0",
+		"@typescript-eslint/eslint-plugin": "^4.29.0",
+		"@typescript-eslint/parser": "^4.29.0",
+		"eslint": "^7.32.0",
+		"typescript": "^4.3.5",
+		"vsce": "^1.96.1"
 	},
 	"dependencies": {
 		"jju": "^1.4.0",

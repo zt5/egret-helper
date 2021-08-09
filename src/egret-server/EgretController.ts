@@ -3,7 +3,7 @@ import { Command } from '../common/Command';
 import { EgretConfig } from '../common/EgretConfig';
 import Helper from '../common/Helper';
 import Listener from "../common/Listener";
-import { getLogger, Logger } from '../common/Logger';
+import { getLogger, Logger, showLog } from '../common/Logger';
 import { OpenEgretServerType } from '../define';
 import EgretBuild from './EgretBuild';
 import EgretDebugServer from './EgretDebugServer';
@@ -52,6 +52,10 @@ export default class EgretController extends Listener {
         this.addListener(vscode.commands.registerCommand(Command.EGRET_RES_SYNC, () => {
             this.logger.debug(`call ${Command.EGRET_RES_SYNC}`);
             this._resSync.start()
+        }));
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_SHOW_LOG, () => {
+            this.logger.debug(`call ${Command.EGRET_SHOW_LOG}`);
+            showLog();
         }));
 
         this.addListener(vscode.workspace.onDidChangeConfiguration(e => {

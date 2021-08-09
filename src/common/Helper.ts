@@ -44,6 +44,7 @@ export default class Helper {
 				var interfaces = os.networkInterfaces();
 				for (var devName in interfaces) {
 					var iface = interfaces[devName];
+					if (!iface) continue;
 					for (var i = 0; i < iface.length; i++) {
 						var alias = iface[i];
 						if (alias.family === 'IPv4' && !alias.internal) {
@@ -58,6 +59,11 @@ export default class Helper {
 				break;
 		}
 		return ip;
+	}
+	public static createMarkTxt(str?: string) {
+		const mark = new vscode.MarkdownString(str, true);
+		mark.isTrusted = true;
+		return mark;
 	}
 
 	public static convertFullPath(cur: string) {
@@ -184,18 +190,21 @@ export default class Helper {
 			})
 		})
 	}
-	public static checkHasError(data:string){
-        if (data.toLocaleLowerCase().indexOf("error") != -1) {
-            Helper.toasterr("编译出错", {
-                "查看log": () => {
-                    showLog();
-                }
-            });
-        }
-    }
+	public static checkHasError(data: string) {
+		if (data.toLocaleLowerCase().indexOf("error") != -1) {
+			Helper.toasterr("编译出错", {
+				"查看log": () => {
+					showLog();
+				}
+			});
+		}
+	}
 	public static toasterr(err: unknown, btn?: { [label: string]: Function }) {
 		let configObj = this.getConfigObj();
-		if (!configObj.alertErrorWin) return;
+		if (!configObj.alertErrorWin) {
+			showLog();// 如果不弹窗 让log显示出来
+			return;
+		}
 		let btns = btn ? Object.keys(btn) : [];
 		vscode.window.showErrorMessage(this.convertObjStr(err), ...btns).then(pickItem => {
 			if (pickItem && btn) {
