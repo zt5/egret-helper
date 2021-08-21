@@ -3,7 +3,7 @@ import * as jju from "jju";
 import * as net from "net";
 import Helper from '../../../common/Helper';
 import { showLog } from '../../../common/Logger';
-import { EgretServiceStatus, ProgressMsgType } from "../../../define";
+import { EgretServiceStatus, Platform, ProgressMsgType } from "../../../define";
 import DebugConfigWriterUtil from '../DebugConfigWriterUtil';
 import EgretDebugServerImpl from "../EgretDebugServerImpl";
 export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
@@ -18,10 +18,16 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
         await this.progress.exec(`egret run`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
+                    if (Helper.getPlatform() == Platform.Windows) {
+                        data = Helper.binaryToGBK(data);
+                    }else{
+                        data = Helper.binaryToUTF8(data);
+                    }
                     Helper.checkHasError(this.stripAnsiColor(data));
                     this.logger.error(data);
                     break;
                 case ProgressMsgType.Message:
+                    data = Helper.binaryToUTF8(data);
                     const str = this.stripAnsiColor(data);
                     Helper.checkHasError(str);
                     this.logger.log(data);
@@ -44,7 +50,7 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
                     this.logger.warn(`exit code: ${data}`);
                     break;
             }
-        });
+        }, "binary");
     }
 
 

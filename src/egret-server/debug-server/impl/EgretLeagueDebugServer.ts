@@ -1,5 +1,5 @@
 import Helper from '../../../common/Helper';
-import { EgretHostType, EgretServiceStatus, ProgressMsgType } from "../../../define";
+import { EgretHostType, EgretServiceStatus, ProgressMsgType, Platform } from "../../../define";
 import EgretDebugServerImpl from "../EgretDebugServerImpl";
 export default class EgretLeagueDebugServer extends EgretDebugServerImpl {
     public async exec(folderString: string) {
@@ -9,10 +9,16 @@ export default class EgretLeagueDebugServer extends EgretDebugServerImpl {
         await this.progress.exec(`egret run --serverOnly --port ${Helper.getConfigObj().port}`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
+                    if (Helper.getPlatform() == Platform.Windows) {
+                        data = Helper.binaryToGBK(data);
+                    } else {
+                        data = Helper.binaryToUTF8(data);
+                    }
                     Helper.checkHasError(data);
                     this.logger.error(data);
                     break;
                 case ProgressMsgType.Message:
+                    data = Helper.binaryToUTF8(data);
                     Helper.checkHasError(data);
                     this.logger.log(data);
                     const urlMsg = this.getEgretUrl(data);

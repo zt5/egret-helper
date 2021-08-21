@@ -26,7 +26,7 @@ export default class EgretBuild {
         if (debug) vscode.commands.executeCommand("workbench.action.debug.stop")
 
 
-        await this.progress.exec(`egret build ${extCmdArgs.join(" ")}`, folderString, (type: ProgressMsgType, data: string) => {
+        await this.progress.exec(`egret build ${extCmdArgs.join(" ")}`,folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
                     this.logger.error(data);

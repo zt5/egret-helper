@@ -12,12 +12,12 @@ export default class Progress {
     constructor() {
         this.logger = getLogger(this);
     }
-    public async exec(cmd: string, cwdstr?: string, outputFun?: OutPutFun) {
+    public async exec(cmd: string, cwdstr?: string, outputFun?: OutPutFun, encoding: BufferEncoding = "utf-8") {
         await this.clear();
 
         this.cmd = cmd;
         this.outputFun = outputFun;
-        let execOption: { encoding: BufferEncoding } & cp.ExecOptions = { encoding: "utf-8" };
+        let execOption: { encoding: BufferEncoding } & cp.ExecOptions = { encoding };
         if (cwdstr) {
             this.logger.debug(`exec cmd: `, cmd, ` cwd: `, cwdstr)
             execOption.cwd = cwdstr;
