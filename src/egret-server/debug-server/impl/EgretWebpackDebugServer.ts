@@ -18,6 +18,7 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
         await this.progress.exec(`egret run`, folderString, (type: ProgressMsgType, data: string) => {
             switch (type) {
                 case ProgressMsgType.Error:
+                    this.logger.error("error start");
                     if (Helper.getPlatform() == Platform.Windows) {
                         data = this.binaryToGBK(data);
                     }else{
@@ -25,6 +26,7 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
                     }
                     Helper.checkHasError(this.stripAnsiColor(data));
                     this.logger.error(data);
+                    this.logger.error("error end");
                     break;
                 case ProgressMsgType.Message:
                     data = this.binaryToUTF8(data);

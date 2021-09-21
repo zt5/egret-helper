@@ -101,7 +101,7 @@ function _log(head: string, color: string, ...msg: unknown[]) {
         str += Helper.convertObjStr(msg[i]);
     }
 
-    const JOIN_STR = `\n${COLOR_STR_END}${color}`;
+    const JOIN_STR = `\r\n${COLOR_STR_END}${color}`;
     str = str.split("\n").join(JOIN_STR) + COLOR_STR_END;
     if (str && !str.endsWith("\n")) {
         queueLog(str + "\r\n")
