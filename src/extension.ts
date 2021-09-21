@@ -12,15 +12,8 @@ let isInit = false;
 let logger: Logger;
 
 export function activate({ subscriptions }: vscode.ExtensionContext) {
-
 	logger = getLogger("extension");
 	logger.debug("activate");
-
-	// logger._debug("测试1");
-	// logger._warn("测试2");
-	// logger._log("测试3");
-	// logger._error("测试4");
-	// logger._raw("测试5");
 
 	subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(e => {
 		logger.debug("WorkspaceFolderChange", e);

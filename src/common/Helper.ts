@@ -4,7 +4,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { ConfigObj, DebugBrowserType, EgretHostType, Platform } from "../define";
 import { showLog } from "./Logger";
-import * as iconv from "iconv-lite";
 
 export default class Helper {
 	public static convertObjStr(msg: string | number | boolean | Error | unknown) {
@@ -220,12 +219,6 @@ export default class Helper {
 		else if (_num < 10) return `0${_num}`;
 		else return `${_num}`;
 	}
-	public static binaryToGBK(str: string) {
-        return iconv.decode(Buffer.from(str, 'binary'), "gbk");
-    }
-	public static binaryToUTF8(str: string) {
-        return iconv.decode(Buffer.from(str, 'binary'), "utf-8");
-    }
 	public static stripAnsiColorStr(str: string) {
 		return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g, '')
 	}

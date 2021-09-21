@@ -19,15 +19,15 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
             switch (type) {
                 case ProgressMsgType.Error:
                     if (Helper.getPlatform() == Platform.Windows) {
-                        data = Helper.binaryToGBK(data);
+                        data = this.binaryToGBK(data);
                     }else{
-                        data = Helper.binaryToUTF8(data);
+                        data = this.binaryToUTF8(data);
                     }
                     Helper.checkHasError(this.stripAnsiColor(data));
                     this.logger.error(data);
                     break;
                 case ProgressMsgType.Message:
-                    data = Helper.binaryToUTF8(data);
+                    data = this.binaryToUTF8(data);
                     const str = this.stripAnsiColor(data);
                     Helper.checkHasError(str);
                     this.logger.log(data);

@@ -7,18 +7,22 @@ export class Logger {
         this.headerName = headerName;
     }
     public log(...msg: any[]) {
-        _log(_getDebugHeader(this.headerName, LogLevel.LOG), ...msg);
+        const color = _getColorByLevel(LogLevel.LOG);
+        _log(_getDebugHeader(this.headerName, LogLevel.LOG), color, ...msg);
     }
     public warn(...msg: any[]) {
-        _log(_getDebugHeader(this.headerName, LogLevel.WARN), ...msg);
+        const color = _getColorByLevel(LogLevel.WARN);
+        _log(_getDebugHeader(this.headerName, LogLevel.WARN), color, ...msg);
     }
     public error(...msg: any[]) {
-        _log(_getDebugHeader(this.headerName, LogLevel.ERROR), ...msg);
+        const color = _getColorByLevel(LogLevel.ERROR);
+        _log(_getDebugHeader(this.headerName, LogLevel.ERROR), color, ...msg);
     }
     public debug(...msg: any[]) {
         const configObj = Helper.getConfigObj();
         if (!configObj.devlog) return;
-        _log(_getDebugHeader(this.headerName, LogLevel.DEBUG), ...msg);
+        const color = _getColorByLevel(LogLevel.DEBUG);
+        _log(_getDebugHeader(this.headerName, LogLevel.DEBUG), color, ...msg);
     }
 }
 export function getLogger(val: any): Logger {
@@ -36,6 +40,7 @@ let writeEmitter: vscode.EventEmitter<string> | undefined;
 let logLocalStr = "";
 let logTerminal: vscode.Terminal | undefined;
 const COLOR_STR_END = "\u001b[39m";
+
 export async function showLog() {
     if (!writeEmitter) {
         writeEmitter = new vscode.EventEmitter<string>();
@@ -43,7 +48,10 @@ export async function showLog() {
         const pty: vscode.Pseudoterminal = {
             onDidWrite: writeEmitter.event,
             onDidClose: closeEmitter.event,
-            open: () => { },
+            open: () => {
+                logIsRun = true;
+                checkLocalStr();
+            },
             close: () => {
                 logIsRun = false;
                 if (closeEmitter) {
@@ -69,9 +77,11 @@ export async function showLog() {
             name: "Egret", pty
         })
     }
-    if (logTerminal) logTerminal.show(true);
-    logIsRun = true;
-    if (logLocalStr) {
+    if (logTerminal) logTerminal.show(false);
+    checkLocalStr();
+}
+function checkLocalStr() {
+    if (logIsRun && logLocalStr && writeEmitter) {
         writeEmitter.fire(logLocalStr);
         logLocalStr = "";
     }
@@ -85,13 +95,14 @@ function queueLog(str: string) {
     }
 }
 
-function _log(head: string, ...msg: unknown[]) {
+function _log(head: string, color: string, ...msg: unknown[]) {
     let str: string = head;
     for (let i = 0; i < msg.length; i++) {
         str += Helper.convertObjStr(msg[i]);
     }
-    const JOIN_STR = `\r\n${COLOR_STR_END}`;
-    str = str.split("\n").join(JOIN_STR)
+
+    const JOIN_STR = `\n${COLOR_STR_END}${color}`;
+    str = str.split("\n").join(JOIN_STR) + COLOR_STR_END;
     if (str && !str.endsWith("\n")) {
         queueLog(str + "\r\n")
     }
@@ -120,13 +131,26 @@ function _getClassName(target: any) {
 function _getDebugHeader(headerName: string, level: LogLevel) {
     const time = new Date();
     const timeStr = `[${Helper.fillNum(time.getHours())}:${Helper.fillNum(time.getMinutes())}:${Helper.fillNum(time.getSeconds())}.${time.getMilliseconds()}]`;
+    const color = _getColorByLevel(level);
     switch (level) {
         case LogLevel.DEBUG:
-            return `\u001b[90m${timeStr}${headerName}[DEBUG]:`;//灰色
+            return `${color}${timeStr}${headerName}[DEBUG]:`;//灰色
         case LogLevel.ERROR:
-            return `\u001b[31m${timeStr}${headerName}[ERROR]:`;//红色
+            return `${color}${timeStr}${headerName}[ERROR]:`;//红色
         case LogLevel.WARN:
-            return `\u001b[33m${timeStr}${headerName}[WARN]:`; //黄色
+            return `${color}${timeStr}${headerName}[WARN]:`; //黄色
+        case LogLevel.LOG:
+            return `${color}`; //默认颜色
+    }
+}
+function _getColorByLevel(level: LogLevel) {
+    switch (level) {
+        case LogLevel.DEBUG:
+            return `\u001b[90m`;//灰色
+        case LogLevel.ERROR:
+            return `\u001b[31m`;//红色
+        case LogLevel.WARN:
+            return `\u001b[33m`; //黄色
         case LogLevel.LOG:
             return `\u001b[39m`; //默认颜色
     }

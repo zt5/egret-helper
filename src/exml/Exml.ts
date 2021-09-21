@@ -15,9 +15,9 @@ export default class Exml extends Listener {
 	public constructor(protected subscriptions: vscode.Disposable[]) {
 		super();
 		this.logger = getLogger(this);
-		this.addListener(vscode.languages.registerHoverProvider(['typescript'], new ExmlHoverProvider()));
-		this.addListener(vscode.languages.registerDefinitionProvider(['typescript'], new ExmlLinkProvider()));
-		this.addListener(vscode.languages.registerCompletionItemProvider(['typescript'], new ExmlPathAutoCompleteProvider(), "="));
+		this.addListener(vscode.languages.registerHoverProvider({ scheme: 'file', language: 'typescript' }, new ExmlHoverProvider()));
+		this.addListener(vscode.languages.registerDefinitionProvider({ scheme: 'file', language: 'typescript' }, new ExmlLinkProvider()));
+		this.addListener(vscode.languages.registerCompletionItemProvider({ scheme: 'file', language: 'typescript' }, new ExmlPathAutoCompleteProvider(), "="));
 
 		this.addListener(vscode.commands.registerCommand("egret-helper.goToExml", () => {
 			this.logger.debug("egret-helper.goToExml");

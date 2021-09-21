@@ -294,15 +294,14 @@
 	},
 	"license": "MIT",
 	"devDependencies": {
-		"@types/iconv-lite": "^0.0.1",
 		"@types/jju": "^1.4.2",
 		"@types/node": "^16.4.13",
 		"@types/vscode": "^1.59.0",
 		"@typescript-eslint/eslint-plugin": "^4.29.0",
 		"@typescript-eslint/parser": "^4.29.0",
 		"eslint": "^7.32.0",
-		"typescript": "^4.3.5",
-		"vsce": "^1.96.1"
+		"typescript": "^4.4.3",
+		"vsce": "^1.87.1"
 	},
 	"dependencies": {
 		"iconv-lite": "^0.6.3",
