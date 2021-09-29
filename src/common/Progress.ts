@@ -33,7 +33,7 @@ export default class Progress {
         if (progress.stderr) {
             progress.stderr.on('data', this.getErrorHandler);
         }
-        progress.on('exit', this.exitHandler);
+        progress.on('close', this.exitHandler);
         this._progress = progress;
     }
     public get progress() {
@@ -49,7 +49,7 @@ export default class Progress {
                 if (this._progress.stderr) {
                     this._progress.stderr.off('data', this.getErrorHandler);
                 }
-                this._progress.off('exit', this.exitHandler);
+                this._progress.off('close', this.exitHandler);
             }
             const pid = <number>this._progress.pid;//先保留pid
             this._progress = undefined;//确保执行了就把进程信息删除掉 防止重复调用
