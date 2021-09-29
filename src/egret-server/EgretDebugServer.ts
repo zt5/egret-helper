@@ -36,10 +36,13 @@ export default class EgretDebugServer {
     public get isDestroy() {
         return this._isDestroy;
     }
+    public async shutdown() {
+        await this.debugServer?.clear(false);
+    }
     public async destroy() {
         this._isDestroy = true;
         this.logger.debug("destroy");
-        if (this.debugServer) return this.debugServer.clear();
+        await this.debugServer?.clear();
         this.debugServer = undefined;
     }
     private async createServer(compileType: EgretCompileType) {

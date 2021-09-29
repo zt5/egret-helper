@@ -6,9 +6,6 @@ export enum ProgressMsgType {
 export enum HttpMsgType {
 	Message, Error, Exit, Url
 }
-export interface ChildProcessExt extends cp.ChildProcess {
-	isDestroy?: boolean;
-}
 export type OutPutFun = ((progressMsgType: ProgressMsgType, msg: string) => void) | undefined
 export type HttpOutPutFun = ((httpMsgType: HttpMsgType, msg: string) => void) | undefined
 export enum LogLevel {
@@ -41,7 +38,8 @@ export enum Platform {
 }
 export enum OpenEgretServerType {
 	auto = "auto",
-	alert = "alert"
+	alert = "alert",
+	none = "none"
 }
 export enum EgretCompileType {
 	auto = "auto",

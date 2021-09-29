@@ -1,5 +1,6 @@
 
 import * as vscode from "vscode";
+import { Command } from "../common/Command";
 import Helper from "../common/Helper";
 import EgretTreeItem from "./EgretTreeItem";
 
@@ -31,7 +32,7 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
                     "重新编译项目(egret build命令)",
                     "build.svg",
                     {
-                        command: 'egret-helper.egretBuild',
+                        command: Command.EGRET_BUILD,
                         title: 'build'
                     }
                 ));
@@ -41,7 +42,7 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
                     "重新编译引擎(egret build -e命令)",
                     "builde.svg",
                     {
-                        command: 'egret-helper.egretBuildEngine',
+                        command: Command.EGRET_BUILD_ENGINE,
                         title: 'buildEngine'
                     }
                 ));
@@ -51,7 +52,7 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
                     `同步资源(${Helper.getEgretResPath()})到资源配置文件(${Helper.getDefaultResJsonPath()})中`,
                     "sync.svg",
                     {
-                        command: 'egret-helper.egretResSync',
+                        command: Command.EGRET_RES_SYNC,
                         title: 'sync'
                     }
                 ));
@@ -61,7 +62,7 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
                     "使用Egret Launcher发布项目",
                     "publish.svg",
                     {
-                        command: 'egret-helper.publishProject',
+                        command: Command.EGRET_PUBLISH_PROJECT,
                         title: 'publish'
                     }
                 ));
@@ -71,7 +72,7 @@ export default class EgretTreeProvider implements vscode.TreeDataProvider<EgretT
                     "重新启动Egret 调试服务器",
                     "reboot.svg",
                     {
-                        command: 'egret-helper.egretRestart',
+                        command: Command.EGRET_RESTART,
                         title: 'restart'
                     }
                 ));

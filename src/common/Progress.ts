@@ -1,11 +1,11 @@
 import * as cp from 'child_process';
 import * as treekill from "tree-kill";
-import { ChildProcessExt, OutPutFun, ProgressMsgType } from "../define";
+import { OutPutFun, ProgressMsgType } from "../define";
 import Helper from './Helper';
 import { getLogger, Logger } from './Logger';
 
 export default class Progress {
-    private _progress: ChildProcessExt | undefined;
+    private _progress: cp.ChildProcess | undefined;
     private outputFun: OutPutFun;
     private cmd: string | undefined;
     private logger: Logger;
@@ -24,9 +24,8 @@ export default class Progress {
         } else {
             this.logger.debug(`exec cmd: `, cmd)
         }
-        const progress: ChildProcessExt = cp.exec(cmd, execOption, (error, stdout, stderr) => {
+        const progress: cp.ChildProcess = cp.exec(cmd, execOption, (error, stdout, stderr) => {
             //这里只有进程彻底结束后才会回调
-            if (progress.isDestroy) return;
         });
         if (progress.stdout) {
             progress.stdout.on('data', this.getDataHandler);
@@ -40,18 +39,19 @@ export default class Progress {
     public get progress() {
         return this._progress;
     }
-    public async clear() {
+    public async clear(removeListener = true) {
         this.logger.debug(`clear cmd: ${this.cmd}`)
         if (this._progress) {
-            if (this._progress.stdout) {
-                this._progress.stdout.off('data', this.getDataHandler);
+            if (removeListener) {
+                if (this._progress.stdout) {
+                    this._progress.stdout.off('data', this.getDataHandler);
+                }
+                if (this._progress.stderr) {
+                    this._progress.stderr.off('data', this.getErrorHandler);
+                }
+                this._progress.off('exit', this.exitHandler);
             }
-            if (this._progress.stderr) {
-                this._progress.stderr.off('data', this.getErrorHandler);
-            }
-            this._progress.off('exit', this.exitHandler);
             const pid = <number>this._progress.pid;//先保留pid
-            this._progress.isDestroy = true;
             this._progress = undefined;//确保执行了就把进程信息删除掉 防止重复调用
             await this.killProgress(pid)
         }
@@ -71,6 +71,7 @@ export default class Progress {
         if (this.outputFun) this.outputFun(ProgressMsgType.Error, Helper.convertObjStr(err));
     }
     private exitHandler = (code: number) => {
+        this._progress = undefined;//防止重复调用
         if (this.outputFun) this.outputFun(ProgressMsgType.Exit, `${code}`);
     }
     private getDataHandler = (data: any) => {

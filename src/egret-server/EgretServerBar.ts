@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import Listener from '../common/Listener';
-import EgretController from './EgretController';
-import { EgretServiceExtStatus, EgretServiceStatus } from "../define";
-import { getLogger, Logger, showLog } from '../common/Logger';
 import { Command } from '../common/Command';
 import Helper from '../common/Helper';
+import Listener from '../common/Listener';
+import { getLogger, Logger } from '../common/Logger';
+import { EgretServiceExtStatus, EgretServiceStatus } from "../define";
+import EgretController from './EgretController';
 export default class EgretServerBar extends Listener {
     private statusBar: vscode.StatusBarItem;
     private reCompileBar: vscode.StatusBarItem;
@@ -14,35 +14,54 @@ export default class EgretServerBar extends Listener {
     public constructor(private controller: EgretController, protected subscriptions: vscode.Disposable[]) {
         super();
         this.logger = getLogger(this);
-        const barCommandId = 'egret-helper.showEgretMenu';
-        const pickItems = ["$(server) 编译", "$(debug) 编译调试", "$(refresh) 重启", `$(sync) 同步[${Helper.getConfigObj().egretResourceJsonPath}]`, `$(output) 显示日志窗口`];
-        const pickItemCmds = [Command.EGRET_BUILD, Command.EGRET_BUILD_DEBUG, Command.EGRET_RESTART, Command.EGRET_RES_SYNC, Command.EGRET_SHOW_LOG];
-        this.addListener(vscode.commands.registerCommand(barCommandId, () => {
-            this.logger.debug(`receive cmd: ${barCommandId}`)
-            vscode.window.showQuickPick(pickItems).then(result => {
-                this.logger.debug(`select cmd: ${result}`)
-                if (result) {
-                    let pickIndex = pickItems.indexOf(result);
-                    if (pickIndex != -1) vscode.commands.executeCommand(pickItemCmds[pickIndex]);
-                }
-            })
-        }));
+        const barCommandId = Command.SHOW_EGRET_MENU;
+
 
         this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         this.statusBar.command = barCommandId;
         this.statusBar.show();
         subscriptions.push(this.statusBar);
-        let menus = Helper.createMarkTxt();
-        for (let i = 0; i < pickItems.length; i++) {
-            menus.appendMarkdown(`[${pickItems[i]}](command:${pickItemCmds[i]})  \n`);
-        }
-        this.statusBar.tooltip = menus;
+
+        this.addListener(vscode.commands.registerCommand(barCommandId, () => {
+            const pickItems = this.getPickItems();
+            let menus = Helper.createMarkTxt();
+            for (let i = 0; i < pickItems.length; i++) {
+                menus.appendMarkdown(`[${pickItems[i].label}](command:${pickItems[i].cmd})  \n`);
+            }
+            this.statusBar.tooltip = menus;
+            this.logger.debug(`receive cmd: ${barCommandId}`)
+            vscode.window.showQuickPick(pickItems).then(result => {
+                this.logger.debug(`select cmd: ${result}`)
+                if (result && result.cmd) {
+                    vscode.commands.executeCommand(result.cmd);
+                }
+            })
+        }));
 
         this.reCompileBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
         this.reCompileBar.command = Command.EGRET_BUILD_DEBUG;
         subscriptions.push(this.reCompileBar);
 
         this.updateView();
+    }
+    private getPickItems() {
+        let items: { label: string, cmd: string }[] = [];
+        let debugServerIsRun = this.controller.service?.urlStr != null;
+        items.push({ label: "$(server) 编译", cmd: Command.EGRET_BUILD });
+        if (debugServerIsRun) {
+            items.push(
+                { label: "$(debug) 编译调试", cmd: Command.EGRET_BUILD_DEBUG },
+                { label: "$(refresh) 重启", cmd: Command.EGRET_RESTART },
+                { label: "$(notebook-delete-cell) 关闭", cmd: Command.EGRET_STOP }
+            );
+        } else {
+            items.push({ label: "$(notebook-execute) 启动", cmd: Command.EGRET_RESTART });
+        }
+        items.push(
+            { label: `$(sync) 同步[${Helper.getConfigObj().egretResourceJsonPath}]`, cmd: Command.EGRET_RES_SYNC },
+            { label: `$(output) 显示日志窗口`, cmd: Command.EGRET_SHOW_LOG }
+        );
+        return items;
     }
     public get status() {
         return this._status;

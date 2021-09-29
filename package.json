@@ -4,7 +4,7 @@
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
 	"version": "3.0.32",
 	"engines": {
-		"vscode": "^1.59.0"
+		"vscode": "^1.60.0"
 	},
 	"categories": [
 		"Debuggers",
@@ -71,6 +71,11 @@
 			{
 				"command": "egret-helper.showEgretMenu",
 				"title": "调出egret服务菜单",
+				"icon": "./images/icon.svg"
+			},
+			{
+				"command": "egret-helper.egretStop",
+				"title": "关闭Egret 调试服务器",
 				"icon": "./images/icon.svg"
 			}
 		],
@@ -182,11 +187,11 @@
 							"type": "bin"
 						},
 						".ttf": {
-							"tail": "_bin",
+							"tail": "_ttf",
 							"type": "bin"
 						},
 						".zip": {
-							"tail": "_bin",
+							"tail": "_zip",
 							"type": "bin"
 						}
 					},
@@ -197,11 +202,13 @@
 					"default": "auto",
 					"enum": [
 						"auto",
-						"alert"
+						"alert",
+						"none"
 					],
 					"enumDescriptions": [
 						"打开Egret项目时，自动开启Egret服务器",
-						"打开Egret项目时，弹框询问是否开启Egret服务器"
+						"打开Egret项目时，弹框询问是否开启Egret服务器",
+						"打开Egret项目时，什么都不做"
 					],
 					"description": "打开项目时怎么开启Egret服务器"
 				},
@@ -295,13 +302,13 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/jju": "^1.4.2",
-		"@types/node": "^16.4.13",
-		"@types/vscode": "^1.59.0",
+		"@types/node": "^16.9.1",
+		"@types/vscode": "^1.60.0",
 		"@typescript-eslint/eslint-plugin": "^4.29.0",
 		"@typescript-eslint/parser": "^4.29.0",
 		"eslint": "^7.32.0",
 		"typescript": "^4.4.3",
-		"vsce": "^1.87.1"
+		"vsce": "^1.99.0"
 	},
 	"dependencies": {
 		"jju": "^1.4.0",

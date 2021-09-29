@@ -6,6 +6,22 @@ import { ConfigObj, DebugBrowserType, EgretHostType, Platform } from "../define"
 import { showLog } from "./Logger";
 
 export default class Helper {
+	public static copyFile(source: string, dist: string) {
+		const distDirName = path.dirname(dist);
+		if (!fs.existsSync(distDirName)) {
+			fs.mkdirSync(distDirName);
+		}
+		let state = fs.statSync(source);
+		if (state.isDirectory()) {
+			let dirs = fs.readdirSync(source);
+			for (let i = 0; i < dirs.length; i++) {
+				Helper.copyFile(path.join(source, dirs[i]), path.join(dist, dirs[i]));
+			}
+		} else {
+			let buffer = fs.readFileSync(dist);
+			fs.writeFileSync(dist, buffer, { flag: "w" });
+		}
+	}
 	public static convertObjStr(msg: string | number | boolean | Error | unknown) {
 		if (typeof msg == "string") return msg;
 		else if (typeof msg == "number") return `${msg}`;

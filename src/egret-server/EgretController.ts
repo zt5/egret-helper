@@ -33,6 +33,10 @@ export default class EgretController extends Listener {
             this.logger.debug(`call ${Command.EGRET_RESTART}`);
             this._debugServer.start();
         }));
+        this.addListener(vscode.commands.registerCommand(Command.EGRET_STOP, () => {
+            this.logger.debug(`call ${Command.EGRET_STOP}`);
+            this._debugServer.shutdown();
+        }));
 
         this.addListener(vscode.commands.registerCommand(Command.EGRET_BUILD, () => {
             this.logger.debug(`call ${Command.EGRET_BUILD}`);
@@ -79,6 +83,8 @@ export default class EgretController extends Listener {
         switch (openEgretType) {
             case OpenEgretServerType.auto:
                 this._debugServer.start();
+                break;
+            case OpenEgretServerType.none:
                 break;
             case OpenEgretServerType.alert:
                 let menus = [{ title: "确定", v: "ok" }, { title: "取消", v: "cancel" }]

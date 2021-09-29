@@ -33,9 +33,10 @@ export default class EgretLeagueDebugServer extends EgretDebugServerImpl {
                 case ProgressMsgType.Exit:
                     this.host.controller.bar.status = EgretServiceStatus.Free;
                     this.logger.warn(`exit code: ${data}`);
+                    this._urlStr = undefined;
                     break;
             }
-        });
+        }, "binary");
     }
     private getEgretUrl(data: string): string {
         let urlMsg: string = "";

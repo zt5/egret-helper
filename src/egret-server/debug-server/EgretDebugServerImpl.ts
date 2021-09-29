@@ -5,7 +5,7 @@ import { EgretCompileType } from "../../define";
 import EgretDebugServer from "../EgretDebugServer";
 export default abstract class EgretDebugServerImpl {
     protected _compileType: EgretCompileType | undefined;
-    protected progress: Progress;
+    public readonly progress: Progress;
     protected _urlStr: string | undefined;
     protected logger: Logger;
     constructor(protected host: EgretDebugServer, compileType: EgretCompileType) {
@@ -16,8 +16,8 @@ export default abstract class EgretDebugServerImpl {
     //执行过程
     public abstract exec(folderString: string): Promise<void>;
     //清理方法
-    public async clear() {
-        await this.progress.clear()
+    public async clear(removeListener = true) {
+        await this.progress.clear(removeListener);
     }
     //服务器地址
     public get urlStr() {

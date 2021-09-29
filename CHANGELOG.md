@@ -3,6 +3,7 @@
 ### 修改
 - windows下未安装Egret Launcher错误乱码
 - 菜单tip添加选单
+- egret-helpr.openEgretServer 添加 none 配置 支持打开egret项目什么都不做
 - bug修复
 
 [3.0.31]: https://github.com/zt5/egret-helper/releases/tag/v3.0.32

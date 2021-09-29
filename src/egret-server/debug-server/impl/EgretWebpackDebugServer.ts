@@ -50,6 +50,7 @@ export default class EgretWebpackDebugServer extends EgretDebugServerImpl {
                     this.serverCanUse = false;
                     this.host.controller.bar.status = EgretServiceStatus.Free;
                     this.logger.warn(`exit code: ${data}`);
+                    this._urlStr = undefined;
                     break;
             }
         }, "binary");
