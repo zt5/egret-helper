@@ -2,7 +2,7 @@
 	"name": "egret-helper",
 	"displayName": "Egret Helper",
 	"description": "egret工具 支持调试，编译，管理资源，发布，创建",
-	"version": "3.0.32",
+	"version": "3.0.33",
 	"engines": {
 		"vscode": "^1.60.0"
 	},
@@ -193,6 +193,10 @@
 						".zip": {
 							"tail": "_zip",
 							"type": "bin"
+						},
+						".atlas": {
+							"tail": "_atlas",
+							"type": "text"
 						}
 					},
 					"description": "同步default.res.json的资源 对象的key值代表文件扩展名 tail属性：扩展名替换的尾巴(egret资源的名字) type：default.res.json中的type"
