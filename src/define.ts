@@ -56,7 +56,12 @@ export type LaunchJsonConfType = {
 	name: string;
 	url: string;
 	webRoot: string;
+	presentation: {
+		hidden: boolean;
+		group: string;
+	}
 }
+export const DebugNameHeader = "Egret Debug(";
 export enum DebugBrowserType {
 	chrome = "chrome",
 	edge = "edge",

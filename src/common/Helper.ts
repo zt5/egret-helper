@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
-import { ConfigObj, DebugBrowserType, EgretHostType, Platform } from "../define";
+import { ConfigObj, DebugBrowserType, DebugNameHeader, EgretHostType, Platform } from "../define";
 import { showLog } from "./Logger";
 
 export default class Helper {
@@ -139,7 +139,7 @@ export default class Helper {
 		return null;
 	}
 	public static getDebugName() {
-		return "Egret Debug(" + this.getDebugBrowser() + ")";
+		return DebugNameHeader + this.getDebugBrowser() + ")";
 	}
 	public static getLaunchJsonPath() {
 		return path.join(this.getCurRootPath(), ".vscode", "launch.json");
@@ -160,9 +160,9 @@ export default class Helper {
 		let conf = this.getConfigObj();
 		switch (conf.debugBrowser) {
 			case DebugBrowserType.chrome:
-				return "pwa-chrome";
+				return "chrome";
 			case DebugBrowserType.edge:
-				return "pwa-msedge";
+				return "msedge";
 		}
 		return null;
 	}

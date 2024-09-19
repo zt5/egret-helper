@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as jju from "jju";
 import * as vscode from "vscode";
-import { LaunchJsonConfType } from "../define";
+import { DebugNameHeader, LaunchJsonConfType } from "../define";
 import Helper from "./Helper";
 import Listener from "./Listener";
 import { getLogger, Logger } from "./Logger";
@@ -50,36 +50,33 @@ export default class EgretConfigImpl extends Listener {
                 }
             }
         }
-
-        this.logger.debug("changeLaunchJson seturl configurations：" + url);
-        if (finalConfs.length > 1) {
-            //先保存成一个 让vscode默认选中这个 之后在恢复之前的列表
-
-            let findItem = finalConfs.find(val => val.type == curType);
-            jsObj[CONF_KEY] = [findItem]
-            let output = jju.update(prevJsonStr, jsObj, jsobjParam)
-
-            this.logger.debug("changeLaunchJson temp save one configurations");
-
-            Helper.writeFile(launchPath, output);
-            await this.waitConfigSaveOk();
+        let debugGroupName = "egret-helper";
+        //设置选中项
+        for (let conf of finalConfs) {
+            let isZt5HelperConfig = false;
+            //处理旧版本
+            if (conf.name.indexOf(DebugNameHeader) == 0) {
+                isZt5HelperConfig = true;
+            }
+            //处理调试配置
+            if (conf.presentation) {
+                if (conf.presentation.group == debugGroupName) {
+                    isZt5HelperConfig = true;
+                }
+            }
+            if (isZt5HelperConfig) {
+                conf.presentation = {
+                    hidden: conf.type !== curType,
+                    group: debugGroupName,
+                }
+            }
         }
 
         this.logger.debug("changeLaunchJson save all configurations");
-
         jsObj[CONF_KEY] = finalConfs;
         let output = jju.update(prevJsonStr, jsObj, jsobjParam)
         await Helper.writeFile(launchPath, output);
         this.logger.debug("changeLaunchJson save all configurations ok");
-    }
-    private waitConfigSaveOk() {
-        return new Promise<void>((resolve, reject) => {
-            let dispose = vscode.workspace.onDidChangeConfiguration((e) => {
-                this.removeListener(dispose);
-                resolve();
-            });
-            this.addListener(dispose);
-        });
     }
     private getTemplate(url: string) {
         return `{
